@@ -150,22 +150,10 @@ nav.scrolled{border-color:var(--line)}
 .mcopy .k{color:var(--accent);letter-spacing:.2em}
 .mcopy p{font-family:var(--fd);font-size:clamp(19px,1.9vw,25px);font-weight:480;line-height:1.35;margin-top:12px}
 
-/* ---- ch2 · assembly ---- */
-.cabwrap{position:relative;display:flex;align-items:center;justify-content:center}
-#cab{width:min(72vh,80vw,700px);height:auto;aspect-ratio:1/1;display:block}
-
-/* ---- ch3 · the work ---- */
-.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0}
-.ph .frame{position:relative;width:min(78vw,1000px);height:min(72vh,640px);border-radius:18px;overflow:hidden;
+/* ---- the film (paper → drawing → real kitchen, frame-scrubbed) ---- */
+.filmstage{position:relative;width:min(76vh,86vw,780px);aspect-ratio:1/1;border-radius:18px;overflow:hidden;
   box-shadow:0 30px 90px rgba(30,27,23,.22);outline:1px solid color-mix(in srgb,var(--accent) 35%,transparent);outline-offset:-1px}
-.ph .plate,.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ph .plate{display:flex;align-items:center;justify-content:center;background:
-  linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--oak) 26%,var(--bg2)))}
-.ph .plate span{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
-.ph figcaption{position:absolute;left:50%;bottom:calc(50% - min(36vh,320px) - 58px);transform:translateX(-50%);
-  display:flex;align-items:center;gap:14px;white-space:nowrap}
-.ph figcaption i{display:block;width:34px;height:1px;background:var(--accent)}
-.ph figcaption span{font-size:14px;color:var(--muted)}
+#film{position:absolute;inset:0;width:100%;height:100%;display:block;background:var(--bg2)}
 
 /* ---- ch4 · the words ---- */
 .wd4{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;will-change:opacity}
@@ -313,10 +301,35 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
       <div class="hint" id="hint"><span class="mono">Scroll</span><span class="line"></span></div>
     </section>
 
-    <!-- ch1 · the drawing -->
+    <!-- ch1 · the film: paper → drawing → the real kitchen -->
     <section class="ch" id="ch1" aria-hidden="true">
-      <div class="bp">
-        <svg viewBox="0 0 1000 560" id="bpsvg" aria-hidden="true">
+      <div class="filmstage">
+        <canvas id="film" width="960" height="960" role="img" aria-label="A kitchen being designed on paper, then built for real — drawn and assembled as you scroll"></canvas>
+      </div>
+      <div class="mcopy" id="mc1">
+        <span class="mono k">01 — The drawing</span>
+        <p>Every job starts on paper.</p>
+      </div>
+      <div class="mcopy" id="mc2">
+        <span class="mono k">02 — The build</span>
+        <p>Then it gets built. Properly.</p>
+      </div>
+    </section>
+
+    <!-- ch4 · the words -->
+    <section class="ch" id="ch4" aria-hidden="true">
+      <div class="wd4" id="w40"><span>Design<b>.</b></span></div>
+      <div class="wd4" id="w41"><span>Build<b>.</b></span></div>
+      <div class="wd4" id="w42"><span>Fit<b>.</b></span></div>
+      <div class="wd4" id="w43"><span>Repair<b>.</b></span></div>
+      <div class="wd4 fin" id="w44"><span>…and <b>everything</b> in between.</span></div>
+    </section>
+
+    <!-- ch5 · release / standing hero -->
+    <section class="ch" id="ch5">
+      <div class="hero-bp" aria-hidden="true"><div class="bp">
+        <svg viewBox="0 0 1000 560" id="bpsvg">
+
           <g class="bp-grid" id="bpgrid"></g>
           <g id="bppaths">
             <path class="bp-path" d="M50 480 H950"/>
@@ -344,55 +357,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <text x="24" y="410" transform="rotate(-90 24 410)" text-anchor="middle">900</text>
           </g>
         </svg>
-        <div class="mcopy" id="mc1">
-          <span class="mono k">01 — The drawing</span>
-          <p>Every job starts on paper.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ch2 · the assembly -->
-    <section class="ch" id="ch2" aria-hidden="true">
-      <div class="cabwrap">
-        <canvas id="cab" width="960" height="960" role="img" aria-label="A kitchen cabinet assembling itself, piece by piece"></canvas>
-        <div class="mcopy" id="mc2">
-          <span class="mono k">02 — The build</span>
-          <p>Then it gets built. Properly.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ch3 · the work -->
-    <section class="ch" id="ch3" aria-hidden="true">
-      <figure class="ph" id="ph0">
-        <div class="frame"><div class="plate"><span>Project photography</span></div>
-          <img alt="" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1600&q=72"></div>
-        <figcaption><i></i><span>Full kitchen builds — design to final fit</span><i></i></figcaption>
-      </figure>
-      <figure class="ph" id="ph1">
-        <div class="frame"><div class="plate"><span>Project photography</span></div>
-          <img alt="" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1565538810643-b5bdb714032a?auto=format&fit=crop&w=1600&q=72"></div>
-        <figcaption><i></i><span>Precise installation — flush, level, lasting</span><i></i></figcaption>
-      </figure>
-      <figure class="ph" id="ph2">
-        <div class="frame"><div class="plate"><span>Project photography</span></div>
-          <img alt="" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&w=1600&q=72"></div>
-        <figcaption><i></i><span>Repairs &amp; refits — back to better than new</span><i></i></figcaption>
-      </figure>
-    </section>
-
-    <!-- ch4 · the words -->
-    <section class="ch" id="ch4" aria-hidden="true">
-      <div class="wd4" id="w40"><span>Design<b>.</b></span></div>
-      <div class="wd4" id="w41"><span>Build<b>.</b></span></div>
-      <div class="wd4" id="w42"><span>Fit<b>.</b></span></div>
-      <div class="wd4" id="w43"><span>Repair<b>.</b></span></div>
-      <div class="wd4 fin" id="w44"><span>…and <b>everything</b> in between.</span></div>
-    </section>
-
-    <!-- ch5 · release / standing hero -->
-    <section class="ch" id="ch5">
-      <div class="hero-bp" aria-hidden="true"></div>
+      </div></div>
       <div class="inner"><div class="wrap">
         <span class="eyebrow mono"><i></i>Crafted Ideas Ltd — South London</span>
         <h1>Kitchens, built <span class="em">properly</span>.</h1>
@@ -412,7 +377,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <div class="chrail" aria-hidden="true">
       <span class="n" id="chno">00</span>
       <div class="bar"><i id="chfill"></i></div>
-      <span class="n">05</span>
+      <span class="n">03</span>
     </div>
   </div>
 </header>
@@ -573,12 +538,6 @@ document.querySelectorAll('img[data-src]').forEach(function(im){
   for(i=50;i<1000;i+=50){l=document.createElementNS(ns,'line');l.setAttribute('x1',i);l.setAttribute('y1',20);l.setAttribute('x2',i);l.setAttribute('y2',540);g.appendChild(l);}
   for(i=40;i<560;i+=50){l=document.createElementNS(ns,'line');l.setAttribute('x1',20);l.setAttribute('y1',i);l.setAttribute('x2',980);l.setAttribute('y2',i);g.appendChild(l);}
 })();
-/* static hero blueprint flourish (mobile / reduced motion): clone the svg at low opacity */
-(function(){
-  var host=document.querySelector('#ch5 .hero-bp'),src=document.getElementById('bpsvg');
-  if(host&&src){var w=document.createElement('div');w.className='bp';
-    var c=src.cloneNode(true);c.removeAttribute('id');w.appendChild(c);host.appendChild(w);}
-})();
 </script>
 
 <script type="module">
@@ -589,78 +548,50 @@ import Lenis from '/vendor/lenis.mjs';
 const root=document.documentElement;
 const css=k=>getComputedStyle(root).getPropertyValue(k).trim();
 
-/* ---------- cabinet renderer (shared: fx scrub + static fallback frame) ---------- */
-const cab=document.getElementById('cab');
-const cabCtx=cab?cab.getContext('2d'):null;
+/* ---------- the film: 50-frame scrubbed sequence (paper → drawing → real kitchen) ---------- */
+const film=document.getElementById('film');
+const fctx=film?film.getContext('2d'):null;
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
 const easeOut=t=>1-Math.pow(1-t,3);
-const easeBack=t=>{const c=1.35;return 1+ (c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2);};
 const bell=(t,inW=.25,outW=.25)=>t<inW?easeOut(t/inW):t>1-outW?easeOut((1-t)/outW):1;
-
-function drawCab(t){
-  if(!cabCtx)return;
-  const W=cab.width,H=cab.height,ctx=cabCtx;
-  ctx.clearRect(0,0,W,H);
-  const k=Math.cos(Math.PI/6),m=Math.sin(Math.PI/6),s=2.15,cx=W/2-90,cy=H*0.56;
-  const P=(x,y,z)=>[cx+(x-y)*k*s, cy+(x+y)*m*s - z*s];
-  const shade=(hex,f)=>{ /* lighten (f>0) / darken (f<0) a #rrggbb */
-    const n=parseInt(hex.slice(1),16);let r=n>>16,g=(n>>8)&255,b=n&255;
-    const t2=f<0?0:255,a=Math.abs(f);
-    r=Math.round(r+(t2-r)*a);g=Math.round(g+(t2-g)*a);b=Math.round(b+(t2-b)*a);
-    return `rgb(${r},${g},${b})`;};
-  const OAK=css('--oak')||'#C9A97C', INK='#2A251F', CARC='#B99B72';
-  const face=(pts,fill,alpha)=>{ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));
-    ctx.closePath();ctx.globalAlpha=alpha;ctx.fillStyle=fill;ctx.fill();
-    ctx.globalAlpha=alpha*.55;ctx.strokeStyle=INK;ctx.lineWidth=1.1;ctx.stroke();ctx.globalAlpha=1;};
-  /* draw an axis-aligned box with entry offset */
-  const box=(x0,x1,y0,y1,z0,z1,base,u,ex,ey,ez)=>{
-    if(u<=0)return;const e=easeBack(u),o=1-e;
-    const dx=ex*o,dy=ey*o,dz=ez*o,al=clamp(u*2.4,0,1);
-    const c=(x,y,z)=>P(x+dx,y+dy,z+dz);
-    face([c(x0,y0,z1),c(x1,y0,z1),c(x1,y1,z1),c(x0,y1,z1)],shade(base,.28),al);   /* top (z1) */
-    face([c(x0,y0,z0),c(x0,y1,z0),c(x0,y1,z1),c(x0,y0,z1)],shade(base,-.22),al);  /* left face (x0) */
-    face([c(x0,y0,z0),c(x1,y0,z0),c(x1,y0,z1),c(x0,y0,z1)],base,al);              /* front face (y0) */
-  };
-  /* floor shadow */
-  const sh=clamp(t*1.4,0,1);
-  ctx.save();const [sx,sy]=P(100,45,0);
-  ctx.translate(sx,sy+26);ctx.scale(1.6,.5);
-  ctx.beginPath();ctx.arc(0,0,150*sh+40,0,7);
-  ctx.fillStyle=`rgba(30,27,23,${.10*sh})`;ctx.fill();ctx.restore();
-  /* parts: [x0,x1,y0,y1,z0,z1,color, tA,tB, ex,ey,ez] — array order = painter order (back → front) */
-  const parts=[
-    [4,196,4,86,0,10,  '#8F7A5F', .00,.15,   0,0,-90],      /* plinth — rises from floor */
-    [18,182,82,90,18,140,'#AA906B',.20,.36,  0,0,190],      /* back panel — drops in */
-    [0,200,0,90,10,18, CARC,      .08,.26, -260,0,0],       /* carcass base — slides from left */
-    [18,182,8,82,74,82,CARC,      .44,.58,  220,0,0],       /* shelf — slides in, tucks behind the side */
-    [0,18,0,90,18,140, CARC,      .28,.42, -240,0,0],       /* left side */
-    [182,200,0,90,18,140,CARC,    .32,.46,  240,0,0],       /* right side */
-    [-10,210,-6,96,140,152,'#E8E2D6',.76,.94, 0,0,210],     /* worktop — lands last, drawn behind doors */
-    [18,98,0,8,18,140, '#DBBE92', .54,.70, -120,-170,0],    /* left door — from front-left */
-    [102,182,0,8,18,140,'#DBBE92',.60,.76,  120,-170,0],    /* right door — from front-right */
-  ];
-  parts.forEach(p=>box(p[0],p[1],p[2],p[3],p[4],p[5],p[6],seg(t,p[7],p[8]),p[9],p[10],p[11]));
-  /* shaker inset panels on the doors (follow each door's flight path) */
-  const inset=(x0,x1,z0,z1,u,ex,ey,ez)=>{
-    if(u<=0)return;const e=easeBack(u),o=1-e,dx=ex*o,dy=ey*o,dz=ez*o,al=clamp(u*2.4,0,1);
-    const c=(x,z)=>P(x+dx,dy,z+dz);
-    const pts=[c(x0+11,z0+11),c(x1-11,z0+11),c(x1-11,z1-11),c(x0+11,z1-11)];
-    ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();
-    ctx.globalAlpha=al*.9;ctx.fillStyle=shade('#DBBE92',-.055);ctx.fill();
-    ctx.globalAlpha=al*.5;ctx.strokeStyle=INK;ctx.lineWidth=1;ctx.stroke();ctx.globalAlpha=1;
-  };
-  inset(18,98,18,140, seg(t,.54,.70), -120,-170,0);
-  inset(102,182,18,140, seg(t,.60,.76), 120,-170,0);
-  /* brass handles at the very end */
-  const hu=seg(t,.9,1);
-  if(hu>0){ctx.globalAlpha=hu;ctx.strokeStyle=css('--accent')||'#A87B3F';ctx.lineWidth=4.5;ctx.lineCap='round';
-    const h=(x)=>{const a=P(x,0,120),b=P(x,0,92);ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();};
-    h(90);h(110);ctx.globalAlpha=1;}
-}
-window.__drawCab=drawCab;
+const FN=50;
+const fsrc=i=>'media/seq/'+String(i+1).padStart(2,'0')+'.jpg';
+const fimgs=new Array(FN), fready=new Array(FN).fill(false);
+let fdrawn=-1;
+const fnearest=i=>{
+  if(fready[i])return i;
+  for(let d=1;d<FN;d++){
+    if(i-d>=0&&fready[i-d])return i-d;
+    if(i+d<FN&&fready[i+d])return i+d;
+  }
+  return -1;
+};
+/* paint fractional frame f: base frame + next frame alpha-blended for a smooth scrub */
+const paintFilm=(f,force)=>{
+  if(!fctx)return;
+  const i0=clamp(Math.floor(f),0,FN-1), frac=f-i0, i1=Math.min(FN-1,i0+1);
+  const j=fnearest(i0); if(j<0)return;
+  const key=j*100+(fready[i1]?Math.round(frac*8):0);
+  if(key===fdrawn&&!force)return;
+  fctx.drawImage(fimgs[j],0,0,film.width,film.height);
+  if(j===i0&&i1!==i0&&fready[i1]&&frac>0){
+    fctx.globalAlpha=frac;fctx.drawImage(fimgs[i1],0,0,film.width,film.height);fctx.globalAlpha=1;
+  }
+  fdrawn=key;
+};
+let fwant=0;
+const fload=i=>{
+  if(fimgs[i])return;
+  const im=new Image();im.decoding='async';
+  im.onload=()=>{fready[i]=true;if(Math.abs(i-Math.floor(fwant))<=1||fdrawn<0)paintFilm(fwant,true);};
+  im.src=fsrc(i);fimgs[i]=im;
+};
 const fxDesktop=root.classList.contains('fx')&&matchMedia('(min-width:761px)').matches;
-drawCab(fxDesktop?0:1);  /* resting frame: assembled for static contexts, empty for the journey */
+if(fxDesktop&&film){
+  fload(0);fload(FN-1);
+  setTimeout(()=>{for(let i=1;i<FN-1;i++)fload(i);},600);
+}
 
 if(root.classList.contains('fx')){
   try{
@@ -728,20 +659,17 @@ if(root.classList.contains('fx')){
     if(fxDesktop){
       const jwrap=document.querySelector('.jwrap');
       const $=id=>document.getElementById(id);
-      const ch=[0,1,2,3,4,5].map(i=>$('ch'+i));
+      const ch0=$('ch0'),ch1=$('ch1'),ch4=$('ch4'),ch5=$('ch5');
       const lts1=[...document.querySelectorAll('#wm1 .lt')],lts2=[...document.querySelectorAll('#wm2 .lt')];
       const seam=$('seam'),tag0=$('tag0'),hint=$('hint'),mc1=$('mc1'),mc2=$('mc2');
-      const dims=$('bpdims'),chno=$('chno'),chfill=$('chfill');
-      const phs=[$('ph0'),$('ph1'),$('ph2')];
+      const chno=$('chno'),chfill=$('chfill');
       const wds=[$('w40'),$('w41'),$('w42'),$('w43'),$('w44')];
-      const paths=[...document.querySelectorAll('#bppaths path')].map(p=>{
-        const L=p.getTotalLength();p.style.strokeDasharray=L;p.style.strokeDashoffset=L;return[p,L];});
       const st=(el,o)=>{for(const k in o)el.style[k]=o[k];};
 
-      /* photo windows inside ch3 */
-      const PH=[[.560,.640],[.632,.712],[.704,.784]];
-      /* word beats inside ch4 */
+      /* word beats inside the closing chapter */
       const WD=[[.790,.828],[.822,.860],[.854,.892],[.886,.924],[.918,.966]];
+      /* the film owns p .105 → .715 of the pin */
+      const F0=.105,F1=.715;
 
       let pinTop=0,pinDur=1,intro=0;
       const measure=()=>{pinTop=jwrap.offsetTop;pinDur=Math.max(1,jwrap.offsetHeight-innerHeight);};
@@ -751,14 +679,14 @@ if(root.classList.contains('fx')){
 
         /* rail */
         chfill.style.transform='scaleY('+p+')';
-        const BOUND=[.085,.30,.585,.78,.955];
-        let cn=0;while(cn<5&&p>BOUND[cn])cn++;
+        const BOUND=[.085,.755,.955];
+        let cn=0;while(cn<3&&p>BOUND[cn])cn++;
         chno.textContent='0'+cn;
 
         /* ---- ch0 · arrival (auto-plays on load via `intro`, then owned by scroll) ---- */
         {
           const tin=Math.max(easeOut(seg(p,0,.05)),easeOut(intro)),tout=seg(p,.085,.115);
-          st(ch[0],{opacity:String(1-tout),visibility:tout>=1?'hidden':'visible'});
+          st(ch0,{opacity:String(1-tout),visibility:tout>=1?'hidden':'visible'});
           lts1.forEach((el,i)=>{const d=+el.dataset.d,off=(1-tin)*(70+i*26)*d;
             st(el,{transform:`translateX(${off}px)`,opacity:String(clamp(tin*1.6,0,1))});});
           lts2.forEach((el,i)=>{const d=+el.dataset.d,off=(1-tin)*(70+i*34)*d;
@@ -769,46 +697,27 @@ if(root.classList.contains('fx')){
           st(tag0,{opacity:String(tt),transform:`translateY(${(1-tt)*14}px)`});
           st(hint,{opacity:String(Math.min(1-seg(p,.02,.05),easeOut(seg(intro,.75,1))))});
           const drift=easeOut(tout);
-          ch[0].firstElementChild&&st(ch[0].querySelector('.wm'),{transform:`translateY(${-drift*7}vh) scale(${1-drift*.03})`});
+          st(ch0.querySelector('.wm'),{transform:`translateY(${-drift*7}vh) scale(${1-drift*.03})`});
         }
-        /* ---- ch1 · blueprint ---- */
+        /* ---- ch1 · the film ---- */
         {
-          const tin=easeOut(seg(p,.075,.105)),tout=easeOut(seg(p,.272,.302));
-          st(ch[1],{opacity:String(Math.min(tin,1-tout)),visibility:(p<.06||p>.31)?'hidden':'visible',
-            transform:`translateY(${(1-tin)*5-tout*5}vh)`});
-          const n=paths.length;
-          paths.forEach(([el,L],i)=>{
-            const a=.10+ (i/n)*.13, b=a+.045;
-            el.style.strokeDashoffset=String(L*(1-easeOut(seg(p,a,b))));
-          });
-          st(dims,{opacity:String(easeOut(seg(p,.215,.26)))});
-          const m1=Math.min(easeOut(seg(p,.115,.15)),1-tout);
+          const tin=easeOut(seg(p,.075,.105)),tout=easeOut(seg(p,.72,.755));
+          st(ch1,{opacity:String(Math.min(tin,1-tout)),visibility:(p<.06||p>.78)?'hidden':'visible',
+            transform:`translateY(${(1-tin)*5-tout*3}vh)`});
+          if(p>=.05&&p<=.80){
+            const t=seg(p,F0,F1);
+            fwant=t*(FN-1);
+            paintFilm(fwant);
+          }
+          const m1=Math.min(easeOut(seg(p,.115,.15)),1-easeOut(seg(p,.36,.40)));
           st(mc1,{opacity:String(m1),transform:`translateY(${(1-m1)*16}px)`});
-        }
-        /* ---- ch2 · assembly ---- */
-        {
-          const tin=easeOut(seg(p,.285,.315)),tout=easeOut(seg(p,.552,.585));
-          st(ch[2],{opacity:String(Math.min(tin,1-tout)),visibility:(p<.27||p>.60)?'hidden':'visible'});
-          if(p>=.26&&p<=.62)drawCab(seg(p,.305,.545));
-          const m2=Math.min(easeOut(seg(p,.325,.36)),1-tout);
+          const m2=Math.min(easeOut(seg(p,.42,.46)),1-tout);
           st(mc2,{opacity:String(m2),transform:`translateY(${(1-m2)*16}px)`});
-        }
-        /* ---- ch3 · the work ---- */
-        {
-          const vis=p>.545&&p<.80;
-          st(ch[3],{opacity:vis?'1':'0',visibility:vis?'visible':'hidden'});
-          phs.forEach((ph,i)=>{
-            const [a,b]=PH[i],t=seg(p,a,b);
-            const o=bell(t,.22,.22);
-            st(ph,{opacity:String(o)});
-            const f=ph.querySelector('.frame');
-            st(f,{transform:`scale(${1.055-easeOut(t)*.055}) translateY(${(1-easeOut(t))*10}px)`});
-          });
         }
         /* ---- ch4 · the words ---- */
         {
           const vis=p>.775&&p<.972;
-          st(ch[4],{opacity:vis?'1':'0',visibility:vis?'visible':'hidden'});
+          st(ch4,{opacity:vis?'1':'0',visibility:vis?'visible':'hidden'});
           wds.forEach((w,i)=>{
             const [a,b]=WD[i],t=seg(p,a,b);
             const o=i===4?Math.min(easeOut(seg(t,0,.4)),1-easeOut(seg(t,.8,1))):bell(t,.3,.3);
@@ -821,8 +730,8 @@ if(root.classList.contains('fx')){
         /* ---- ch5 · release ---- */
         {
           const tin=easeOut(seg(p,.958,.995));
-          st(ch[5],{opacity:String(tin),visibility:p>.94?'visible':'hidden',pointerEvents:tin>.5?'auto':'none'});
-          const w=ch[5].querySelector('.wrap');
+          st(ch5,{opacity:String(tin),visibility:p>.94?'visible':'hidden',pointerEvents:tin>.5?'auto':'none'});
+          const w=ch5.querySelector('.wrap');
           st(w,{transform:`translateY(${(1-tin)*26}px)`});
         }
       };
@@ -844,7 +753,6 @@ if(root.classList.contains('fx')){
     console.error('[fx] journey setup failed — revealing all content',e);
     root.classList.remove('fx');
     try{clearTimeout(window.__fxTimer);}catch(_){}
-    drawCab(1);
   }
 }
 </script>

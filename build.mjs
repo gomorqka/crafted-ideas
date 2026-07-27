@@ -1,5 +1,5 @@
 // Assemble the static site into dist/ — vendor assets come from npm at build time.
-import { mkdirSync, copyFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, copyFileSync, writeFileSync, cpSync } from 'node:fs';
 
 mkdirSync('dist/vendor', { recursive: true });
 
@@ -14,6 +14,7 @@ const vendor = {
 };
 for (const [src, out] of Object.entries(vendor)) copyFileSync(src, `dist/vendor/${out}`);
 
+cpSync('media/seq', 'dist/media/seq', { recursive: true });
 console.log('build ok → dist/');
 
 // binary assets shipped as base64 text so the deploy payload stays plain-text
