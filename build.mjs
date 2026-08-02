@@ -1,10 +1,12 @@
 // Assemble the static site into dist/ — vendor assets come from npm at build time.
 import { mkdirSync, copyFileSync, writeFileSync, cpSync, readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { AREAS, SITE, renderArea } from './areas.mjs';
 
 mkdirSync('dist/vendor', { recursive: true });
 
-const statics = ['index.html', 'favicon.svg', 'robots.txt', 'sitemap.xml'];
+// sitemap.xml is generated below from the real page list, so it is not copied
+const statics = ['index.html', 'favicon.svg', 'robots.txt'];
 for (const f of statics) copyFileSync(f, `dist/${f}`);
 
 const vendor = {
@@ -18,6 +20,22 @@ for (const [src, out] of Object.entries(vendor)) copyFileSync(src, `dist/vendor/
 cpSync('media/seq', 'dist/media/seq', { recursive: true });
 // real project photography, once it exists — see README "Adding real photography"
 if (existsSync('media/work')) cpSync('media/work', 'dist/media/work', { recursive: true });
+
+// ---- service-area landing pages -------------------------------------------
+for (const area of AREAS) {
+  mkdirSync(`dist/kitchens/${area.slug}`, { recursive: true });
+  writeFileSync(`dist/kitchens/${area.slug}/index.html`, renderArea(area, AREAS));
+}
+console.log(`areas ok — ${AREAS.length} pages under /kitchens/`);
+
+// ---- sitemap, generated so it can never drift from what actually shipped ----
+const urls = [`${SITE}/`, ...AREAS.map(a => `${SITE}/kitchens/${a.slug}/`)];
+writeFileSync('dist/sitemap.xml',
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+  urls.map(u => `  <url><loc>${u}</loc></url>`).join('\n') +
+  `\n</urlset>\n`);
+console.log(`sitemap ok — ${urls.length} urls`);
+
 console.log('build ok → dist/');
 
 // binary assets shipped as base64 text so the deploy payload stays plain-text
@@ -46,3 +64,23 @@ if (missing.length) {
   process.exit(1);
 }
 console.log(`csp ok — ${hashes.length} inline script hashes match vercel.json`);
+
+// ---- the homepage footer must list exactly the areas we actually generate ----
+// Orphaned area pages get crawled but rank poorly; footer links to pages that don't exist are 404s.
+const linked = [...html.matchAll(/href="\/kitchens\/([a-z0-9-]+)\/"/g)].map(m => m[1]);
+const slugs = AREAS.map(a => a.slug);
+const orphaned = slugs.filter(s => !linked.includes(s));
+const dangling = linked.filter(s => !slugs.includes(s));
+if (orphaned.length || dangling.length) {
+  console.error('\n✗ Footer area links are out of step with areas.mjs.');
+  if (orphaned.length) console.error(`  Generated but not linked from index.html: ${orphaned.join(', ')}`);
+  if (dangling.length) console.error(`  Linked from index.html but not generated (would 404): ${dangling.join(', ')}`);
+  process.exit(1);
+}
+console.log(`links ok — all ${slugs.length} area pages linked from the homepage`);
+
+// ---- reminders, not failures: the site should still build and deploy with these outstanding
+if (html.includes('WEB3FORMS_ACCESS_KEY')) {
+  console.warn('⚠  quote form is not connected — replace WEB3FORMS_ACCESS_KEY in index.html.');
+  console.warn('   Until then the form declines to submit and points people at email instead.');
+}

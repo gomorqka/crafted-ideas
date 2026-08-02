@@ -269,19 +269,49 @@ section.pg.alt{background:var(--bg2)}
 .proc h3{font-family:var(--fd);font-size:19px;font-weight:580;margin-bottom:6px}
 .proc p{color:var(--muted);font-size:14.5px;line-height:1.55}
 .proc .stepno{color:var(--accent-ink);display:block;margin-bottom:8px}
+/* ---------- before / after ---------- */
+.bawrap{margin-top:52px}
+.ba{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;
+  outline:1px solid var(--line);outline-offset:-1px;background:var(--bg2)}
+@media (max-width:600px){.ba{aspect-ratio:4/3}}
+.ba .side{position:absolute;inset:0}
+.ba .side img,.ba .side .plate{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* the "after" layer is revealed left-to-right by the slider */
+.ba .after{clip-path:inset(0 calc(100% - var(--sp,50%)) 0 0)}
+/* both layers sit at the same coordinates, so two centred captions would collide into mush.
+   The Before/After chips already say which is which. */
+.ba .plate span{display:none}
+.ba .tagx{position:absolute;top:16px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--ink);background:var(--bg);padding:6px 12px;border-radius:99px;
+  border:1px solid var(--line);z-index:6;pointer-events:none} /* above the handle, but never blocks the drag */
+.ba .tagx.l{left:16px}.ba .tagx.r{right:16px}
+.ba .handle{position:absolute;top:0;bottom:0;left:var(--sp,50%);width:2px;background:var(--bg);z-index:4;
+  transform:translateX(-1px);box-shadow:0 0 0 1px rgba(30,27,23,.28)}
+.ba .handle::after{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%);
+  border-radius:50%;background:var(--bg);border:1px solid var(--edge);box-shadow:0 6px 20px rgba(30,27,23,.22);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='12'%3E%3Cpath d='M8 1L2 6l6 5M14 1l6 5-6 5' fill='none' stroke='%231E1B17' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:center}
+/* a real range input drives it: pointer drag, arrow keys, Home/End and AT support come free */
+.ba input[type=range]{position:absolute;inset:0;width:100%;height:100%;z-index:5;margin:0;
+  appearance:none;background:transparent;cursor:ew-resize}
+.ba input[type=range]::-webkit-slider-thumb{appearance:none;width:52px;height:100%;cursor:ew-resize}
+.ba input[type=range]::-moz-range-thumb{width:52px;height:100%;border:0;background:transparent;cursor:ew-resize}
+.ba input[type=range]:focus-visible{outline:2px solid var(--accent-ink);outline-offset:-4px;border-radius:18px}
+.banote{margin-top:16px;color:var(--muted);font-size:14px}
 /* work */
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
 @media (max-width:900px){.tiles{grid-template-columns:1fr 1fr}}
 @media (max-width:600px){.tiles{grid-template-columns:1fr}}
 .tile{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/3.1;background:var(--bg2);outline:1px solid var(--line);outline-offset:-1px}
 .tile img,.tile .plate{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ease)}
-/* drawing-paper placeholder — reads as intentional, and swaps out for a photo one line at a time */
-.tile .plate{display:flex;align-items:center;justify-content:center;
+/* drawing-paper placeholder — reads as intentional, and swaps out for a photo one line at a time.
+   Standalone class, so the before/after wipe gets the same treatment for free. */
+.plate{display:flex;align-items:center;justify-content:center;
   background:
     repeating-linear-gradient(0deg,transparent 0 23px,color-mix(in srgb,var(--ink) 6%,transparent) 23px 24px),
     repeating-linear-gradient(90deg,transparent 0 23px,color-mix(in srgb,var(--ink) 6%,transparent) 23px 24px),
     linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--oak) 22%,var(--bg2)))}
-.tile .plate span{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+.plate span{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:99px;border:1px solid var(--line)}
 .tile:hover img{transform:scale(1.05)}
 .tile figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 14px;font-size:13px;color:#fff;
@@ -301,10 +331,48 @@ section.pg.alt{background:var(--bg2)}
 #contact .big{max-width:16ch}
 .ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:44px}
 .cnote{margin-top:30px;color:var(--muted);font-size:14px}
+/* ---------- quote form ---------- */
+.qform{margin-top:48px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:clamp(24px,3.4vw,40px)}
+.qtitle{font-size:23px;font-weight:560;margin-bottom:6px}
+.qlede{color:var(--muted);font-size:14.5px;margin-bottom:26px}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media (max-width:640px){.qgrid{grid-template-columns:1fr}}
+.fld{display:flex;flex-direction:column;gap:7px}
+.fld.wide{grid-column:1/-1}
+.fld label{font-size:14px;font-weight:560}
+.fld .req{color:var(--accent-ink)}
+.fld .hint{font-size:13px;color:var(--muted)}
+.fld input,.fld select,.fld textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);
+  border:1px solid var(--edge);border-radius:12px;padding:13px 14px;min-height:48px;width:100%;
+  transition:border-color .2s,box-shadow .2s}
+.fld textarea{min-height:120px;resize:vertical;line-height:1.55}
+.fld select{appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2370695F' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 16px center;padding-right:42px}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--accent-ink);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent);outline:none}
+.fld [aria-invalid="true"]{border-color:#9B2C1E}
+.fld .err{font-size:13px;color:#9B2C1E;min-height:0}
+.qhp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.qfoot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:26px}
+.qform button[type=submit]{border:0;cursor:pointer;font-family:inherit}
+.qform button[disabled]{opacity:.55;cursor:progress}
+.qstatus{font-size:14.5px;line-height:1.5}
+.qstatus:empty{display:none}
+.qstatus.ok{color:var(--ink)}
+.qstatus.bad{color:#9B2C1E}
+.qsmall{margin-top:18px;font-size:13px;color:var(--muted)}
 .caddr{margin-top:56px;padding-top:26px;border-top:1px solid var(--line);display:flex;gap:34px;flex-wrap:wrap}
 /* footer */
 footer{border-top:1px solid var(--line);padding:44px 0 60px;color:var(--muted);font-size:13.5px}
 footer .frow{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:baseline}
+footer .freg{margin-top:10px}
+.fareas{padding-bottom:34px;margin-bottom:30px;border-bottom:1px solid var(--line)}
+.fareas .falabel{display:block;margin-bottom:14px}
+.arealist{list-style:none;display:flex;flex-wrap:wrap;gap:10px}
+.arealist a{display:inline-flex;align-items:center;min-height:40px;padding:8px 15px;font-size:14px;
+  border:1px solid var(--line);border-radius:99px;color:var(--muted);transition:border-color .3s,color .3s}
+.arealist a:hover{border-color:var(--accent);color:var(--ink)}
 footer .fb{font-family:var(--fd);font-weight:600;font-size:18px;color:var(--ink)}
 footer .fb .dot{color:var(--accent)}
 footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
@@ -500,6 +568,27 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
   <div class="wrap">
     <span class="tag mono rise"><i></i>The work</span>
     <h2 class="big rise" id="wrkH">Built to be looked at closely.</h2>
+    <!-- BEFORE / AFTER: swap each .plate for an <img> exactly as with the tiles below.
+         The pair must be shot from the same spot — same corner, same lens, same height —
+         or the wipe reads as two different rooms instead of one room transformed. -->
+    <figure class="bawrap rise">
+      <div class="ba" id="ba">
+        <div class="side before">
+          <div class="plate"><span>Before — photography soon</span></div>
+        </div>
+        <div class="side after" id="ba-after">
+          <div class="plate"><span>After — photography soon</span></div>
+        </div>
+        <span class="tagx l" aria-hidden="true">Before</span>
+        <span class="tagx r" aria-hidden="true">After</span>
+        <span class="handle" id="ba-handle" aria-hidden="true"></span>
+        <input type="range" id="ba-range" min="0" max="100" value="50" step="1"
+               aria-label="Reveal the finished kitchen — drag, or use the arrow keys">
+      </div>
+      <!-- Once the real pair is in, cut the first sentence of this caption. -->
+      <figcaption class="banote">A before-and-after pair goes here — photography soon. Drag the handle to wipe between the two, or use the arrow keys.</figcaption>
+    </figure>
+
     <!-- TO ADD A REAL PHOTO: drop the file in media/work/, then in that tile replace
              <div class="plate"><span>Photography soon</span></div>
          with
@@ -561,6 +650,72 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
       <a class="btn sec" href="#services">What we do</a>
     </div>
     <p class="cnote rise">Email reaches us today. Direct phone and WhatsApp land here shortly.</p>
+
+    <!-- Quote form → Web3Forms. Replace WEB3FORMS_ACCESS_KEY below with the real key from
+         web3forms.com (free, no account dashboard needed — the key is bound to the destination
+         inbox). It is a PUBLIC key by design; it authorises delivery to one address and nothing
+         else. Until it is replaced, the form refuses to submit and offers the mailto instead. -->
+    <form class="qform rise" id="qform" action="https://api.web3forms.com/submit" method="POST"
+          aria-labelledby="qformH" novalidate>
+      <h3 id="qformH" class="serif qtitle">Or tell us here</h3>
+      <p class="qlede">We'll come back to you within a working day.</p>
+
+      <input type="hidden" name="access_key" value="WEB3FORMS_ACCESS_KEY">
+      <input type="hidden" name="subject" value="New kitchen enquiry — craftedideas.co">
+      <input type="hidden" name="from_name" value="craftedideas.co">
+      <input type="hidden" name="redirect" value="https://craftedideas.co/#contact">
+      <label class="qhp" aria-hidden="true" tabindex="-1">Leave this empty<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"></label>
+
+      <div class="qgrid">
+        <div class="fld">
+          <label for="q-name">Your name <span class="req" aria-hidden="true">*</span></label>
+          <input id="q-name" name="name" type="text" required autocomplete="name"
+                 aria-describedby="q-name-err"><span class="err" id="q-name-err"></span>
+        </div>
+        <div class="fld">
+          <label for="q-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+          <input id="q-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel"
+                 aria-describedby="q-phone-err"><span class="err" id="q-phone-err"></span>
+        </div>
+        <div class="fld">
+          <label for="q-email">Email</label>
+          <input id="q-email" name="email" type="email" autocomplete="email" inputmode="email"
+                 aria-describedby="q-email-hint q-email-err">
+          <span class="hint" id="q-email-hint">Optional — we'll call unless you'd rather we wrote.</span>
+          <span class="err" id="q-email-err"></span>
+        </div>
+        <div class="fld">
+          <label for="q-postcode">Postcode <span class="req" aria-hidden="true">*</span></label>
+          <input id="q-postcode" name="postcode" type="text" required autocomplete="postal-code"
+                 aria-describedby="q-postcode-hint q-postcode-err">
+          <span class="hint" id="q-postcode-hint">So we know if you're in our patch.</span>
+          <span class="err" id="q-postcode-err"></span>
+        </div>
+        <div class="fld wide">
+          <label for="q-job">What do you need? <span class="req" aria-hidden="true">*</span></label>
+          <select id="q-job" name="job" required aria-describedby="q-job-err">
+            <option value="">Choose one…</option>
+            <option>New kitchen — build, supply &amp; fit</option>
+            <option>Kitchen fitting only</option>
+            <option>Kitchen repair</option>
+            <option>Other building work</option>
+            <option>Not sure yet</option>
+          </select><span class="err" id="q-job-err"></span>
+        </div>
+        <div class="fld wide">
+          <label for="q-msg">Anything else</label>
+          <textarea id="q-msg" name="message" rows="4" aria-describedby="q-msg-hint"></textarea>
+          <span class="hint" id="q-msg-hint">Rough size, timing, what's there now — whatever you know. Photos are welcome by email.</span>
+        </div>
+      </div>
+
+      <div class="qfoot">
+        <button class="btn pri" type="submit" id="qsubmit">Send enquiry</button>
+        <p class="qstatus" id="qstatus" role="status" aria-live="polite"></p>
+      </div>
+      <p class="qsmall">We use what you send here to quote your job and nothing else.</p>
+    </form>
+
     <div class="caddr rise">
       <span class="mono">Crafted Ideas Ltd</span>
       <span class="mono">South Croydon · CR2</span>
@@ -572,10 +727,22 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 </main>
 
 <footer>
+  <nav class="wrap fareas" aria-label="Areas we cover">
+    <span class="mono falabel">Areas we cover</span>
+    <ul class="arealist">
+      <!-- Kept in step with areas.mjs by the build — it fails if these drift apart. -->
+      <li><a href="/kitchens/croydon/">Croydon</a></li>
+      <li><a href="/kitchens/south-croydon/">South Croydon</a></li>
+      <li><a href="/kitchens/purley/">Purley</a></li>
+      <li><a href="/kitchens/bromley/">Bromley</a></li>
+      <li><a href="/kitchens/sutton/">Sutton</a></li>
+      <li><a href="/kitchens/beckenham/">Beckenham</a></li>
+    </ul>
+  </nav>
   <div class="wrap frow">
     <div>
       <div class="fb">ci<span class="dot">.</span> Crafted Ideas Ltd</div>
-      <div style="margin-top:10px">Company No. 16881417 · Registered in England<br>23 Sandpiper Road, South Croydon, CR2 8PQ</div>
+      <div class="freg">Company No. 16881417 · Registered in England<br>23 Sandpiper Road, South Croydon, CR2 8PQ</div>
     </div>
     <div class="credit">Made with care · site by <a href="https://cakecv.work" rel="noopener">cakecv.work</a></div>
   </div>
@@ -601,6 +768,70 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
     if(e.key==='Escape'&&btn.getAttribute('aria-expanded')==='true'){set(false);btn.focus();}
   });
   matchMedia('(min-width:761px)').addEventListener('change',function(e){if(e.matches)set(false);});
+})();
+/* ---------- before/after wipe ----------
+   The range input is the whole control: drag, arrow keys, Home/End and screen-reader
+   support all come from the native element. We only mirror its value into a CSS var. */
+(function(){
+  var r=document.getElementById('ba-range'),ba=document.getElementById('ba');
+  if(!r||!ba)return;
+  var apply=function(){ba.style.setProperty('--sp',r.value+'%');};
+  r.addEventListener('input',apply);
+  apply();
+})();
+
+/* ---------- quote form ----------
+   Progressive enhancement: without JS the form still POSTs natively to Web3Forms.
+   With JS we submit over fetch so we can own the error and success states. */
+(function(){
+  var f=document.getElementById('qform');if(!f)return;
+  var btn=document.getElementById('qsubmit'),status=document.getElementById('qstatus');
+  var MAILTO='mailto:hello@craftedideas.co?subject=Kitchen%20enquiry';
+  var keyed=f.access_key.value!=='WEB3FORMS_ACCESS_KEY';
+  var say=function(msg,bad){status.className='qstatus '+(bad?'bad':'ok');status.textContent=msg;};
+
+  /* validate one field; returns true when valid. Errors are text, not just a red border. */
+  function check(el){
+    var err=document.getElementById(el.id+'-err');if(!err)return true;
+    var msg='';
+    if(el.hasAttribute('required')&&!el.value.trim()){
+      msg=(el.tagName==='SELECT'?'Please choose an option.':'This one we do need.');
+    }else if(el.type==='email'&&el.value.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value)){
+      msg='That email address looks incomplete.';
+    }else if(el.type==='tel'&&el.value.trim()&&el.value.replace(/\D/g,'').length<10){
+      msg='That number looks too short.';
+    }
+    err.textContent=msg;
+    el.setAttribute('aria-invalid',msg?'true':'false');
+    return !msg;
+  }
+  [].forEach.call(f.querySelectorAll('input[id],select[id],textarea[id]'),function(el){
+    el.addEventListener('blur',function(){check(el);});
+    el.addEventListener('input',function(){if(el.getAttribute('aria-invalid')==='true')check(el);});
+  });
+
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var fields=[].slice.call(f.querySelectorAll('[required]'));
+    var bad=fields.filter(function(el){return !check(el);});
+    if(bad.length){bad[0].focus();say('Just the highlighted bits, then we’re away.',true);return;}
+    if(!keyed){
+      say('The form isn’t connected yet — please email hello@craftedideas.co and we’ll pick it up.',true);
+      location.href=MAILTO;return;
+    }
+    btn.disabled=true;say('Sending…');
+    fetch('https://api.web3forms.com/submit',{method:'POST',body:new FormData(f)})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(!d.success)throw new Error(d.message||'rejected');
+        f.reset();
+        say('Thank you — that’s with us. We’ll be in touch within a working day.');
+      })
+      .catch(function(){
+        say('That didn’t send. Please email hello@craftedideas.co and we’ll pick it up from there.',true);
+      })
+      .finally(function(){btn.disabled=false;});
+  });
 })();
 /* build the wordmark letter spans (also used by the static hero fallback: hidden there) */
 (function(){

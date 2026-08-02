@@ -25,6 +25,7 @@ The site is live but two things are stubbed. Until they land, **email is the onl
 
 | Needed | Where it goes | Why it matters |
 |---|---|---|
+| **Web3Forms access key** | `index.html` — replace `WEB3FORMS_ACCESS_KEY` | Connects the quote form. Free, no dashboard: sign up at web3forms.com with `hello@craftedideas.co` and the key arrives by email. Until it is replaced the form refuses to submit and points people at email instead. |
 | **Mobile number** (full, e.g. `07XXX XXXXXX`) | `index.html` — the commented block above `.ctas`, plus `telephone` in the JSON-LD | Restores "Call Vasil" and WhatsApp. The old placeholder `+447000000000` was on the UK **070x premium personal-numbering** range and has been removed — never ship a `070` number. |
 | **WhatsApp number** — confirm it's the same mobile | same block, `wa.me/44…` | "Send a photo" is the lowest-friction lead this site can capture. |
 | **Working hours** | `openingHours` in the JSON-LD | Shows directly in Google local results. |
@@ -51,6 +52,18 @@ The `#work` tiles ship a deliberate drawing-paper placeholder. Each one swaps to
 **Export settings:** 1200px on the long edge, JPEG quality ~75 (or AVIF), landscape 4:3-ish. Tiles are `object-fit: cover`, so anything close crops cleanly. Write a real `alt` describing the kitchen — "Fitted kitchen" tells a screen-reader user nothing.
 
 **Don't** put stock or AI-generated images here. This section represents completed work to prospective customers; anything else is misleading and a problem under the CAP Code.
+
+### Before / after
+
+The `#work` section leads with a wipe comparison, also on placeholders. Swap each `.plate` for an `<img>` exactly as above — but **the pair must be shot from the same spot**: same corner, same lens, same height, ideally the same time of day. If the framing shifts, the wipe reads as two different rooms rather than one room transformed, and the effect is worse than no slider at all. Trim the first sentence of its caption once real photos are in.
+
+## Service-area pages
+
+`areas.mjs` holds one entry per area; the build renders each to `/kitchens/<slug>/` and regenerates `sitemap.xml` from the real page list.
+
+To add an area, add an entry and a matching footer link in `index.html`. **The build fails if those two drift apart** — an unlinked page ranks poorly, and a footer link to a page that doesn't exist is a 404.
+
+Every entry needs genuine, area-specific copy about local housing stock. Near-duplicate location pages get demoted as doorway pages and drag the whole domain with them, so if you can't write something real about an area, leave it out. Nothing in these pages may claim a track record: the company was incorporated in Nov 2025, so copy describes what we do and what we find in these homes, never jobs we haven't done.
 
 ## Content Security Policy
 
