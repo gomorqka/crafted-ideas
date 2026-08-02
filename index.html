@@ -95,10 +95,12 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 /* ---------- progress + nav ---------- */
 .progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;transform:scaleX(0);transform-origin:left center;
   background:linear-gradient(90deg,var(--accent),var(--accent-2));will-change:transform}
-nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+/* #nav, not nav — a bare element selector pins every <nav> on the page to the top,
+   including the "Areas we cover" one in the footer. */
+#nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
   padding:18px 30px;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 76%,transparent);
   border-bottom:1px solid transparent;transition:border-color .4s}
-nav.scrolled{border-color:var(--line)}
+#nav.scrolled{border-color:var(--line)}
 .brand{font-family:var(--fd);font-weight:600;font-size:20px;letter-spacing:-.01em;
   display:inline-flex;align-items:center;min-height:44px;min-width:44px} /* 2.5.8 target size */
 .brand .dot{color:var(--accent)}
@@ -131,7 +133,7 @@ nav.scrolled{border-color:var(--line)}
   .nlinks a:not(.cta){display:none}
   .brand small{display:none}
   .menubtn{display:inline-flex}
-  nav{padding:12px 18px}
+  #nav{padding:12px 18px}
   .nlinks{gap:6px}
 }
 @media (min-width:761px){#menu{display:none!important}}
@@ -340,7 +342,8 @@ section.pg.alt{background:var(--bg2)}
 .fld.wide{grid-column:1/-1}
 .fld label{font-size:14px;font-weight:560}
 .fld .req{color:var(--accent-ink)}
-.fld .hint{font-size:13px;color:var(--muted)}
+/* NOT .hint — that's the hero's scroll cue, and it's position:absolute */
+.fld .fhint{font-size:13px;color:var(--muted)}
 .fld input,.fld select,.fld textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);
   border:1px solid var(--edge);border-radius:12px;padding:13px 14px;min-height:48px;width:100%;
   transition:border-color .2s,box-shadow .2s}
@@ -686,14 +689,14 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
           <label for="q-email">Email</label>
           <input id="q-email" name="email" type="email" autocomplete="email" inputmode="email"
                  aria-describedby="q-email-hint q-email-err">
-          <span class="hint" id="q-email-hint">Optional — we'll call unless you'd rather we wrote.</span>
+          <span class="fhint" id="q-email-hint">Optional — we'll call unless you'd rather we wrote.</span>
           <span class="err" id="q-email-err"></span>
         </div>
         <div class="fld">
           <label for="q-postcode">Postcode <span class="req" aria-hidden="true">*</span></label>
           <input id="q-postcode" name="postcode" type="text" required autocomplete="postal-code"
                  aria-describedby="q-postcode-hint q-postcode-err">
-          <span class="hint" id="q-postcode-hint">So we know if you're in our patch.</span>
+          <span class="fhint" id="q-postcode-hint">So we know if you're in our patch.</span>
           <span class="err" id="q-postcode-err"></span>
         </div>
         <div class="fld wide">
@@ -710,7 +713,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <div class="fld wide">
           <label for="q-msg">Anything else</label>
           <textarea id="q-msg" name="message" rows="4" aria-describedby="q-msg-hint"></textarea>
-          <span class="hint" id="q-msg-hint">Rough size, timing, what's there now — whatever you know. Photos are welcome by email.</span>
+          <span class="fhint" id="q-msg-hint">Rough size, timing, what's there now — whatever you know.</span>
         </div>
       </div>
 
