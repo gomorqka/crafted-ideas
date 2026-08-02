@@ -79,8 +79,20 @@ if (orphaned.length || dangling.length) {
 }
 console.log(`links ok — all ${slugs.length} area pages linked from the homepage`);
 
-// ---- reminders, not failures: the site should still build and deploy with these outstanding
-if (html.includes('WEB3FORMS_ACCESS_KEY')) {
-  console.warn('⚠  quote form is not connected — replace WEB3FORMS_ACCESS_KEY in index.html.');
-  console.warn('   Until then the form declines to submit and points people at email instead.');
+// ---- handover checklist -----------------------------------------------------
+// Reminders, never failures: the site must still build and deploy with these outstanding.
+// Every deliberately-unfinished spot is tagged HANDOVER: next to the code it affects, so the
+// checklist can't drift from reality the way a hand-maintained list would.
+const sources = { 'index.html': html, 'areas.mjs': readFileSync('areas.mjs', 'utf8') };
+const todos = [];
+for (const [file, src] of Object.entries(sources)) {
+  src.split('\n').forEach((line, i) => {
+    const m = line.match(/HANDOVER:\s*(.+?)\s*(?:-->|\*\/)?\s*$/);
+    if (m) todos.push(`${file}:${i + 1}  ${m[1]}`);
+  });
+}
+if (todos.length) {
+  console.warn(`\n⚠  HANDOVER — ${todos.length} item${todos.length > 1 ? 's' : ''} deliberately unfinished:`);
+  todos.forEach(t => console.warn('   · ' + t));
+  console.warn('   Nothing here blocks a deploy. The site claims no contact route it cannot honour.\n');
 }

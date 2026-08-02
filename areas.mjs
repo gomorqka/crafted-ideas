@@ -84,7 +84,7 @@ export function renderArea(area, all) {
       '@id': `${SITE}/#business`,
       name: 'Crafted Ideas Ltd',
       url: SITE,
-      email: 'hello@craftedideas.co',
+      // HANDOVER: add telephone and email here once real details exist (see index.html)
       address: {
         '@type': 'PostalAddress', streetAddress: '23 Sandpiper Road', addressLocality: 'South Croydon',
         addressRegion: 'Greater London', postalCode: 'CR2 8PQ', addressCountry: 'GB',
@@ -218,9 +218,10 @@ footer .fb .dot{color:var(--accent)}
       <h2 id="h-how">Measured twice. Crafted once.</h2>
       <p>We come to you, look at the space properly, and listen to what you actually need. Then a clear plan and a clear price — no surprises held back for later. We build, we fit, we hand it back tidy, and we come back if anything needs us.</p>
       <p>The visit costs nothing, and we cover ${esc(area.name)} along with the rest of Croydon and Greater London.</p>
+      <!-- HANDOVER: add a direct "Call"/"Email" button here alongside the form link once
+           real contact details exist — an area page should not force a second hop. -->
       <div class="ctas">
         <a class="btn pri" href="/#contact">Tell us about your kitchen</a>
-        <a class="btn sec" href="mailto:hello@craftedideas.co?subject=Kitchen%20enquiry%20—%20${encodeURIComponent(area.name)}">Email us</a>
       </div>
     </div>
   </section>

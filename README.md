@@ -19,15 +19,24 @@ python3 -m http.server 8080 -d dist   # → http://localhost:8080
 
 ---
 
-## Waiting on Vasil
+## Handover
 
-The site is live but two things are stubbed. Until they land, **email is the only working contact route** (`hello@craftedideas.co`, forwarded via the registrar).
+**The site has no working contact route right now, by design.** Every stub is deliberate and marked in the source with a `HANDOVER:` comment; `npm run build` prints them all as a checklist. Nothing here blocks a deploy — the page simply never claims a channel it can't honour.
+
+Two corrections to earlier assumptions, because both were wrong and both cost time:
+
+- **`hello@craftedideas.co` was never a real mailbox.** It shipped in the launch commit and has been publicly advertised since. The domain's MX records point at Namecheap forwarding, but that only proves the *domain* accepts mail — it says nothing about whether an alias exists. Do not put any address back on the page without confirming it forwards somewhere a person reads.
+- **`+447000000000` was not a harmless dummy.** UK `070x` is Ofcom's premium-rated personal numbering range, not a mobile. Anyone who tapped "Call Vasil" was billed for it. Never ship a `070` number.
+
+The order that unblocks the most: **a working inbox first** — it's the prerequisite for the Web3Forms key, which is the prerequisite for the form, which is currently the only enquiry route the site is built to have.
 
 | Needed | Where it goes | Why it matters |
 |---|---|---|
-| **Web3Forms access key** | `index.html` — replace `WEB3FORMS_ACCESS_KEY` | Connects the quote form. Free, no dashboard: sign up at web3forms.com with `hello@craftedideas.co` and the key arrives by email. Until it is replaced the form refuses to submit and points people at email instead. |
-| **Mobile number** (full, e.g. `07XXX XXXXXX`) | `index.html` — the commented block above `.ctas`, plus `telephone` in the JSON-LD | Restores "Call Vasil" and WhatsApp. The old placeholder `+447000000000` was on the UK **070x premium personal-numbering** range and has been removed — never ship a `070` number. |
+| **A real inbox** | wherever it's hosted | Prerequisite for everything below. Namecheap forwarding is already active on the domain, so adding a `hello@` alias pointing at a real inbox is free and takes minutes — check whether a rule already exists and points somewhere stale. |
+| **Web3Forms access key** | `index.html` — replace `WEB3FORMS_ACCESS_KEY` | Connects the quote form. Free, no account or password: enter the real inbox at web3forms.com/#start and the key is emailed to it. Until replaced, the form refuses to submit and says so rather than pretending. |
+| **Mobile number** (full, e.g. `07XXX XXXXXX`) | `index.html` — the `HANDOVER:` block in `#contact`, plus `telephone` in the JSON-LD | Restores "Call Vasil" and WhatsApp. For a trade business these convert harder than anything else on the page. |
 | **WhatsApp number** — confirm it's the same mobile | same block, `wa.me/44…` | "Send a photo" is the lowest-friction lead this site can capture. |
+| **Public email address** | same block, plus `email` in both JSON-LD blocks | Can be the same inbox as above. |
 | **Working hours** | `openingHours` in the JSON-LD | Shows directly in Google local results. |
 | **Project photos** — 6+ finished kitchens | `media/work/` — see below | The `#work` tiles are placeholders. This is the single biggest conversion lever on the page. |
 | **Public liability insurance** — insurer + cover level | new trust card in `#why` | Standard proof for trades; customers look for it. |

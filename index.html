@@ -20,8 +20,8 @@
 <meta name="theme-color" content="#F6F3EE">
 <link rel="preload" href="/vendor/fraunces-latin-full-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/vendor/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<!-- Add "telephone" and "openingHours" here as soon as Vasil's details land — both surface
-     directly in local search results. See README "Waiting on Vasil". -->
+<!-- HANDOVER: add "telephone", "email" and "openingHours" to this JSON-LD once real details
+     exist. All three surface directly in local search results. See README "Handover". -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -33,7 +33,6 @@
   "url": "https://craftedideas.co",
   "image": "https://craftedideas.co/og.png",
   "logo": "https://craftedideas.co/apple-touch-icon.png",
-  "email": "hello@craftedideas.co",
   "address": { "@type": "PostalAddress", "streetAddress": "23 Sandpiper Road", "addressLocality": "South Croydon", "addressRegion": "Greater London", "postalCode": "CR2 8PQ", "addressCountry": "GB" },
   "areaServed": [
     { "@type": "City", "name": "Croydon" },
@@ -639,17 +638,23 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <span class="tag mono rise"><i></i>Contact</span>
     <h2 class="big rise" id="conH">Tell us about your kitchen.</h2>
     <p class="sub rise">A photo and a rough idea is enough to start. We'll come and measure — the visit costs nothing.</p>
-    <!-- WHEN VASIL'S NUMBER ARRIVES: restore these two as the first buttons and drop the
-         mailto down to .btn.sec. Both must carry the REAL mobile in full E.164 form:
-             <a class="btn pri" href="tel:+447XXXXXXXXX">Call Vasil</a>
-             <a class="btn sec" href="https://wa.me/447XXXXXXXXX" rel="noopener">WhatsApp a photo</a>
-         The previous placeholder was +447000000000 — UK 070x is Ofcom's premium-rated personal
-         numbering range, not a mobile, so it must never ship live again. -->
-    <div class="ctas rise">
-      <a class="btn pri" href="mailto:hello@craftedideas.co?subject=Kitchen%20enquiry">Email us a photo</a>
-      <a class="btn sec" href="#services">What we do</a>
-    </div>
-    <p class="cnote rise">Email reaches us today. Direct phone and WhatsApp land here shortly.</p>
+    <!-- HANDOVER: no contact route is live yet — this is deliberately left unfinished.
+         When the real details exist, put these three back as the first thing in the section;
+         for a trade business they convert harder than anything else on the page.
+             <div class="ctas rise">
+               <a class="btn pri" href="tel:+447XXXXXXXXX">Call Vasil</a>
+               <a class="btn sec" href="https://wa.me/447XXXXXXXXX" rel="noopener">WhatsApp a photo</a>
+               <a class="btn sec" href="mailto:REAL@craftedideas.co?subject=Kitchen%20enquiry">Email</a>
+             </div>
+         Two things that must not be got wrong:
+           · The phone must be a real mobile in full E.164 form. The placeholder that shipped
+             at launch was +447000000000 — UK 070x is Ofcom's premium-rated personal numbering
+             range, not a mobile. It billed the caller. It must never ship live again.
+           · hello@craftedideas.co also shipped at launch and was never a real mailbox. The
+             domain's MX records point at Namecheap forwarding, but that only proves the domain
+             accepts mail — it does not mean the alias exists. Confirm it forwards somewhere a
+             person reads before putting any address back on the page. -->
+    <p class="cnote rise">Phone, WhatsApp and email are being set up — they'll be here shortly.</p>
 
     <!-- Quote form → Web3Forms. Replace WEB3FORMS_ACCESS_KEY below with the real key from
          web3forms.com (free, no account dashboard needed — the key is bound to the destination
@@ -657,8 +662,8 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
          else. Until it is replaced, the form refuses to submit and offers the mailto instead. -->
     <form class="qform rise" id="qform" action="https://api.web3forms.com/submit" method="POST"
           aria-labelledby="qformH" novalidate>
-      <h3 id="qformH" class="serif qtitle">Or tell us here</h3>
-      <p class="qlede">We'll come back to you within a working day.</p>
+      <h3 id="qformH" class="serif qtitle">Tell us here</h3>
+      <p class="qlede">Leave your details and we'll come back to you within a working day.</p>
 
       <input type="hidden" name="access_key" value="WEB3FORMS_ACCESS_KEY">
       <input type="hidden" name="subject" value="New kitchen enquiry — craftedideas.co">
@@ -786,7 +791,6 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
 (function(){
   var f=document.getElementById('qform');if(!f)return;
   var btn=document.getElementById('qsubmit'),status=document.getElementById('qstatus');
-  var MAILTO='mailto:hello@craftedideas.co?subject=Kitchen%20enquiry';
   var keyed=f.access_key.value!=='WEB3FORMS_ACCESS_KEY';
   var say=function(msg,bad){status.className='qstatus '+(bad?'bad':'ok');status.textContent=msg;};
 
@@ -815,9 +819,11 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
     var fields=[].slice.call(f.querySelectorAll('[required]'));
     var bad=fields.filter(function(el){return !check(el);});
     if(bad.length){bad[0].focus();say('Just the highlighted bits, then we’re away.',true);return;}
+    /* HANDOVER: while the access key is a placeholder we refuse rather than pretend to send.
+       Once a contact route exists, name it here so this isn't a dead end. */
     if(!keyed){
-      say('The form isn’t connected yet — please email hello@craftedideas.co and we’ll pick it up.',true);
-      location.href=MAILTO;return;
+      say('This form isn’t connected yet — we’re setting up contact details and they’ll be here shortly.',true);
+      return;
     }
     btn.disabled=true;say('Sending…');
     fetch('https://api.web3forms.com/submit',{method:'POST',body:new FormData(f)})
@@ -828,7 +834,8 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
         say('Thank you — that’s with us. We’ll be in touch within a working day.');
       })
       .catch(function(){
-        say('That didn’t send. Please email hello@craftedideas.co and we’ll pick it up from there.',true);
+        /* HANDOVER: add the real phone/email here as the fallback once they exist. */
+        say('That didn’t send — sorry. Please try again in a moment.',true);
       })
       .finally(function(){btn.disabled=false;});
   });
