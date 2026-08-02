@@ -145,23 +145,37 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 /* default (no fx): only the final chapter is a normal hero; the journey layers hide */
 #ch0,#ch1,#ch2,#ch3,#ch4{display:none}
 #ch5{position:relative;inset:auto;min-height:100vh;min-height:100svh;width:100%}
-/* fx desktop: 700vh journey, sticky stage, all chapters layered.
-   Gate must stay byte-identical to JOURNEY_MQ in the module script below — a landscape
-   phone is 844px wide, so a width-only gate hands it 700vh of scroll-jack and 3.7MB of frames. */
-@media (min-width:1025px) and (hover:hover) and (pointer:fine){
-  .fx .jwrap{height:700vh}
-  .fx .jstage{position:sticky;top:0;height:100vh;min-height:0}
-  .fx .ch{display:flex}
-  .fx #ch0,.fx #ch1,.fx #ch2,.fx #ch3,.fx #ch4{display:flex}
-  .fx #ch1,.fx #ch2,.fx #ch3,.fx #ch4,.fx #ch5{opacity:0}
-  .fx #ch5{position:absolute;inset:0;min-height:0}
-}
+/* desktop journey: 700vh, sticky stage, all chapters layered */
+.fxd .jwrap{height:700vh}
+.fxd .jstage{position:sticky;top:0;height:100vh;min-height:0}
+.fxd .ch{display:flex}
+.fxd #ch0,.fxd #ch1,.fxd #ch2,.fxd #ch3,.fxd #ch4{display:flex}
+.fxd #ch1,.fxd #ch2,.fxd #ch3,.fxd #ch4,.fxd #ch5{opacity:0}
+.fxd #ch5{position:absolute;inset:0;min-height:0}
+
+/* mobile journey: shorter pin, and the blueprint we already ship does the work.
+   No image sequence is required for this to be complete — the film is an extra
+   layer that only appears if the network can afford it. */
+.fxm .jwrap{height:280vh}
+.fxm .jstage{position:sticky;top:0;height:100svh;min-height:0;overflow:hidden}
+.fxm #ch5{position:absolute;inset:0;min-height:0;display:flex;align-items:center}
+.fxm #ch5 .inner{align-items:center;padding-top:0;padding-bottom:0;min-height:0}
+/* Visible enough to read as a drawing being made, faint enough that the lede stays
+   legible on top of it — the strokes sit directly behind body copy. */
+.fxm #ch5 .hero-bp{display:flex;opacity:.3;z-index:0}
+.fxm #ch5 .hero-bp svg{width:min(92vw,620px)}
+.fxm #ch5 .hero-bp .bp-path{stroke-width:2.1;opacity:1}
+.fxm #ch5 .inner{position:relative;z-index:1}
+/* film layer, only mounted once frames are actually decoding */
+.fxm #ch1{display:none}
+.fxm.film #ch1{display:flex;opacity:0}
+.fxm.film .filmstage{width:min(78vw,62svh)}
 /* ambient hatching */
 #amb{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
 /* chapter rail */
 .chrail{position:absolute;right:30px;top:50%;transform:translateY(-50%);z-index:5;display:none;
   flex-direction:column;align-items:center;gap:12px}
-.fx .chrail{display:flex}
+.fxd .chrail{display:flex}
 .chrail .bar{width:1px;height:120px;background:var(--line);position:relative;overflow:hidden}
 .chrail .bar i{position:absolute;inset:0;background:var(--accent);transform:scaleY(0);transform-origin:top}
 .chrail .n{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;color:var(--muted)}
@@ -209,7 +223,7 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 #ch5 .inner{width:100%;display:flex;min-height:inherit;align-items:center}
 #ch5 .hero-bp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.10;pointer-events:none}
 #ch5 .hero-bp svg{width:min(94vw,1150px)}
-.fx #ch5 .hero-bp{display:none}
+.fxd #ch5 .hero-bp{display:none}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
 .eyebrow i{display:block;width:34px;height:1px;background:var(--accent)}
 #ch5 h1{font-family:var(--fd);font-weight:560;letter-spacing:-.015em;line-height:1.02;
@@ -387,19 +401,36 @@ footer .fb .dot{color:var(--accent)}
 footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 /* reveals — visible by default; fx adds motion */
 .fx .rise{opacity:0}
+/* Reduced motion is not "no animation" — WCAG 2.3.3 is about vestibular triggers, which
+   means movement, parallax and scaling. A cross-fade has no motion vector, so these users
+   get the reveals too, just without anything travelling. */
+.rm .rise{opacity:0;transition:opacity .5s linear}
+.rm .rise.seen{opacity:1}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  *,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important}
+  /* Allow opacity to transition, forbid everything else from doing so. Transforms and
+     scale still apply instantly, they just never travel. */
+  *,*::before,*::after{
+    animation-duration:.001s!important;
+    transition-property:opacity!important;
+    transition-duration:.4s!important;
+  }
 }
 </style>
 <script>
-/* fx gate — motion only where it's welcome; fallback timer reveals everything */
+/* Motion gate. Decides ONCE, here, and writes the answer to <html> as a class:
+     rm   reduced motion  — cross-fades only, no movement, no scroll hijack, no rAF
+     fxd  desktop journey — the 700vh pinned film
+     fxm  mobile journey  — the blueprint draws itself; film only if the network allows
+   Everything downstream keys off these classes, so the breakpoint lives in exactly one
+   place instead of being duplicated between a media query and matchMedia. */
 (function(){try{
-  var rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
-  if(!rm && 'IntersectionObserver' in window && 'noModule' in HTMLScriptElement.prototype){
-    document.documentElement.classList.add('fx');
-    window.__fxTimer=setTimeout(function(){document.documentElement.classList.remove('fx');},3000);
-  }
+  var r=document.documentElement;
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches){r.classList.add('rm');return;}
+  if(!('IntersectionObserver' in window)||!('noModule' in HTMLScriptElement.prototype))return;
+  r.classList.add('fx');
+  r.classList.add(matchMedia('(min-width:1025px) and (hover:hover) and (pointer:fine)').matches?'fxd':'fxm');
+  window.__fxTimer=setTimeout(function(){r.classList.remove('fx','fxd','fxm');},3000);
 }catch(e){}})();
 </script>
 </head>
@@ -784,6 +815,15 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
   });
   matchMedia('(min-width:761px)').addEventListener('change',function(e){if(e.matches)set(false);});
 })();
+/* ---------- reduced motion: cross-fade reveals, no module needed ----------
+   These users never load anime.js or Lenis at all, so this has to stand alone. */
+if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in window){
+  var rio=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('seen');rio.unobserve(e.target);}});
+  },{rootMargin:'0px 0px -10% 0px'});
+  document.querySelectorAll('.rise').forEach(function(el){rio.observe(el);});
+}
+
 /* ---------- before/after wipe ----------
    The range input is the whole control: drag, arrow keys, Home/End and screen-reader
    support all come from the native element. We only mirror its value into a CSS var. */
@@ -869,21 +909,38 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
 
 <script type="module">
 /* ============================== fx layer — the journey ============================== */
-import { animate, stagger, onScroll as animeOnScroll } from '/vendor/anime.esm.min.js';
-import Lenis from '/vendor/lenis.mjs';
-
 const root=document.documentElement;
-const css=k=>getComputedStyle(root).getPropertyValue(k).trim();
 
-/* ---------- the film: 50-frame scrubbed sequence (paper → drawing → real kitchen) ---------- */
-const film=document.getElementById('film');
-const fctx=film?film.getContext('2d'):null;
+/* Reduced-motion visitors never reach this block, so they never download anime.js or Lenis
+   (148KB between them). Their reveals come from the classic layer above instead. */
+if(root.classList.contains('fx')){
+try{
+const [{ animate, stagger, onScroll: animeOnScroll },{ default: Lenis }]=await Promise.all([
+  import('/vendor/anime.esm.min.js'),
+  import('/vendor/lenis.mjs'),
+]);
+/* On a slow connection these imports can outlast the 3s failsafe, which strips the classes
+   and reverts the page to static. If that already happened, respect it: setting up the
+   journey now would pin and fade content on a page whose CSS is no longer expecting it. */
+if(!root.classList.contains('fx')) throw '__reverted__';
+clearTimeout(window.__fxTimer);
+
+const css=k=>getComputedStyle(root).getPropertyValue(k).trim();
+const fxDesktop=root.classList.contains('fxd');
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
 const easeOut=t=>1-Math.pow(1-t,3);
 const bell=(t,inW=.25,outW=.25)=>t<inW?easeOut(t/inW):t>1-outW?easeOut((1-t)/outW):1;
-const FN=50;
-const fsrc=i=>'media/seq/'+String(i+1).padStart(2,'0')+'.jpg';
+
+/* ---------- the film ----------
+   Desktop scrubs 50 frames at 960px (3.7MB). Mobile scrubs a 17-frame 560px cut of the same
+   sequence (520KB), and only where the connection can afford it — the blueprint journey
+   below is a complete experience without it. */
+const film=document.getElementById('film');
+const fctx=film?film.getContext('2d'):null;
+const FN=fxDesktop?50:17;
+const fsrc=i=>(fxDesktop?'media/seq/':'media/seq-m/')+String(i+1).padStart(2,'0')+'.jpg';
+if(film&&!fxDesktop){film.width=film.height=560;} /* match the backing store to the source */
 const fimgs=new Array(FN), fready=new Array(FN).fill(false);
 let fdrawn=-1;
 const fnearest=i=>{
@@ -914,17 +971,12 @@ const fload=i=>{
   im.onload=()=>{fready[i]=true;if(Math.abs(i-Math.floor(fwant))<=1||fdrawn<0)paintFilm(fwant,true);};
   im.src=fsrc(i);fimgs[i]=im;
 };
-/* keep byte-identical to the @media gate in the stylesheet above */
-const JOURNEY_MQ='(min-width:1025px) and (hover:hover) and (pointer:fine)';
-const fxDesktop=root.classList.contains('fx')&&matchMedia(JOURNEY_MQ).matches;
+/* Desktop preloads the whole sequence up front. Mobile decides for itself further down,
+   after it knows what the connection looks like. */
 if(fxDesktop&&film){
   fload(0);fload(FN-1);
   setTimeout(()=>{for(let i=1;i<FN-1;i++)fload(i);},600);
 }
-
-if(root.classList.contains('fx')){
-  try{
-    clearTimeout(window.__fxTimer);
 
     /* ---------- smooth scroll spine ---------- */
     const lenis=new Lenis({lerp:.1,wheelMultiplier:1,touchMultiplier:1.6});
@@ -1087,12 +1139,84 @@ if(root.classList.contains('fx')){
       addEventListener('scroll',scrub,{passive:true});
       addEventListener('resize',()=>{measure();scrub();},{passive:true});
     }else{
-      /* fx but mobile: the standing hero simply rises in */
-      animate('#ch5 .wrap > *',{opacity:[0,1],translateY:[20,0],duration:700,ease:'out(3)',delay:stagger(90)});
+      /* ============ the mobile journey ============
+         The blueprint we already ship is the animation. It's vector, it's in the DOM
+         already, and it costs nothing to send — so every phone gets a real journey
+         regardless of network. The film is a bonus act layered on top when affordable. */
+      const jwrap=document.querySelector('.jwrap');
+      const ch1=document.getElementById('ch1'), ch5=document.getElementById('ch5');
+      const bp=ch5.querySelector('.hero-bp'), inner=ch5.querySelector('.inner');
+      const paths=[...document.querySelectorAll('#bppaths .bp-path')];
+      const grid=document.getElementById('bpgrid'), dims=document.getElementById('bpdims');
+      const st=(el,o)=>{for(const k in o)el.style[k]=o[k];};
+
+      /* prime each stroke so scroll can draw it on */
+      const lens=paths.map(p=>{
+        const L=p.getTotalLength();
+        p.style.strokeDasharray=L; p.style.strokeDashoffset=L;
+        return L;
+      });
+
+      /* Decide about the film now, synchronously, so the pin can be the right length from
+         the start. No Network Information API (all of iOS) means we assume it's fine —
+         520KB deferred behind first paint is a fair bet, and saveData still wins if set. */
+      const conn=navigator.connection||navigator.webkitConnection||null;
+      const thrifty=!!conn&&(conn.saveData===true||/(^|\W)(slow-)?2g$/.test(conn.effectiveType||''));
+      const useFilm=!!film&&!thrifty;
+      /* Without the film the second act has nothing to show, so don't make people scroll it. */
+      jwrap.style.height=useFilm?'280vh':'170vh';
+      let filmReady=false;
+      if(useFilm) setTimeout(()=>{
+        for(let i=0;i<FN;i++)fload(i);
+        root.classList.add('film');
+        filmReady=true;
+      },900);
+
+      /* Act one is the blueprint and always owns the majority of the pin, so the headline
+         and its CTA are on screen for most of the scroll. Act two only exists with a film. */
+      const DRAW0=.03, DRAW1=useFilm?.50:.66;
+      const DIM0=DRAW1+.02, DIM1=DIM0+.12;
+
+      let pinTop=0,pinDur=1;
+      const measure=()=>{pinTop=jwrap.offsetTop;pinDur=Math.max(1,jwrap.offsetHeight-innerHeight);};
+
+      const scrub=()=>{
+        const p=clamp((scrollY-pinTop)/pinDur,0,1);
+
+        grid.style.opacity=String(easeOut(seg(p,0,.12))*.9);
+        paths.forEach((el,i)=>{
+          const a=DRAW0+(i/paths.length)*(DRAW1-DRAW0)*.85;
+          el.style.strokeDashoffset=String(lens[i]*(1-easeOut(seg(p,a,a+.13))));
+        });
+        dims.style.opacity=String(easeOut(seg(p,DIM0,DIM1)));
+
+        const BP=.3; /* keep in step with .fxm #ch5 .hero-bp in the stylesheet */
+        if(useFilm){
+          /* hand over: the drawing steps back, the real kitchen takes the stage */
+          const hand=easeOut(seg(p,.58,.70));
+          st(bp,{opacity:String(BP*(1-hand)),transform:`scale(${1-hand*.05})`});
+          st(inner,{opacity:String(1-hand),pointerEvents:hand>.5?'none':'auto'});
+          if(filmReady){
+            st(ch1,{opacity:String(hand)});
+            if(p>.5){fwant=seg(p,.62,.96)*(FN-1);paintFilm(fwant);}
+          }
+        }else{
+          /* no film: let the finished drawing hold, and keep the headline up throughout */
+          st(bp,{opacity:String(BP)});
+          st(inner,{opacity:'1',pointerEvents:'auto'});
+        }
+      };
+      measure();scrub();
+      addEventListener('scroll',scrub,{passive:true});
+      addEventListener('resize',()=>{measure();scrub();},{passive:true});
     }
   }catch(e){
-    console.error('[fx] journey setup failed — revealing all content',e);
-    root.classList.remove('fx');
+    /* '__reverted__' is not a failure: the failsafe beat us to it on a slow connection and
+       the static page is already the right answer. Anything else is a genuine fault. */
+    if(e!=='__reverted__'){
+      console.error('[fx] journey setup failed — revealing all content',e);
+      root.classList.remove('fx','fxd','fxm','film');
+    }
     try{clearTimeout(window.__fxTimer);}catch(_){}
   }
 }

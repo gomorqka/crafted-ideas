@@ -17,7 +17,8 @@ const vendor = {
 };
 for (const [src, out] of Object.entries(vendor)) copyFileSync(src, `dist/vendor/${out}`);
 
-cpSync('media/seq', 'dist/media/seq', { recursive: true });
+cpSync('media/seq', 'dist/media/seq', { recursive: true });      // desktop: 50 frames @960px
+cpSync('media/seq-m', 'dist/media/seq-m', { recursive: true });  // mobile: 17 frames @560px
 // real project photography, once it exists — see README "Adding real photography"
 if (existsSync('media/work')) cpSync('media/work', 'dist/media/work', { recursive: true });
 
@@ -55,15 +56,29 @@ const inlineScripts = [...html.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<
   .filter(m => !/type\s*=\s*["']application\/ld\+json["']/i.test(m[0]))
   .map(m => m[1]);
 const hashes = inlineScripts.map(s => `'sha256-${createHash('sha256').update(s, 'utf8').digest('base64')}'`);
-const vercelJson = readFileSync('vercel.json', 'utf8');
+let vercelJson = readFileSync('vercel.json', 'utf8');
 const missing = hashes.filter(h => !vercelJson.includes(h));
 if (missing.length) {
-  console.error(`\n✗ CSP hash drift: ${missing.length} of ${hashes.length} inline script hashes are not in vercel.json.`);
-  console.error('  Replace the sha256 entries in the script-src directive with:\n');
-  console.error('    ' + hashes.join('\n    ') + '\n');
-  process.exit(1);
+  // `npm run build -- --fix-csp` rewrites them. Opt-in on purpose: silently patching the
+  // policy on every build would turn the guard into a rubber stamp.
+  if (process.argv.includes('--fix-csp')) {
+    const present = vercelJson.match(/'sha256-[A-Za-z0-9+/=]+'/g) || [];
+    if (present.length !== hashes.length) {
+      console.error(`\n✗ vercel.json has ${present.length} sha256 entries but the page has ${hashes.length} inline scripts — fix by hand.`);
+      process.exit(1);
+    }
+    present.forEach((old, i) => { vercelJson = vercelJson.replace(old, hashes[i]); });
+    writeFileSync('vercel.json', vercelJson);
+    console.log(`csp updated — ${missing.length} hash(es) rewritten in vercel.json`);
+  } else {
+    console.error(`\n✗ CSP hash drift: ${missing.length} of ${hashes.length} inline script hashes are not in vercel.json.`);
+    console.error('  Run `npm run build -- --fix-csp`, or paste these into script-src:\n');
+    console.error('    ' + hashes.join('\n    ') + '\n');
+    process.exit(1);
+  }
+} else {
+  console.log(`csp ok — ${hashes.length} inline script hashes match vercel.json`);
 }
-console.log(`csp ok — ${hashes.length} inline script hashes match vercel.json`);
 
 // ---- the homepage footer must list exactly the areas we actually generate ----
 // Orphaned area pages get crawled but rank poorly; footer links to pages that don't exist are 404s.

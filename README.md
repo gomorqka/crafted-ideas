@@ -80,7 +80,23 @@ Every entry needs genuine, area-specific copy about local housing stock. Near-du
 
 **If you edit any inline script, the build will fail** with the new hashes printed. Paste them into the `script-src` directive in `vercel.json` and rebuild. This is deliberate: without the check, a hash mismatch would silently disable all JS in production while passing locally.
 
-## Breakpoints worth knowing
+## Motion
 
-- **`1025px` + fine pointer** — gates the 700vh scrolled film sequence. Must stay identical in the `@media` block and in `JOURNEY_MQ` in the module script. A landscape phone is 844px wide, so a width-only gate hands phones 3.7MB of frames.
-- **`760px`** — nav collapses to the menu button; the services list stacks.
+The gate script in `<head>` decides **once** and writes the answer to `<html>` as a class. Everything else — CSS and JS — keys off that class, so the breakpoint exists in exactly one place.
+
+| Class | Who gets it | What they get | First-load weight |
+|---|---|---|---|
+| `rm` | `prefers-reduced-motion: reduce` | Cross-fade reveals only. No Lenis, no cursor, no canvas, no rAF at all — the module never even loads. | ~166 KB |
+| `fxd` | ≥1025px **and** a fine pointer | The 700vh pinned film, 50 frames @960px. | ~4 MB |
+| `fxm` | everything else | The blueprint draws itself on scroll. Film is a second act, added only if the connection allows. | ~315 KB, or ~810 KB with the film |
+| *(none)* | no IntersectionObserver / no modules | Static page, fully visible. | ~166 KB |
+
+Notes that matter if you touch this:
+
+- **Reduced motion is not "no motion".** WCAG 2.3.3 is about vestibular triggers — movement, parallax, scaling. Cross-fades are fine, so those users still get reveals. The `prefers-reduced-motion` block forces `transition-property: opacity` globally to enforce exactly that.
+- **The mobile film is opt-out, not opt-in.** `saveData` or a 2g `effectiveType` skips it and shortens the pin to 170vh, because the second act would otherwise be blank scrolling. No Network Information API at all (all of iOS) counts as fine.
+- **A landscape phone is 844px wide.** Any width-only gate hands it the desktop journey — that's why `fxd` also requires a fine pointer.
+- **The 3s failsafe can beat a slow connection.** If it strips the classes before the module finishes downloading, the module aborts rather than pinning a page whose CSS has already reverted.
+- `media/seq-m/` is generated from `media/seq/` — every 3rd frame, `sips -Z 560 --setProperty formatOptions 40`. Regenerate it if the film changes.
+
+Other breakpoint: **`760px`**, where the nav collapses to the menu button and the services list stacks.
