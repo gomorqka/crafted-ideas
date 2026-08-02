@@ -224,7 +224,14 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 .btn.sec{border:1px solid var(--edge);color:var(--ink)}
 .btn.sec:hover{border-color:var(--accent);transform:translateY(-2px)}
 #ch5 .meta{margin-top:54px;display:flex;gap:26px;flex-wrap:wrap}
-@media (max-width:760px){#ch5 .inner{padding-top:96px;padding-bottom:60px}}
+/* Mobile has no journey above the hero, so centring it inside a 100svh box left ~200px of
+   dead air at the top — the first thing on the page was nothing. Sit the content just under
+   the nav and let the hero size to itself, so a sliver of the next section shows at the fold. */
+@media (max-width:760px){
+  .jstage{min-height:auto}
+  #ch5{min-height:auto}
+  #ch5 .inner{align-items:flex-start;min-height:0;padding-top:92px;padding-bottom:64px}
+}
 
 /* ============================== page sections ============================== */
 section.pg{padding:clamp(90px,12vh,150px) 0;position:relative}
