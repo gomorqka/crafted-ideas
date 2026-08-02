@@ -20,16 +20,27 @@
 <meta name="theme-color" content="#F6F3EE">
 <link rel="preload" href="/vendor/fraunces-latin-full-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/vendor/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<!-- Add "telephone" and "openingHours" here as soon as Vasil's details land — both surface
+     directly in local search results. See README "Waiting on Vasil". -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "HomeAndConstructionBusiness",
+  "@id": "https://craftedideas.co/#business",
   "name": "Crafted Ideas Ltd",
   "legalName": "Crafted Ideas Ltd",
   "identifier": "16881417",
   "url": "https://craftedideas.co",
+  "image": "https://craftedideas.co/og.png",
+  "logo": "https://craftedideas.co/apple-touch-icon.png",
+  "email": "hello@craftedideas.co",
   "address": { "@type": "PostalAddress", "streetAddress": "23 Sandpiper Road", "addressLocality": "South Croydon", "addressRegion": "Greater London", "postalCode": "CR2 8PQ", "addressCountry": "GB" },
-  "areaServed": "Greater London",
+  "areaServed": [
+    { "@type": "City", "name": "Croydon" },
+    { "@type": "City", "name": "South Croydon" },
+    { "@type": "AdministrativeArea", "name": "Greater London" }
+  ],
+  "knowsAbout": ["Kitchen construction", "Kitchen installation", "Kitchen fitting", "Kitchen repairs", "General building"],
   "foundingDate": "2025-11-29",
   "description": "Kitchen construction, installation, fitting and repairs, plus general building work across Croydon and Greater London."
 }
@@ -42,8 +53,11 @@
   font-weight:100 900;font-style:normal;font-display:swap}
 :root{
   --bg:#F6F3EE; --bg2:#EFEAE2; --card:#FBF9F5;
-  --ink:#1E1B17; --muted:#7A7267; --line:#DFD7CA;
-  --accent:#A87B3F; --accent-2:#C29A62; --oak:#C9A97C; --oak-d:#A9885C;
+  --ink:#1E1B17; --muted:#70695F;
+  /* --line is decorative hairlines only; --edge is for interactive borders (WCAG 1.4.11 needs 3:1) */
+  --line:#DFD7CA; --edge:#8A857D;
+  /* --accent is the brass, for large type and ornament; --accent-ink is its AA-safe twin for small text */
+  --accent:#A87B3F; --accent-ink:#866232; --accent-2:#C29A62; --oak:#C9A97C; --oak-d:#A9885C;
   --glow:rgba(168,123,63,.18);
   --ease:cubic-bezier(.22,.61,.36,1);
   --fd:'Fraunces',Georgia,serif; --fb:'InterV',system-ui,-apple-system,sans-serif;
@@ -59,8 +73,8 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 .mono{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .serif{font-family:var(--fd);font-optical-sizing:auto}
 a{color:inherit;text-decoration:none}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
-.skip{position:fixed;top:10px;left:10px;z-index:200;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;
+:focus-visible{outline:2px solid var(--accent-ink);outline-offset:3px;border-radius:2px}
+.skip{position:fixed;top:10px;left:10px;z-index:200;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:99px;
   font-size:13px;transform:translateY(-64px);transition:transform .25s var(--ease)}
 .skip:focus{transform:none}
 html.lenis,html.lenis body{height:auto}
@@ -86,26 +100,54 @@ nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:cent
   padding:18px 30px;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 76%,transparent);
   border-bottom:1px solid transparent;transition:border-color .4s}
 nav.scrolled{border-color:var(--line)}
-.brand{font-family:var(--fd);font-weight:600;font-size:20px;letter-spacing:-.01em}
+.brand{font-family:var(--fd);font-weight:600;font-size:20px;letter-spacing:-.01em;
+  display:inline-flex;align-items:center;min-height:44px;min-width:44px} /* 2.5.8 target size */
 .brand .dot{color:var(--accent)}
 .brand small{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
   color:var(--muted);margin-left:12px;font-weight:500}
 .nlinks{display:flex;align-items:center;gap:26px;font-size:14px;color:var(--muted)}
+.nlinks a{display:inline-flex;align-items:center;min-height:44px} /* 2.5.8 — bare links were 23px */
 .nlinks a:hover{color:var(--ink)}
-.nlinks .cta{color:var(--ink);border:1px solid var(--line);border-radius:99px;padding:8px 18px;
+.nlinks .cta{color:var(--ink);border:1px solid var(--edge);border-radius:99px;padding:8px 18px;
   transition:border-color .3s,background .3s}
 .nlinks .cta:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
-@media (max-width:760px){.nlinks a:not(.cta){display:none}.brand small{display:none}}
+
+/* ---------- mobile menu ---------- */
+.menubtn{display:none;width:44px;height:44px;align-items:center;justify-content:center;
+  background:none;border:0;color:var(--ink);cursor:pointer;border-radius:10px}
+.menubtn span{display:block;position:relative;width:20px;height:1.5px;background:currentColor;
+  transition:transform .3s var(--ease),background .1s .15s}
+.menubtn span::before,.menubtn span::after{content:"";position:absolute;left:0;width:20px;height:1.5px;
+  background:currentColor;transition:transform .3s var(--ease)}
+.menubtn span::before{top:-6px}.menubtn span::after{top:6px}
+.menubtn[aria-expanded="true"] span{background:transparent;transition:background 0s}
+.menubtn[aria-expanded="true"] span::before{transform:translateY(6px) rotate(45deg)}
+.menubtn[aria-expanded="true"] span::after{transform:translateY(-6px) rotate(-45deg)}
+#menu{position:absolute;top:100%;left:0;right:0;display:none;flex-direction:column;
+  padding:8px 22px 22px;background:color-mix(in srgb,var(--bg) 96%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+#menu.open{display:flex}
+#menu a{padding:15px 8px;font-size:17px;color:var(--ink);border-top:1px solid var(--line)}
+@media (max-width:760px){
+  .nlinks a:not(.cta){display:none}
+  .brand small{display:none}
+  .menubtn{display:inline-flex}
+  nav{padding:12px 18px}
+  .nlinks{gap:6px}
+}
+@media (min-width:761px){#menu{display:none!important}}
 
 /* ============================== the journey (pinned hero) ============================== */
 .jwrap{position:relative}
-.jstage{position:relative;min-height:100svh;overflow:hidden;display:flex;align-items:center}
+.jstage{position:relative;min-height:100vh;min-height:100svh;overflow:hidden;display:flex;align-items:center}
 .ch{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
 /* default (no fx): only the final chapter is a normal hero; the journey layers hide */
 #ch0,#ch1,#ch2,#ch3,#ch4{display:none}
-#ch5{position:relative;inset:auto;min-height:100svh;width:100%}
-/* fx desktop: 700vh journey, sticky stage, all chapters layered */
-@media (min-width:761px){
+#ch5{position:relative;inset:auto;min-height:100vh;min-height:100svh;width:100%}
+/* fx desktop: 700vh journey, sticky stage, all chapters layered.
+   Gate must stay byte-identical to JOURNEY_MQ in the module script below — a landscape
+   phone is 844px wide, so a width-only gate hands it 700vh of scroll-jack and 3.7MB of frames. */
+@media (min-width:1025px) and (hover:hover) and (pointer:fine){
   .fx .jwrap{height:700vh}
   .fx .jstage{position:sticky;top:0;height:100vh;min-height:0}
   .fx .ch{display:flex}
@@ -147,7 +189,7 @@ nav.scrolled{border-color:var(--line)}
 .bp .bp-dim text{font-family:ui-monospace,Menlo,monospace;font-size:15px;letter-spacing:.1em;fill:var(--muted)}
 .bp .bp-grid line{stroke:var(--ink);stroke-width:.5;opacity:.05}
 .mcopy{position:fixed;left:clamp(28px,4.5vw,72px);bottom:clamp(28px,7vh,72px);max-width:250px;opacity:0}
-.mcopy .k{color:var(--accent);letter-spacing:.2em}
+.mcopy .k{color:var(--accent-ink);letter-spacing:.2em}
 .mcopy p{font-family:var(--fd);font-size:clamp(19px,1.9vw,25px);font-weight:480;line-height:1.35;margin-top:12px}
 
 /* ---- the film (paper → drawing → real kitchen, frame-scrubbed) ---- */
@@ -167,7 +209,7 @@ nav.scrolled{border-color:var(--line)}
 #ch5 .hero-bp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.10;pointer-events:none}
 #ch5 .hero-bp svg{width:min(94vw,1150px)}
 .fx #ch5 .hero-bp{display:none}
-.eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--accent)}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
 .eyebrow i{display:block;width:34px;height:1px;background:var(--accent)}
 #ch5 h1{font-family:var(--fd);font-weight:560;letter-spacing:-.015em;line-height:1.02;
   font-size:clamp(46px,7.6vw,108px);margin:22px 0 26px;max-width:12ch}
@@ -178,7 +220,7 @@ nav.scrolled{border-color:var(--line)}
   transition:transform .3s var(--ease),box-shadow .3s,background .3s,border-color .3s}
 .btn.pri{background:var(--ink);color:var(--bg);box-shadow:0 14px 40px rgba(30,27,23,.22)}
 .btn.pri:hover{transform:translateY(-2px);background:#000}
-.btn.sec{border:1px solid var(--line);color:var(--ink)}
+.btn.sec{border:1px solid var(--edge);color:var(--ink)}
 .btn.sec:hover{border-color:var(--accent);transform:translateY(-2px)}
 #ch5 .meta{margin-top:54px;display:flex;gap:26px;flex-wrap:wrap}
 @media (max-width:760px){#ch5 .inner{padding-top:96px;padding-bottom:60px}}
@@ -186,7 +228,7 @@ nav.scrolled{border-color:var(--line)}
 /* ============================== page sections ============================== */
 section.pg{padding:clamp(90px,12vh,150px) 0;position:relative}
 section.pg.alt{background:var(--bg2)}
-.tag{display:inline-flex;align-items:center;gap:12px;color:var(--accent)}
+.tag{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
 .tag i{display:block;width:34px;height:1px;background:var(--accent)}
 .big{font-family:var(--fd);font-weight:520;letter-spacing:-.012em;line-height:1.08;
   font-size:clamp(34px,4.6vw,60px);margin:18px 0 20px;max-width:22ch}
@@ -202,6 +244,13 @@ section.pg.alt{background:var(--bg2)}
 .svc li:first-child{border-top:0}
 .svc li b{font-weight:600;min-width:9.5em}
 .svc li span{color:var(--muted);font-size:15px}
+/* below ~760px the 9.5em label column starves the description into a 46px ribbon that
+   overflows and gets clipped by .svc{overflow:hidden} — stack the pair instead */
+@media (max-width:760px){
+  .svc{padding:28px 24px}
+  .svc li{flex-direction:column;align-items:stretch;gap:5px}
+  .svc li b{min-width:0}
+}
 .svc.side{background:linear-gradient(170deg,var(--card),color-mix(in srgb,var(--oak) 14%,var(--card)))}
 .svc .cornice{position:absolute;top:0;right:0;width:120px;height:120px;pointer-events:none;opacity:.5;
   background:radial-gradient(circle at top right,var(--glow),transparent 70%)}
@@ -217,28 +266,36 @@ section.pg.alt{background:var(--bg2)}
 .proc .dotp{position:absolute;top:21px;left:0;width:11px;height:11px;border-radius:50%;background:var(--bg);
   border:2px solid var(--accent)}
 @media (max-width:900px){.proc .dotp{display:none}}
-.proc h4{font-family:var(--fd);font-size:19px;font-weight:580;margin-bottom:6px}
+.proc h3{font-family:var(--fd);font-size:19px;font-weight:580;margin-bottom:6px}
 .proc p{color:var(--muted);font-size:14.5px;line-height:1.55}
-.proc .stepno{color:var(--accent);display:block;margin-bottom:8px}
+.proc .stepno{color:var(--accent-ink);display:block;margin-bottom:8px}
 /* work */
 .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
 @media (max-width:900px){.tiles{grid-template-columns:1fr 1fr}}
 @media (max-width:600px){.tiles{grid-template-columns:1fr}}
 .tile{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/3.1;background:var(--bg2);outline:1px solid var(--line);outline-offset:-1px}
 .tile img,.tile .plate{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ease)}
+/* drawing-paper placeholder — reads as intentional, and swaps out for a photo one line at a time */
 .tile .plate{display:flex;align-items:center;justify-content:center;
-  background:linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--oak) 22%,var(--bg2)))}
-.tile .plate span{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  background:
+    repeating-linear-gradient(0deg,transparent 0 23px,color-mix(in srgb,var(--ink) 6%,transparent) 23px 24px),
+    repeating-linear-gradient(90deg,transparent 0 23px,color-mix(in srgb,var(--ink) 6%,transparent) 23px 24px),
+    linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--oak) 22%,var(--bg2)))}
+.tile .plate span{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:99px;border:1px solid var(--line)}
 .tile:hover img{transform:scale(1.05)}
 .tile figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 14px;font-size:13px;color:#fff;
-  background:linear-gradient(transparent,rgba(20,17,14,.62));opacity:0;transition:opacity .45s var(--ease)}
+  background:linear-gradient(transparent,rgba(20,17,14,.72));opacity:0;transition:opacity .45s var(--ease)}
 .tile:hover figcaption{opacity:1}
+/* no hover on touch, so the caption would never be readable — it's the only label a tile has */
+@media (hover:none){.tile figcaption{opacity:1}}
 .worknote{margin-top:26px;color:var(--muted);font-size:14px}
 /* why */
 .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:56px}
 @media (max-width:900px){.trust{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.trust{grid-template-columns:1fr;gap:30px}}
 .tr{border-top:2px solid var(--accent);padding-top:18px}
-.tr h4{font-family:var(--fd);font-size:19px;font-weight:580;margin-bottom:8px}
+.tr h3{font-family:var(--fd);font-size:19px;font-weight:580;margin-bottom:8px}
 .tr p{color:var(--muted);font-size:14.5px;line-height:1.55}
 /* contact */
 #contact .big{max-width:16ch}
@@ -282,9 +339,16 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <a href="#process">Process</a>
     <a href="#work">Work</a>
     <a class="cta" href="#contact">Get a quote</a>
+    <button class="menubtn" id="menubtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span></button>
+  </div>
+  <div id="menu">
+    <a href="#services">Services</a>
+    <a href="#process">Process</a>
+    <a href="#work">Work</a>
   </div>
 </nav>
 
+<main id="main">
 <!-- ============================== the journey ============================== -->
 <header class="jwrap" id="top">
   <div class="jstage">
@@ -383,7 +447,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 </header>
 
 <!-- ============================== services ============================== -->
-<section class="pg" id="services" aria-labelledby="svcH">
+<section class="pg" id="services" aria-labelledby="svcH" tabindex="-1">
   <div class="wrap">
     <span class="tag mono rise"><i></i>What we do</span>
     <h2 class="big rise" id="svcH">The kitchen is the job. The rest is backup.</h2>
@@ -421,11 +485,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <div class="proc">
       <div class="proc-line"><i id="procfill"></i></div>
       <ol>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">01</span><h4>Visit &amp; measure</h4><p>We come to you, look at the space properly, and listen to what you actually need.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">02</span><h4>Design &amp; quote</h4><p>A clear plan and a clear price. No surprises held back for later.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">03</span><h4>Build</h4><p>Construction and preparation — done right where it can't be seen, so it lasts where it can.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">04</span><h4>Fit</h4><p>The precise part. Units, worktops, appliances — flush, level, working.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">05</span><h4>Aftercare</h4><p>A tidy handover, and we come back if anything needs us. That's the standard.</p></li>
+        <li class="rise"><span class="dotp"></span><span class="mono stepno">01</span><h3>Visit &amp; measure</h3><p>We come to you, look at the space properly, and listen to what you actually need.</p></li>
+        <li class="rise"><span class="dotp"></span><span class="mono stepno">02</span><h3>Design &amp; quote</h3><p>A clear plan and a clear price. No surprises held back for later.</p></li>
+        <li class="rise"><span class="dotp"></span><span class="mono stepno">03</span><h3>Build</h3><p>Construction and preparation — done right where it can't be seen, so it lasts where it can.</p></li>
+        <li class="rise"><span class="dotp"></span><span class="mono stepno">04</span><h3>Fit</h3><p>The precise part. Units, worktops, appliances — flush, level, working.</p></li>
+        <li class="rise"><span class="dotp"></span><span class="mono stepno">05</span><h3>Aftercare</h3><p>A tidy handover, and we come back if anything needs us. That's the standard.</p></li>
       </ol>
     </div>
   </div>
@@ -436,27 +500,33 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
   <div class="wrap">
     <span class="tag mono rise"><i></i>The work</span>
     <h2 class="big rise" id="wrkH">Built to be looked at closely.</h2>
+    <!-- TO ADD A REAL PHOTO: drop the file in media/work/, then in that tile replace
+             <div class="plate"><span>Photography soon</span></div>
+         with
+             <img src="/media/work/01.jpg" alt="Describe what the photo shows" loading="lazy" decoding="async">
+         Nothing else changes — the img is already styled to fill the tile. Export at 1200px
+         wide, JPEG q75 (or AVIF). See README "Adding real photography". -->
     <div class="tiles">
-      <figure class="tile rise"><div class="plate"><span>Photography soon</span></div>
-        <img alt="Fitted kitchen" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=900&q=70">
+      <figure class="tile rise">
+        <div class="plate"><span>Photography soon</span></div>
         <figcaption>Full kitchen — build &amp; fit</figcaption></figure>
-      <figure class="tile rise"><div class="plate"><span>Photography soon</span></div>
-        <img alt="Kitchen detail" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1565538810643-b5bdb714032a?auto=format&fit=crop&w=900&q=70">
+      <figure class="tile rise">
+        <div class="plate"><span>Photography soon</span></div>
         <figcaption>Worktop &amp; cabinetry detail</figcaption></figure>
-      <figure class="tile rise"><div class="plate"><span>Photography soon</span></div>
-        <img alt="Kitchen interior" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&w=900&q=70">
+      <figure class="tile rise">
+        <div class="plate"><span>Photography soon</span></div>
         <figcaption>Open-plan refit</figcaption></figure>
-      <figure class="tile rise"><div class="plate"><span>Photography soon</span></div>
-        <img alt="Interior finishing" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1571508601891-ca5e7a713859?auto=format&fit=crop&w=900&q=70">
+      <figure class="tile rise">
+        <div class="plate"><span>Photography soon</span></div>
         <figcaption>Completion &amp; finishing</figcaption></figure>
-      <figure class="tile rise"><div class="plate"><span>Photography soon</span></div>
-        <img alt="Dark kitchen scheme" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?auto=format&fit=crop&w=900&q=70">
+      <figure class="tile rise">
+        <div class="plate"><span>Photography soon</span></div>
         <figcaption>Dark scheme — supply &amp; install</figcaption></figure>
-      <figure class="tile rise"><div class="plate"><span>Photography soon</span></div>
-        <img alt="Renovation in progress" loading="lazy" decoding="async" data-src="https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=900&q=70">
+      <figure class="tile rise">
+        <div class="plate"><span>Photography soon</span></div>
         <figcaption>Site work — the part you don't see</figcaption></figure>
     </div>
-    <p class="worknote rise mono">Placeholder photography — Vasil's own projects go here.</p>
+    <p class="worknote rise mono">Photography of Vasil's own projects goes here — these are placeholders, not our work.</p>
   </div>
 </section>
 
@@ -466,10 +536,10 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <span class="tag mono rise"><i></i>Why Crafted Ideas</span>
     <h2 class="big rise" id="whyH">One pair of hands, accountable for all of it.</h2>
     <div class="trust">
-      <div class="tr rise"><h4>One company, end to end</h4><p>No chain of subcontractors pointing at each other. The person who quotes is the person responsible.</p></div>
-      <div class="tr rise"><h4>A registered UK company</h4><p>Crafted Ideas Ltd, registered in England — a real business with its name on the work.</p></div>
-      <div class="tr rise"><h4>Tidy sites, tidy handover</h4><p>Dust sheets down, mess out, tools away. You live here — the site behaves like it knows that.</p></div>
-      <div class="tr rise"><h4>Repairs taken seriously</h4><p>Most firms only want the big job. We'll come for a hinge. That's how trust starts.</p></div>
+      <div class="tr rise"><h3>One company, end to end</h3><p>No chain of subcontractors pointing at each other. The person who quotes is the person responsible.</p></div>
+      <div class="tr rise"><h3>A registered UK company</h3><p>Crafted Ideas Ltd, registered in England — a real business with its name on the work.</p></div>
+      <div class="tr rise"><h3>Tidy sites, tidy handover</h3><p>Dust sheets down, mess out, tools away. You live here — the site behaves like it knows that.</p></div>
+      <div class="tr rise"><h3>Repairs taken seriously</h3><p>Most firms only want the big job. We'll come for a hinge. That's how trust starts.</p></div>
     </div>
   </div>
 </section>
@@ -480,12 +550,17 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <span class="tag mono rise"><i></i>Contact</span>
     <h2 class="big rise" id="conH">Tell us about your kitchen.</h2>
     <p class="sub rise">A photo and a rough idea is enough to start. We'll come and measure — the visit costs nothing.</p>
+    <!-- WHEN VASIL'S NUMBER ARRIVES: restore these two as the first buttons and drop the
+         mailto down to .btn.sec. Both must carry the REAL mobile in full E.164 form:
+             <a class="btn pri" href="tel:+447XXXXXXXXX">Call Vasil</a>
+             <a class="btn sec" href="https://wa.me/447XXXXXXXXX" rel="noopener">WhatsApp a photo</a>
+         The previous placeholder was +447000000000 — UK 070x is Ofcom's premium-rated personal
+         numbering range, not a mobile, so it must never ship live again. -->
     <div class="ctas rise">
-      <a class="btn pri" href="tel:+447000000000">Call Vasil</a>
-      <a class="btn sec" href="https://wa.me/447000000000" rel="noopener">WhatsApp a photo</a>
-      <a class="btn sec" href="mailto:hello@craftedideas.co">Email</a>
+      <a class="btn pri" href="mailto:hello@craftedideas.co?subject=Kitchen%20enquiry">Email us a photo</a>
+      <a class="btn sec" href="#services">What we do</a>
     </div>
-    <p class="cnote rise">Direct number and email land here shortly.</p>
+    <p class="cnote rise">Email reaches us today. Direct phone and WhatsApp land here shortly.</p>
     <div class="caddr rise">
       <span class="mono">Crafted Ideas Ltd</span>
       <span class="mono">South Croydon · CR2</span>
@@ -493,6 +568,8 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     </div>
   </div>
 </section>
+
+</main>
 
 <footer>
   <div class="wrap frow">
@@ -513,16 +590,18 @@ function onScrollBasic(){
   prog.style.transform='scaleX('+(h>0?(scrollY/h):0)+')';
 }
 addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
-/* photos: swap data-src in lazily; on failure the styled plate simply stays */
-document.querySelectorAll('img[data-src]').forEach(function(im){
-  var io=new IntersectionObserver(function(es,o){
-    if(es.some(function(e){return e.isIntersecting;})){
-      im.onerror=function(){im.remove();};
-      im.src=im.getAttribute('data-src');o.disconnect();
-    }
-  },{rootMargin:'300% 0px 300% 0px'});
-  io.observe(im);
-});
+/* mobile menu — below 761px the nav links are hidden, so this is the only way to reach them */
+(function(){
+  var btn=document.getElementById('menubtn'),menu=document.getElementById('menu');
+  if(!btn||!menu)return;
+  var set=function(open){btn.setAttribute('aria-expanded',open?'true':'false');menu.classList.toggle('open',open);};
+  btn.addEventListener('click',function(){set(btn.getAttribute('aria-expanded')!=='true');});
+  menu.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});
+  addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&btn.getAttribute('aria-expanded')==='true'){set(false);btn.focus();}
+  });
+  matchMedia('(min-width:761px)').addEventListener('change',function(e){if(e.matches)set(false);});
+})();
 /* build the wordmark letter spans (also used by the static hero fallback: hidden there) */
 (function(){
   var mk=function(id,word,dir){var el=document.getElementById(id);if(!el)return;
@@ -587,7 +666,9 @@ const fload=i=>{
   im.onload=()=>{fready[i]=true;if(Math.abs(i-Math.floor(fwant))<=1||fdrawn<0)paintFilm(fwant,true);};
   im.src=fsrc(i);fimgs[i]=im;
 };
-const fxDesktop=root.classList.contains('fx')&&matchMedia('(min-width:761px)').matches;
+/* keep byte-identical to the @media gate in the stylesheet above */
+const JOURNEY_MQ='(min-width:1025px) and (hover:hover) and (pointer:fine)';
+const fxDesktop=root.classList.contains('fx')&&matchMedia(JOURNEY_MQ).matches;
 if(fxDesktop&&film){
   fload(0);fload(FN-1);
   setTimeout(()=>{for(let i=1;i<FN-1;i++)fload(i);},600);
@@ -602,7 +683,13 @@ if(root.classList.contains('fx')){
     (function raf(t){lenis.raf(t);requestAnimationFrame(raf);})(0);
     document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
       const id=a.getAttribute('href');
-      if(id&&id.length>1){e.preventDefault();lenis.scrollTo(id,{offset:0,duration:1.15});}
+      if(!id||id.length<2)return;
+      e.preventDefault();
+      lenis.scrollTo(id,{offset:0,duration:1.15});
+      /* preventDefault() also cancels the native focus move — re-home it or the skip link
+         scrolls the page but leaves keyboard focus stranded back in the nav */
+      const t=document.querySelector(id);
+      if(t&&t.hasAttribute('tabindex'))t.focus({preventScroll:true});
     }));
 
     /* ---------- custom cursor ---------- */
@@ -633,26 +720,32 @@ if(root.classList.contains('fx')){
     if(pf)animate(pf,{scaleX:[0,1],duration:900,ease:'out(2)',
       autoplay:animeOnScroll({target:'.proc',enter,leave:{target:'center',container:'center'},sync:true})});
 
-    /* ---------- ambient hatching canvas ---------- */
+    /* ---------- ambient hatching canvas ----------
+       Fine pointers only: it's a full-viewport 60fps redraw, and the old `scrollY<innerHeight*8`
+       gate covered ~73% of the mobile page, so phones paid for it almost end to end. */
     const amb=document.getElementById('amb');
-    if(amb){
-      const ac=amb.getContext('2d');let aw,ah,t0=0,mx2=.5;
+    if(amb&&matchMedia('(hover:hover) and (pointer:fine)').matches){
+      const ac=amb.getContext('2d');let aw,ah,t0=0,mx2=.5,raf=0;
       const fit=()=>{aw=amb.width=amb.offsetWidth*devicePixelRatio/2;ah=amb.height=amb.offsetHeight*devicePixelRatio/2;};
       fit();addEventListener('resize',fit,{passive:true});
       addEventListener('mousemove',e=>{mx2=e.clientX/innerWidth;},{passive:true});
       const ink=css('--ink')||'#1E1B17';
-      (function loop(ts){
-        if(scrollY<innerHeight*8){ /* only while the journey is on screen */
-          t0=ts*.00001;ac.clearRect(0,0,aw,ah);
-          ac.strokeStyle=ink;ac.globalAlpha=.05;ac.lineWidth=1;
-          const n=26,gap=aw/n;
-          for(let i=-6;i<n+6;i++){
-            const off=Math.sin(t0*3+i*.7)*14+(mx2-.5)*22;
-            ac.beginPath();ac.moveTo(i*gap+off,0);ac.lineTo(i*gap+off+ah*.28,ah);ac.stroke();
-          }
+      const stage=document.querySelector('.jwrap');
+      const loop=ts=>{
+        raf=requestAnimationFrame(loop);
+        if(scrollY>stage.offsetHeight)return; /* hero is behind us — nothing to draw */
+        t0=ts*.00001;ac.clearRect(0,0,aw,ah);
+        ac.strokeStyle=ink;ac.globalAlpha=.05;ac.lineWidth=1;
+        const n=26,gap=aw/n;
+        for(let i=-6;i<n+6;i++){
+          const off=Math.sin(t0*3+i*.7)*14+(mx2-.5)*22;
+          ac.beginPath();ac.moveTo(i*gap+off,0);ac.lineTo(i*gap+off+ah*.28,ah);ac.stroke();
         }
-        requestAnimationFrame(loop);
-      })(0);
+      };
+      const start=()=>{if(!raf)raf=requestAnimationFrame(loop);};
+      const stop=()=>{cancelAnimationFrame(raf);raf=0;};
+      addEventListener('visibilitychange',()=>document.hidden?stop():start());
+      start();
     }
 
     /* ============ the journey scrub (desktop only) ============ */

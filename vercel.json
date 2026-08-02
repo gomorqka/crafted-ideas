@@ -5,15 +5,21 @@
     {
       "source": "/(.*)",
       "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'sha256-3T5rctwglK8TW54XP1NaWAdnECIy4kP0IE5YvQ/QpM4=' 'sha256-7HG0Q1CtrhMT4u/+HdpKmxmUcO5K4yBU/4yXp0xl18g=' 'sha256-l9giBEFroJ+nP18OOrXItE/iG645VP/2RkC87MriskU='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=()" }
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=(), payment=(), usb=()" }
       ]
     },
     {
       "source": "/vendor/(.*)",
       "headers": [ { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" } ]
+    },
+    {
+      "source": "/media/(.*)",
+      "headers": [ { "key": "Cache-Control", "value": "public, max-age=604800" } ]
     },
     {
       "source": "/favicon.svg",

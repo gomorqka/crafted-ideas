@@ -1,5 +1,6 @@
 // Assemble the static site into dist/ — vendor assets come from npm at build time.
-import { mkdirSync, copyFileSync, writeFileSync, cpSync } from 'node:fs';
+import { mkdirSync, copyFileSync, writeFileSync, cpSync, readFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 
 mkdirSync('dist/vendor', { recursive: true });
 
@@ -15,6 +16,8 @@ const vendor = {
 for (const [src, out] of Object.entries(vendor)) copyFileSync(src, `dist/vendor/${out}`);
 
 cpSync('media/seq', 'dist/media/seq', { recursive: true });
+// real project photography, once it exists — see README "Adding real photography"
+if (existsSync('media/work')) cpSync('media/work', 'dist/media/work', { recursive: true });
 console.log('build ok → dist/');
 
 // binary assets shipped as base64 text so the deploy payload stays plain-text
@@ -23,3 +26,23 @@ const ICON_B64 = "iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEUUlEQVR4nOza3W
 writeFileSync('dist/og.png', Buffer.from(OG_B64, 'base64'));
 writeFileSync('dist/apple-touch-icon.png', Buffer.from(ICON_B64, 'base64'));
 console.log('images written');
+
+// ---- CSP guard ------------------------------------------------------------
+// script-src is 'self' plus a SHA-256 per inline <script>, so no 'unsafe-inline' is needed.
+// Editing an inline script changes its hash; without this check the page would silently stop
+// executing in production. Fail the build instead, and print the values to paste in.
+// (type="application/ld+json" is a data block, never executed, so CSP doesn't apply to it.)
+const html = readFileSync('index.html', 'utf8');
+const inlineScripts = [...html.matchAll(/<script(?![^>]*\ssrc=)[^>]*>([\s\S]*?)<\/script>/g)]
+  .filter(m => !/type\s*=\s*["']application\/ld\+json["']/i.test(m[0]))
+  .map(m => m[1]);
+const hashes = inlineScripts.map(s => `'sha256-${createHash('sha256').update(s, 'utf8').digest('base64')}'`);
+const vercelJson = readFileSync('vercel.json', 'utf8');
+const missing = hashes.filter(h => !vercelJson.includes(h));
+if (missing.length) {
+  console.error(`\n✗ CSP hash drift: ${missing.length} of ${hashes.length} inline script hashes are not in vercel.json.`);
+  console.error('  Replace the sha256 entries in the script-src directive with:\n');
+  console.error('    ' + hashes.join('\n    ') + '\n');
+  process.exit(1);
+}
+console.log(`csp ok — ${hashes.length} inline script hashes match vercel.json`);
