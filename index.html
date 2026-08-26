@@ -32,6 +32,7 @@
   "identifier": "16881417",
   "url": "https://craftedideasltd.co.uk",
   "telephone": "+447597231778",
+  "email": "craftedideasltd@gmail.com",
   "openingHoursSpecification": [
     { "@type": "OpeningHoursSpecification",
       "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
@@ -792,14 +793,13 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <div class="ctas rise">
       <a class="btn pri" href="tel:+447597231778">Call Vasil</a>
       <a class="btn sec" href="https://wa.me/447597231778" rel="noopener">WhatsApp a photo</a>
-      <!-- HANDOVER: the Email button is held. info@craftedideasltd.co.uk now EXISTS — COWORK
-           created the Namecheap forward to craftedideasltd@gmail.com on 26 Aug — but nobody has
-           watched a mail actually land, because that inbox is Vasil's and neither Georgi nor
-           COWORK can open it. The standing rule is that a channel goes live only once someone
-           has confirmed it, and this repo has shipped an imaginary mailbox once already.
-           Restore this single line the moment one test mail is seen to arrive:
-           <a class="btn sec" href="mailto:info@craftedideasltd.co.uk?subject=Kitchen%20enquiry">Email</a>
-           Phone and WhatsApp above are confirmed, so the page still has a working route. -->
+      <!-- HANDOVER: this deliberately advertises the Gmail, not info@craftedideasltd.co.uk.
+           The info@ forward exists — COWORK created it 26 Aug — but nobody has yet watched a mail
+           land in it, and this repo has already shipped one address that turned out to be nothing.
+           The Gmail is Vasil's real working inbox, so it clears that bar and the branded one does
+           not, yet. Swap to info@ in THREE places together the moment a test mail is seen to
+           arrive: this href, the JSON-LD "email" above, and the form-failure copy below. -->
+      <a class="btn sec" href="mailto:craftedideasltd@gmail.com?subject=Kitchen%20enquiry">Email</a>
     </div>
     <p class="cnote rise">Monday to Friday, 9am to 6pm. A photo on WhatsApp is the quickest start.</p>
 
@@ -1006,7 +1006,7 @@ if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in 
         say('Thank you — that’s with us. We’ll be in touch within a working day.');
       })
       .catch(function(){
-        say('That didn’t send — sorry. Please call 07597 231778 and we’ll pick it up.',true);
+        say('That didn’t send — sorry. Please call 07597 231778, or email craftedideasltd@gmail.com.',true);
       })
       .finally(function(){btn.disabled=false;});
   });
