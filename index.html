@@ -152,12 +152,22 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 #ch0,#ch1,#ch2,#ch3,#ch4{display:none}
 #ch5{position:relative;inset:auto;min-height:100vh;min-height:100svh;width:100%}
 /* desktop journey: 700vh, sticky stage, all chapters layered */
-.fxd .jwrap{height:700vh}
+.fxd .jwrap{height:130vh}
 .fxd .jstage{position:sticky;top:0;height:100vh;min-height:0}
 .fxd .ch{display:flex}
-.fxd #ch0,.fxd #ch1,.fxd #ch2,.fxd #ch3,.fxd #ch4{display:flex}
-.fxd #ch1,.fxd #ch2,.fxd #ch3,.fxd #ch4,.fxd #ch5{opacity:0}
+/* The 700vh act (wordmark, word beats, chapter rail) is retired — it existed to carry a page
+   with no photographs. Only the film survives, and only as the hero's backdrop. */
+.fxd #ch0,.fxd #ch2,.fxd #ch3,.fxd #ch4{display:none}
+.fxd #ch1{display:flex}
 .fxd #ch5{position:absolute;inset:0;min-height:0}
+/* film full-bleed behind the hero, with a scrim so the headline stays legible over it */
+.fxd #ch1 .filmstage{position:absolute;inset:0;width:100%;height:100%;border-radius:0;
+  box-shadow:none;outline:0;aspect-ratio:auto}
+.fxd #ch1 .mcopy{display:none}
+.fxd #ch1::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(100deg,var(--bg) 4%,color-mix(in srgb,var(--bg) 86%,transparent) 38%,
+    color-mix(in srgb,var(--bg) 30%,transparent) 72%)}
+.fxd #ch5{z-index:2}
 
 /* mobile journey: shorter pin, and the blueprint we already ship does the work.
    No image sequence is required for this to be complete — the film is an extra
@@ -181,7 +191,8 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 /* chapter rail */
 .chrail{position:absolute;right:30px;top:50%;transform:translateY(-50%);z-index:5;display:none;
   flex-direction:column;align-items:center;gap:12px}
-.fxd .chrail{display:flex}
+/* chapter rail retired with the five-chapter act — there is one chapter now */
+.fxd .chrail{display:none}
 .chrail .bar{width:1px;height:120px;background:var(--line);position:relative;overflow:hidden}
 .chrail .bar i{position:absolute;inset:0;background:var(--accent);transform:scaleY(0);transform-origin:top}
 .chrail .n{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;color:var(--muted)}
@@ -232,9 +243,9 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 .fxd #ch5 .hero-bp{display:none}
 .eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
 .eyebrow i{display:block;width:34px;height:1px;background:var(--accent)}
-#ch5 h1{font-family:var(--fd);font-weight:560;letter-spacing:-.015em;line-height:1.02;
+#ch5 h1{font-family:var(--fd);font-weight:340;letter-spacing:-.012em;line-height:1.04;
   font-size:clamp(46px,7.6vw,108px);margin:22px 0 26px;max-width:12ch}
-#ch5 h1 .em{color:var(--accent);font-style:italic;font-weight:480}
+#ch5 h1 .em{color:var(--accent);font-style:italic;font-weight:400}
 #ch5 .lede{max-width:52ch;color:var(--muted);font-size:clamp(16px,1.55vw,19px)}
 .hero-cta{display:flex;gap:14px;margin-top:40px;flex-wrap:wrap}
 .btn{display:inline-flex;align-items:center;gap:10px;border-radius:99px;padding:15px 30px;font-size:15.5px;font-weight:560;
@@ -258,7 +269,7 @@ section.pg{padding:clamp(90px,12vh,150px) 0;position:relative}
 section.pg.alt{background:var(--bg2)}
 .tag{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
 .tag i{display:block;width:34px;height:1px;background:var(--accent)}
-.big{font-family:var(--fd);font-weight:520;letter-spacing:-.012em;line-height:1.08;
+.big{font-family:var(--fd);font-weight:400;letter-spacing:-.012em;line-height:1.08;
   font-size:clamp(34px,4.6vw,60px);margin:18px 0 20px;max-width:22ch}
 .sub{color:var(--muted);max-width:60ch}
 /* services */
@@ -327,11 +338,28 @@ section.pg.alt{background:var(--bg2)}
 .ba input[type=range]:focus-visible{outline:2px solid var(--accent-ink);outline-offset:-4px;border-radius:18px}
 .banote{margin-top:16px;color:var(--muted);font-size:14px}
 /* work */
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px}
-@media (max-width:900px){.tiles{grid-template-columns:1fr 1fr}}
-@media (max-width:600px){.tiles{grid-template-columns:1fr}}
-.tile{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:4/3.1;background:var(--bg2);outline:1px solid var(--line);outline-offset:-1px}
-.tile img,.tile .plate{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ease)}
+/* Edge-bleed portfolio: images run off the viewport, captions sit in the facing column.
+   Alternating sides gives the page a rhythm a uniform grid cannot. */
+/* The container escapes .wrap once, so each image column already reaches the viewport edge and
+   no per-tile negative margins are needed. Captions get their own padding instead. */
+.tiles{width:100vw;margin-left:calc(50% - 50vw);margin-top:64px;
+  display:flex;flex-direction:column;gap:clamp(56px,8vw,120px)}
+.tile{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(24px,4vw,64px)}
+.tile .shot{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--bg2)}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  transition:transform 1.2s var(--ease)}
+.tile:hover img{transform:scale(1.04)}
+.tile figcaption{padding:0 clamp(28px,5vw,88px);max-width:34ch}
+/* alternate which side the photo bleeds from */
+.tile:nth-child(even) .shot{order:2}
+.tile:nth-child(even) figcaption{order:1;justify-self:end}
+@media (max-width:820px){
+  .tile{grid-template-columns:1fr;gap:20px}
+  .tile:nth-child(even) .shot{order:0}
+  .tile:nth-child(even) figcaption{order:0;justify-self:start}
+  .tile figcaption{padding:0 28px}
+  .tile .shot{aspect-ratio:3/2}
+}
 /* drawing-paper placeholder — reads as intentional, and swaps out for a photo one line at a time.
    Standalone class, so the before/after wipe gets the same treatment for free. */
 .plate{display:flex;align-items:center;justify-content:center;
@@ -341,16 +369,11 @@ section.pg.alt{background:var(--bg2)}
     linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--oak) 22%,var(--bg2)))}
 .plate span{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:99px;border:1px solid var(--line)}
-.tile:hover img{transform:scale(1.05)}
-.tile figcaption{position:absolute;left:0;right:0;bottom:0;padding:40px 18px 15px;font-size:13px;color:#fff;
-  background:linear-gradient(transparent,rgba(20,17,14,.82));opacity:0;transition:opacity .45s var(--ease);
-  display:flex;flex-direction:column;gap:3px}
-.tile figcaption b{font-size:15px;font-weight:600;letter-spacing:-.005em}
-.tile figcaption span{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.13em;
-  text-transform:uppercase;color:rgba(255,255,255,.82)}
-.tile:hover figcaption{opacity:1}
-/* no hover on touch, so the caption would never be readable — it's the only label a tile has */
-@media (hover:none){.tile figcaption{opacity:1}}
+.tile figcaption{display:flex;flex-direction:column;gap:10px}
+.tile figcaption b{font-family:var(--fd);font-weight:400;font-size:clamp(24px,3vw,38px);
+  line-height:1.12;letter-spacing:-.01em;color:var(--ink)}
+.tile figcaption span{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--muted)}
 .worknote{margin-top:26px;color:var(--muted);font-size:14px}
 /* why */
 .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:56px}
@@ -406,6 +429,8 @@ footer .freg{margin-top:10px}
 .arealist a{display:inline-flex;align-items:center;min-height:40px;padding:8px 15px;font-size:14px;
   border:1px solid var(--line);border-radius:99px;color:var(--muted);transition:border-color .3s,color .3s}
 .arealist a:hover{border-color:var(--accent);color:var(--ink)}
+.coverline{max-width:60ch;font-size:14.5px;line-height:1.6}
+.coverline b{color:var(--ink);font-weight:600}
 /* credentials — every figure here comes off the Allianz schedule in com/docs.
    Never claim cover we haven't read off the document; see the standing rule in the plan. */
 .creds{padding-bottom:34px;margin-bottom:30px;border-bottom:1px solid var(--line)}
@@ -661,31 +686,31 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
          here describes what is in each frame, not the marketing line printed beside it. -->
     <div class="tiles">
       <figure class="tile rise">
-        <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async"></div>
         <figcaption><b>Seamless &amp; sophisticated</b><span>Soft matt Schmidt kitchen · Epsom</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/02-stone-island-handleless-fulham.jpg" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/02-stone-island-handleless-fulham.jpg" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async"></div>
         <figcaption><b>Sculptural simplicity</b><span>Handleless kitchen &amp; stone island · Fulham</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/03-alno-kitchen-clapham-common.jpg" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/03-alno-kitchen-clapham-common.jpg" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async"></div>
         <figcaption><b>Contemporary meets character</b><span>Alno kitchen · Clapham Common</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async"></div>
         <figcaption><b>Made for the space</b><span>Bespoke pantry &amp; cabinetry · Dulwich</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/05-hand-painted-kitchen-caterham.jpg" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/05-hand-painted-kitchen-caterham.jpg" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async"></div>
         <figcaption><b>Colour, your way</b><span>Hand-painted kitchen &amp; island · Caterham</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/06-zone-lighting-control-guildford.jpg" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/06-zone-lighting-control-guildford.jpg" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async"></div>
         <figcaption><b>Light by design</b><span>Tailor-made zone lighting · Guildford</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/07-interior-solutions-south-croydon.jpg" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/07-interior-solutions-south-croydon.jpg" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async"></div>
         <figcaption><b>Beyond the kitchen</b><span>Made-to-measure interiors · South Croydon</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/08-renovation-remodelling.jpg" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/08-renovation-remodelling.jpg" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async"></div>
         <figcaption><b>Reimagining the home</b><span>Renovation &amp; remodelling</span></figcaption></figure>
       <figure class="tile rise">
-        <img src="/media/work/09-showroom-schmidt-epsom.jpg" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
+        <div class="shot"><img src="/media/work/09-showroom-schmidt-epsom.jpg" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async"></div>
         <figcaption><b>Design in detail</b><span>Showroom installation · Schmidt Epsom</span></figcaption></figure>
     </div>
   </div>
@@ -829,18 +854,15 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
       <li>Gas &amp; electrical work by <b>registered</b> Gas Safe / NICEIC subcontractors</li>
     </ul>
   </section>
-  <nav class="wrap fareas" aria-label="Areas we cover">
-    <span class="mono falabel">Areas we cover</span>
-    <ul class="arealist">
-      <!-- Kept in step with areas.mjs by the build — it fails if these drift apart. -->
-      <li><a href="/kitchens/croydon/">Croydon</a></li>
-      <li><a href="/kitchens/south-croydon/">South Croydon</a></li>
-      <li><a href="/kitchens/purley/">Purley</a></li>
-      <li><a href="/kitchens/bromley/">Bromley</a></li>
-      <li><a href="/kitchens/sutton/">Sutton</a></li>
-      <li><a href="/kitchens/beckenham/">Beckenham</a></li>
-    </ul>
-  </nav>
+  <section class="wrap fareas" aria-labelledby="coverH">
+    <span class="mono falabel" id="coverH">Where we work</span>
+    <!-- The six /kitchens/<area>/ pages were removed on 26 Aug. The areas were a guess nobody had
+         confirmed and the local-expertise copy was written rather than earned — and it narrowed
+         Vasil, who takes work across Greater London. One honest sentence beats six invented pages.
+         The real project locations in #work now carry the local signal. -->
+    <p class="coverline">Kitchens across <b>Greater London and the surrounding counties</b> — recent
+      work in Epsom, Fulham, Clapham, Dulwich, Caterham, Guildford and South Croydon.</p>
+  </section>
   <div class="wrap frow">
     <div>
       <div class="fb">ci<span class="dot">.</span> Crafted Ideas Ltd</div>
@@ -1106,91 +1128,24 @@ if(fxDesktop&&film){
     /* ============ the journey scrub (desktop only) ============ */
     if(fxDesktop){
       const jwrap=document.querySelector('.jwrap');
-      const $=id=>document.getElementById(id);
-      const ch0=$('ch0'),ch1=$('ch1'),ch4=$('ch4'),ch5=$('ch5');
-      const lts1=[...document.querySelectorAll('#wm1 .lt')],lts2=[...document.querySelectorAll('#wm2 .lt')];
-      const seam=$('seam'),tag0=$('tag0'),hint=$('hint'),mc1=$('mc1'),mc2=$('mc2');
-      const chno=$('chno'),chfill=$('chfill');
-      const wds=[$('w40'),$('w41'),$('w42'),$('w43'),$('w44')];
+      const ch1=document.getElementById('ch1'), ch5=document.getElementById('ch5');
       const st=(el,o)=>{for(const k in o)el.style[k]=o[k];};
 
-      /* word beats inside the closing chapter */
-      const WD=[[.790,.828],[.822,.860],[.854,.892],[.886,.924],[.918,.966]];
-      /* the film owns p .105 → .715 of the pin */
-      const F0=.105,F1=.715;
-
-      let pinTop=0,pinDur=1,intro=0;
+      /* One act now, not five. The film plays behind the hero across a 130vh pin and hands
+         straight over to the work. The old wordmark/word-beat chapters are gone — they were
+         carrying a page that had nothing to show, and it has nine projects now. */
+      let pinTop=0,pinDur=1;
       const measure=()=>{pinTop=jwrap.offsetTop;pinDur=Math.max(1,jwrap.offsetHeight-innerHeight);};
-
       const scrub=()=>{
         const p=clamp((scrollY-pinTop)/pinDur,0,1);
-
-        /* rail */
-        chfill.style.transform='scaleY('+p+')';
-        const BOUND=[.085,.755,.955];
-        let cn=0;while(cn<3&&p>BOUND[cn])cn++;
-        chno.textContent='0'+cn;
-
-        /* ---- ch0 · arrival (auto-plays on load via `intro`, then owned by scroll) ---- */
-        {
-          const tin=Math.max(easeOut(seg(p,0,.05)),easeOut(intro)),tout=seg(p,.085,.115);
-          st(ch0,{opacity:String(1-tout),visibility:tout>=1?'hidden':'visible'});
-          lts1.forEach((el,i)=>{const d=+el.dataset.d,off=(1-tin)*(70+i*26)*d;
-            st(el,{transform:`translateX(${off}px)`,opacity:String(clamp(tin*1.6,0,1))});});
-          lts2.forEach((el,i)=>{const d=+el.dataset.d,off=(1-tin)*(70+i*34)*d;
-            st(el,{transform:`translateX(${off}px)`,opacity:String(clamp(tin*1.6,0,1))});});
-          const sflash=bell(Math.max(seg(p,.038,.062),seg(intro,.4,.8)),.4,.4);
-          st(seam,{opacity:String(sflash*.9)});
-          const tt=Math.max(easeOut(seg(p,.05,.075)),easeOut(seg(intro,.6,1)));
-          st(tag0,{opacity:String(tt),transform:`translateY(${(1-tt)*14}px)`});
-          st(hint,{opacity:String(Math.min(1-seg(p,.02,.05),easeOut(seg(intro,.75,1))))});
-          const drift=easeOut(tout);
-          st(ch0.querySelector('.wm'),{transform:`translateY(${-drift*7}vh) scale(${1-drift*.03})`});
-        }
-        /* ---- ch1 · the film ---- */
-        {
-          const tin=easeOut(seg(p,.075,.105)),tout=easeOut(seg(p,.72,.755));
-          st(ch1,{opacity:String(Math.min(tin,1-tout)),visibility:(p<.06||p>.78)?'hidden':'visible',
-            transform:`translateY(${(1-tin)*5-tout*3}vh)`});
-          if(p>=.05&&p<=.80){
-            const t=seg(p,F0,F1);
-            fwant=t*(FN-1);
-            paintFilm(fwant);
-          }
-          const m1=Math.min(easeOut(seg(p,.115,.15)),1-easeOut(seg(p,.36,.40)));
-          st(mc1,{opacity:String(m1),transform:`translateY(${(1-m1)*16}px)`});
-          const m2=Math.min(easeOut(seg(p,.42,.46)),1-tout);
-          st(mc2,{opacity:String(m2),transform:`translateY(${(1-m2)*16}px)`});
-        }
-        /* ---- ch4 · the words ---- */
-        {
-          const vis=p>.775&&p<.972;
-          st(ch4,{opacity:vis?'1':'0',visibility:vis?'visible':'hidden'});
-          wds.forEach((w,i)=>{
-            const [a,b]=WD[i],t=seg(p,a,b);
-            const o=i===4?Math.min(easeOut(seg(t,0,.4)),1-easeOut(seg(t,.8,1))):bell(t,.3,.3);
-            st(w,{opacity:String(o)});
-            const sp=w.querySelector('span');
-            sp.style.fontWeight=String(Math.round(300+easeOut(t)*340));
-            sp.style.transform=`translateY(${(1-easeOut(clamp(t*1.8,0,1)))*26}px)`;
-          });
-        }
-        /* ---- ch5 · release ---- */
-        {
-          const tin=easeOut(seg(p,.958,.995));
-          st(ch5,{opacity:String(tin),visibility:p>.94?'visible':'hidden',pointerEvents:tin>.5?'auto':'none'});
-          const w=ch5.querySelector('.wrap');
-          st(w,{transform:`translateY(${(1-tin)*26}px)`});
-        }
+        fwant=easeOut(p)*(FN-1);
+        paintFilm(fwant);
+        /* hero lifts away as the pin ends so the work section arrives clean */
+        const out=easeOut(seg(p,.72,1));
+        st(ch5,{opacity:String(1-out*.85),transform:`translateY(${-out*4}vh)`});
+        st(ch1,{opacity:String(.55+.45*easeOut(seg(p,0,.35)))});
       };
       measure();scrub();
-      /* intro choreography — the wordmark joins on load, before any scroll */
-      const t0=performance.now();
-      (function irun(now){
-        intro=clamp((now-t0)/1400,0,1);
-        scrub();
-        if(intro<1)requestAnimationFrame(irun);
-      })(t0);
       addEventListener('scroll',scrub,{passive:true});
       addEventListener('resize',()=>{measure();scrub();},{passive:true});
     }else{

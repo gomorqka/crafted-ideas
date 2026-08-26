@@ -1,7 +1,7 @@
 // Assemble the static site into dist/ — vendor assets come from npm at build time.
 import { mkdirSync, copyFileSync, writeFileSync, cpSync, readFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { AREAS, SITE, renderArea } from './areas.mjs';
+import { SITE } from './site.mjs';
 
 mkdirSync('dist/vendor', { recursive: true });
 
@@ -22,15 +22,13 @@ cpSync('media/seq-m', 'dist/media/seq-m', { recursive: true });  // mobile: 17 f
 // real project photography, once it exists — see README "Adding real photography"
 if (existsSync('media/work')) cpSync('media/work', 'dist/media/work', { recursive: true });
 
-// ---- service-area landing pages -------------------------------------------
-for (const area of AREAS) {
-  mkdirSync(`dist/kitchens/${area.slug}`, { recursive: true });
-  writeFileSync(`dist/kitchens/${area.slug}/index.html`, renderArea(area, AREAS));
-}
-console.log(`areas ok — ${AREAS.length} pages under /kitchens/`);
+// Service-area pages were removed on 26 Aug. They were built on six areas nobody had
+// confirmed, with local-expertise copy that was written rather than earned — and Vasil works
+// across Greater London, so they narrowed him rather than helping. /kitchens/* now 301s to the
+// work section; see com/plans/redesign-v2.md. Real project locations carry the local signal now.
 
 // ---- sitemap, generated so it can never drift from what actually shipped ----
-const urls = [`${SITE}/`, ...AREAS.map(a => `${SITE}/kitchens/${a.slug}/`)];
+const urls = [`${SITE}/`];
 writeFileSync('dist/sitemap.xml',
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
   urls.map(u => `  <url><loc>${u}</loc></url>`).join('\n') +
@@ -82,23 +80,12 @@ if (missing.length) {
 
 // ---- the homepage footer must list exactly the areas we actually generate ----
 // Orphaned area pages get crawled but rank poorly; footer links to pages that don't exist are 404s.
-const linked = [...html.matchAll(/href="\/kitchens\/([a-z0-9-]+)\/"/g)].map(m => m[1]);
-const slugs = AREAS.map(a => a.slug);
-const orphaned = slugs.filter(s => !linked.includes(s));
-const dangling = linked.filter(s => !slugs.includes(s));
-if (orphaned.length || dangling.length) {
-  console.error('\n✗ Footer area links are out of step with areas.mjs.');
-  if (orphaned.length) console.error(`  Generated but not linked from index.html: ${orphaned.join(', ')}`);
-  if (dangling.length) console.error(`  Linked from index.html but not generated (would 404): ${dangling.join(', ')}`);
-  process.exit(1);
-}
-console.log(`links ok — all ${slugs.length} area pages linked from the homepage`);
 
 // ---- handover checklist -----------------------------------------------------
 // Reminders, never failures: the site must still build and deploy with these outstanding.
 // Every deliberately-unfinished spot is tagged HANDOVER: next to the code it affects, so the
 // checklist can't drift from reality the way a hand-maintained list would.
-const sources = { 'index.html': html, 'areas.mjs': readFileSync('areas.mjs', 'utf8') };
+const sources = { 'index.html': html };
 const todos = [];
 for (const [file, src] of Object.entries(sources)) {
   src.split('\n').forEach((line, i) => {

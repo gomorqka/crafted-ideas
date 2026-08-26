@@ -3,6 +3,11 @@
   "cleanUrls": true,
   "redirects": [
     {
+      "source": "/kitchens/:slug*",
+      "destination": "https://craftedideasltd.co.uk/#work",
+      "permanent": true
+    },
+    {
       "source": "/:path*",
       "has": [
         {
@@ -64,7 +69,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-rtz1uPsg5kWC1MB2p7lrpQxgajGatVNvBcjLeImWWpY=' 'sha256-kUgf9KMc+nAwo9UbSklYXEHZZKX3AKjBGL/6HFvrD0c=' 'sha256-I5peuzg8YQBFWiFkicaad2HR/wZ5ytTRcl08WdJ48cg='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com; base-uri 'none'; form-action 'self' https://api.web3forms.com; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'sha256-rtz1uPsg5kWC1MB2p7lrpQxgajGatVNvBcjLeImWWpY=' 'sha256-kUgf9KMc+nAwo9UbSklYXEHZZKX3AKjBGL/6HFvrD0c=' 'sha256-Dbo0SnAuXcWku55M6IbeLZJoobraj/kLjAR8+uUpWbs='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com; base-uri 'none'; form-action 'self' https://api.web3forms.com; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
         },
         {
           "key": "Strict-Transport-Security",
