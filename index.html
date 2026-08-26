@@ -10,29 +10,35 @@
 <meta property="og:title" content="Crafted Ideas Ltd — kitchens, built properly.">
 <meta property="og:description" content="Kitchen construction, installation, fitting & repairs across Croydon and Greater London. Measured twice. Crafted once.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://craftedideas.co">
-<meta property="og:image" content="https://craftedideas.co/og.png">
+<meta property="og:url" content="https://craftedideasltd.co.uk">
+<meta property="og:image" content="https://craftedideasltd.co.uk/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://craftedideas.co/">
+<link rel="canonical" href="https://craftedideasltd.co.uk/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#F6F3EE">
 <link rel="preload" href="/vendor/fraunces-latin-full-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/vendor/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
-<!-- HANDOVER: add "telephone", "email" and "openingHours" to this JSON-LD once real details
-     exist. All three surface directly in local search results. See README "Handover". -->
+<!-- Contact details confirmed by Vasil 25 Aug 2026. The phone is a real 07597 mobile in
+     E.164 form; the email is his live Gmail. All three surface in local search results. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "HomeAndConstructionBusiness",
-  "@id": "https://craftedideas.co/#business",
+  "@id": "https://craftedideasltd.co.uk/#business",
   "name": "Crafted Ideas Ltd",
   "legalName": "Crafted Ideas Ltd",
   "identifier": "16881417",
-  "url": "https://craftedideas.co",
-  "image": "https://craftedideas.co/og.png",
-  "logo": "https://craftedideas.co/apple-touch-icon.png",
+  "url": "https://craftedideasltd.co.uk",
+  "telephone": "+447597231778",
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+      "opens": "09:00", "closes": "18:00" }
+  ],
+  "image": "https://craftedideasltd.co.uk/og.png",
+  "logo": "https://craftedideasltd.co.uk/apple-touch-icon.png",
   "address": { "@type": "PostalAddress", "streetAddress": "23 Sandpiper Road", "addressLocality": "South Croydon", "addressRegion": "Greater London", "postalCode": "CR2 8PQ", "addressCountry": "GB" },
   "areaServed": [
     { "@type": "City", "name": "Croydon" },
@@ -336,8 +342,12 @@ section.pg.alt{background:var(--bg2)}
 .plate span{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
   color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:99px;border:1px solid var(--line)}
 .tile:hover img{transform:scale(1.05)}
-.tile figcaption{position:absolute;left:0;right:0;bottom:0;padding:34px 18px 14px;font-size:13px;color:#fff;
-  background:linear-gradient(transparent,rgba(20,17,14,.72));opacity:0;transition:opacity .45s var(--ease)}
+.tile figcaption{position:absolute;left:0;right:0;bottom:0;padding:40px 18px 15px;font-size:13px;color:#fff;
+  background:linear-gradient(transparent,rgba(20,17,14,.82));opacity:0;transition:opacity .45s var(--ease);
+  display:flex;flex-direction:column;gap:3px}
+.tile figcaption b{font-size:15px;font-weight:600;letter-spacing:-.005em}
+.tile figcaption span{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:rgba(255,255,255,.82)}
 .tile:hover figcaption{opacity:1}
 /* no hover on touch, so the caption would never be readable — it's the only label a tile has */
 @media (hover:none){.tile figcaption{opacity:1}}
@@ -396,6 +406,15 @@ footer .freg{margin-top:10px}
 .arealist a{display:inline-flex;align-items:center;min-height:40px;padding:8px 15px;font-size:14px;
   border:1px solid var(--line);border-radius:99px;color:var(--muted);transition:border-color .3s,color .3s}
 .arealist a:hover{border-color:var(--accent);color:var(--ink)}
+/* credentials — every figure here comes off the Allianz schedule in com/docs.
+   Never claim cover we haven't read off the document; see the standing rule in the plan. */
+.creds{padding-bottom:34px;margin-bottom:30px;border-bottom:1px solid var(--line)}
+.creds .falabel{display:block;margin-bottom:14px}
+.credlist{list-style:none;display:flex;flex-wrap:wrap;gap:10px 26px}
+.credlist li{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--muted)}
+.credlist li::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;
+  background:var(--accent);transform:translateY(-3px)}
+.credlist b{font-weight:600;color:var(--ink)}
 footer .fb{font-family:var(--fd);font-weight:600;font-size:18px;color:var(--ink)}
 footer .fb .dot{color:var(--accent)}
 footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
@@ -611,6 +630,13 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <!-- BEFORE / AFTER: swap each .plate for an <img> exactly as with the tiles below.
          The pair must be shot from the same spot — same corner, same lens, same height —
          or the wipe reads as two different rooms instead of one room transformed. -->
+    <!-- HANDOVER: before/after wipe, hidden 26 Aug on Georgi's instruction — Vasil is having the
+         "after" shot taken next week and an empty slider advertises the gap. Restore by deleting
+         this comment wrapper; the .ba* CSS is still in the stylesheet and the wipe IIFE no-ops
+         when #ba-range is absent, so nothing else needs touching and no CSP rehash is required.
+         The pair MUST be shot from the same spot — same corner, lens and height — or the wipe
+         reads as two different rooms. The "before" has to already exist from that position; it
+         cannot be matched retrospectively.
     <figure class="bawrap rise">
       <div class="ba" id="ba">
         <div class="side before">
@@ -625,37 +651,43 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <input type="range" id="ba-range" min="0" max="100" value="50" step="1"
                aria-label="Reveal the finished kitchen — drag, or use the arrow keys">
       </div>
-      <!-- Once the real pair is in, cut the first sentence of this caption. -->
+      <!- - Once the real pair is in, cut the first sentence of this caption. - ->
       <figcaption class="banote">A before-and-after pair goes here — photography soon. Drag the handle to wipe between the two, or use the arrow keys.</figcaption>
     </figure>
+    -->
 
-    <!-- TO ADD A REAL PHOTO: drop the file in media/work/, then in that tile replace
-             <div class="plate"><span>Photography soon</span></div>
-         with
-             <img src="/media/work/01.jpg" alt="Describe what the photo shows" loading="lazy" decoding="async">
-         Nothing else changes — the img is already styled to fill the tile. Export at 1200px
-         wide, JPEG q75 (or AVIF). See README "Adding real photography". -->
+    <!-- Vasil's own projects — his order, his titles. Manifest: com/plans/work-photos.md.
+         To swap one, replace the src AND rewrite the alt to describe that photo. The alt text
+         here describes what is in each frame, not the marketing line printed beside it. -->
     <div class="tiles">
       <figure class="tile rise">
-        <div class="plate"><span>Photography soon</span></div>
-        <figcaption>Full kitchen — build &amp; fit</figcaption></figure>
+        <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
+        <figcaption><b>Seamless &amp; sophisticated</b><span>Soft matt Schmidt kitchen · Epsom</span></figcaption></figure>
       <figure class="tile rise">
-        <div class="plate"><span>Photography soon</span></div>
-        <figcaption>Worktop &amp; cabinetry detail</figcaption></figure>
+        <img src="/media/work/02-stone-island-handleless-fulham.jpg" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
+        <figcaption><b>Sculptural simplicity</b><span>Handleless kitchen &amp; stone island · Fulham</span></figcaption></figure>
       <figure class="tile rise">
-        <div class="plate"><span>Photography soon</span></div>
-        <figcaption>Open-plan refit</figcaption></figure>
+        <img src="/media/work/03-alno-kitchen-clapham-common.jpg" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
+        <figcaption><b>Contemporary meets character</b><span>Alno kitchen · Clapham Common</span></figcaption></figure>
       <figure class="tile rise">
-        <div class="plate"><span>Photography soon</span></div>
-        <figcaption>Completion &amp; finishing</figcaption></figure>
+        <img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
+        <figcaption><b>Made for the space</b><span>Bespoke pantry &amp; cabinetry · Dulwich</span></figcaption></figure>
       <figure class="tile rise">
-        <div class="plate"><span>Photography soon</span></div>
-        <figcaption>Dark scheme — supply &amp; install</figcaption></figure>
+        <img src="/media/work/05-hand-painted-kitchen-caterham.jpg" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
+        <figcaption><b>Colour, your way</b><span>Hand-painted kitchen &amp; island · Caterham</span></figcaption></figure>
       <figure class="tile rise">
-        <div class="plate"><span>Photography soon</span></div>
-        <figcaption>Site work — the part you don't see</figcaption></figure>
+        <img src="/media/work/06-zone-lighting-control-guildford.jpg" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
+        <figcaption><b>Light by design</b><span>Tailor-made zone lighting · Guildford</span></figcaption></figure>
+      <figure class="tile rise">
+        <img src="/media/work/07-interior-solutions-south-croydon.jpg" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
+        <figcaption><b>Beyond the kitchen</b><span>Made-to-measure interiors · South Croydon</span></figcaption></figure>
+      <figure class="tile rise">
+        <img src="/media/work/08-renovation-remodelling.jpg" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
+        <figcaption><b>Reimagining the home</b><span>Renovation &amp; remodelling</span></figcaption></figure>
+      <figure class="tile rise">
+        <img src="/media/work/09-showroom-schmidt-epsom.jpg" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
+        <figcaption><b>Design in detail</b><span>Showroom installation · Schmidt Epsom</span></figcaption></figure>
     </div>
-    <p class="worknote rise mono">Photography of Vasil's own projects goes here — these are placeholders, not our work.</p>
   </div>
 </section>
 
@@ -679,23 +711,28 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <span class="tag mono rise"><i></i>Contact</span>
     <h2 class="big rise" id="conH">Tell us about your kitchen.</h2>
     <p class="sub rise">A photo and a rough idea is enough to start. We'll come and measure — the visit costs nothing.</p>
-    <!-- HANDOVER: no contact route is live yet — this is deliberately left unfinished.
-         When the real details exist, put these three back as the first thing in the section;
-         for a trade business they convert harder than anything else on the page.
-             <div class="ctas rise">
-               <a class="btn pri" href="tel:+447XXXXXXXXX">Call Vasil</a>
-               <a class="btn sec" href="https://wa.me/447XXXXXXXXX" rel="noopener">WhatsApp a photo</a>
-               <a class="btn sec" href="mailto:REAL@craftedideas.co?subject=Kitchen%20enquiry">Email</a>
-             </div>
-         Two things that must not be got wrong:
-           · The phone must be a real mobile in full E.164 form. The placeholder that shipped
-             at launch was +447000000000 — UK 070x is Ofcom's premium-rated personal numbering
-             range, not a mobile. It billed the caller. It must never ship live again.
-           · hello@craftedideas.co also shipped at launch and was never a real mailbox. The
-             domain's MX records point at Namecheap forwarding, but that only proves the domain
-             accepts mail — it does not mean the alias exists. Confirm it forwards somewhere a
-             person reads before putting any address back on the page. -->
-    <p class="cnote rise">Phone, WhatsApp and email are being set up — they'll be here shortly.</p>
+    <!-- These three are the highest-converting things on the page for a trade business,
+         so they come before the form. Both were confirmed by Vasil on 25 Aug 2026.
+           · Phone is +447597231778 — a real 07597 mobile, in full E.164 form. The launch
+             placeholder was +447000000000; UK 070x is Ofcom's premium-rated personal
+             numbering range, not a mobile, and it billed the caller. Never ship a 070.
+           · Email is his live Gmail, deliberately, not hello@craftedideas.co. That alias
+             shipped at launch and was never a real mailbox. If the Namecheap forward is
+             ever set up AND confirmed to land somewhere he reads, swap it in here, in the
+             JSON-LD above and in the form fallback below — not before. -->
+    <div class="ctas rise">
+      <a class="btn pri" href="tel:+447597231778">Call Vasil</a>
+      <a class="btn sec" href="https://wa.me/447597231778" rel="noopener">WhatsApp a photo</a>
+      <!-- HANDOVER: the Email button is held. info@craftedideasltd.co.uk now EXISTS — COWORK
+           created the Namecheap forward to craftedideasltd@gmail.com on 26 Aug — but nobody has
+           watched a mail actually land, because that inbox is Vasil's and neither Georgi nor
+           COWORK can open it. The standing rule is that a channel goes live only once someone
+           has confirmed it, and this repo has shipped an imaginary mailbox once already.
+           Restore this single line the moment one test mail is seen to arrive:
+           <a class="btn sec" href="mailto:info@craftedideasltd.co.uk?subject=Kitchen%20enquiry">Email</a>
+           Phone and WhatsApp above are confirmed, so the page still has a working route. -->
+    </div>
+    <p class="cnote rise">Monday to Friday, 9am to 6pm. A photo on WhatsApp is the quickest start.</p>
 
     <!-- Quote form → Web3Forms. Replace WEB3FORMS_ACCESS_KEY below with the real key from
          web3forms.com (free, no account dashboard needed — the key is bound to the destination
@@ -707,9 +744,9 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
       <p class="qlede">Leave your details and we'll come back to you within a working day.</p>
 
       <input type="hidden" name="access_key" value="WEB3FORMS_ACCESS_KEY">
-      <input type="hidden" name="subject" value="New kitchen enquiry — craftedideas.co">
-      <input type="hidden" name="from_name" value="craftedideas.co">
-      <input type="hidden" name="redirect" value="https://craftedideas.co/#contact">
+      <input type="hidden" name="subject" value="New kitchen enquiry — craftedideasltd.co.uk">
+      <input type="hidden" name="from_name" value="craftedideasltd.co.uk">
+      <input type="hidden" name="redirect" value="https://craftedideasltd.co.uk/#contact">
       <label class="qhp" aria-hidden="true" tabindex="-1">Leave this empty<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"></label>
 
       <div class="qgrid">
@@ -773,6 +810,25 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 </main>
 
 <footer>
+  <section class="wrap creds" aria-labelledby="credsH">
+    <span class="mono falabel" id="credsH">Cover &amp; registration</span>
+    <!-- Figures read off the Allianz schedule held in com/docs (policy number deliberately
+         not written here either — HTML comments ship to the browser).
+         Public &amp; Products Liability £5,000,000 · Employers' Liability £10,000,000.
+         RENEWAL 05/02/2027 — re-read the schedule then; do not let a stale figure stand.
+         The policy number is deliberately NOT published: it does a customer no good and
+         is not ours to broadcast. Gas Safe / NICEIC stay off until Vasil confirms he holds
+         them — listing a ticket he does not hold is a real problem, not a cosmetic one. -->
+    <ul class="credlist">
+      <li><b>£5m</b> public liability cover, with Allianz</li>
+      <li><b>£10m</b> employers' liability</li>
+      <li><b>Company No. 16881417</b> — registered in England</li>
+      <!-- Vasil, 26 Aug: Crafted Ideas Ltd is NOT itself Gas Safe or NICEIC registered. Gas and
+           electrical work goes to registered subcontractors. The sentence below says exactly that
+           and must keep saying exactly that — claiming the registration directly would be false. -->
+      <li>Gas &amp; electrical work by <b>registered</b> Gas Safe / NICEIC subcontractors</li>
+    </ul>
+  </section>
   <nav class="wrap fareas" aria-label="Areas we cover">
     <span class="mono falabel">Areas we cover</span>
     <ul class="arealist">
@@ -872,7 +928,7 @@ if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in 
     /* HANDOVER: while the access key is a placeholder we refuse rather than pretend to send.
        Once a contact route exists, name it here so this isn't a dead end. */
     if(!keyed){
-      say('This form isn’t connected yet — we’re setting up contact details and they’ll be here shortly.',true);
+      say('This form isn’t connected yet — please call 07597 231778 or send a photo on WhatsApp.',true);
       return;
     }
     btn.disabled=true;say('Sending…');
@@ -884,8 +940,7 @@ if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in 
         say('Thank you — that’s with us. We’ll be in touch within a working day.');
       })
       .catch(function(){
-        /* HANDOVER: add the real phone/email here as the fallback once they exist. */
-        say('That didn’t send — sorry. Please try again in a moment.',true);
+        say('That didn’t send — sorry. Please call 07597 231778 and we’ll pick it up.',true);
       })
       .finally(function(){btn.disabled=false;});
   });

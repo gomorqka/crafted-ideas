@@ -1,29 +1,119 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "craftedideas.co"
+        }
+      ],
+      "destination": "https://craftedideasltd.co.uk/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.craftedideas.co"
+        }
+      ],
+      "destination": "https://craftedideasltd.co.uk/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "crafted-ideas.co.uk"
+        }
+      ],
+      "destination": "https://craftedideasltd.co.uk/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.crafted-ideas.co.uk"
+        }
+      ],
+      "destination": "https://craftedideasltd.co.uk/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.craftedideasltd.co.uk"
+        }
+      ],
+      "destination": "https://craftedideasltd.co.uk/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'sha256-rtz1uPsg5kWC1MB2p7lrpQxgajGatVNvBcjLeImWWpY=' 'sha256-I5peuzg8YQBFWiFkicaad2HR/wZ5ytTRcl08WdJ48cg=' 'sha256-SnyHbXRmCQCMeYUlUqxPR2JPP8AI+cLoRQCNi9uNQsw='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com; base-uri 'none'; form-action 'self' https://api.web3forms.com; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=(), payment=(), usb=()" }
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-rtz1uPsg5kWC1MB2p7lrpQxgajGatVNvBcjLeImWWpY=' 'sha256-kUgf9KMc+nAwo9UbSklYXEHZZKX3AKjBGL/6HFvrD0c=' 'sha256-I5peuzg8YQBFWiFkicaad2HR/wZ5ytTRcl08WdJ48cg='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com; base-uri 'none'; form-action 'self' https://api.web3forms.com; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+        }
       ]
     },
     {
       "source": "/vendor/(.*)",
-      "headers": [ { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" } ]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/media/(.*)",
-      "headers": [ { "key": "Cache-Control", "value": "public, max-age=604800" } ]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=604800"
+        }
+      ]
     },
     {
       "source": "/favicon.svg",
-      "headers": [ { "key": "Cache-Control", "value": "public, max-age=86400" } ]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
     }
   ]
 }

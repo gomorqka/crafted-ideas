@@ -1,4 +1,6 @@
-# craftedideas.co
+# craftedideasltd.co.uk
+
+Primary domain since 25 Aug 2026. `craftedideas.co` (and both `www.` hosts) 308-redirect to it via `redirects` in `vercel.json` — the old domain was publicly advertised, so it must keep resolving, not be dropped.
 
 Site for **Crafted Ideas Ltd** — kitchen construction, installation, fitting & repairs, Croydon / Greater London.
 
@@ -21,27 +23,36 @@ python3 -m http.server 8080 -d dist   # → http://localhost:8080
 
 ## Handover
 
-**The site has no working contact route right now, by design.** Every stub is deliberate and marked in the source with a `HANDOVER:` comment; `npm run build` prints them all as a checklist. Nothing here blocks a deploy — the page simply never claims a channel it can't honour.
+**Contact details went live 25 Aug 2026.** Phone, WhatsApp and email now work on the homepage
+and on all six area pages. The quote form is the one thing still stubbed — see the table below.
 
-Two corrections to earlier assumptions, because both were wrong and both cost time:
+Historical note, kept because both mistakes cost time:
 
 - **`hello@craftedideas.co` was never a real mailbox.** It shipped in the launch commit and has been publicly advertised since. The domain's MX records point at Namecheap forwarding, but that only proves the *domain* accepts mail — it says nothing about whether an alias exists. Do not put any address back on the page without confirming it forwards somewhere a person reads.
 - **`+447000000000` was not a harmless dummy.** UK `070x` is Ofcom's premium-rated personal numbering range, not a mobile. Anyone who tapped "Call Vasil" was billed for it. Never ship a `070` number.
 
-The order that unblocks the most: **a working inbox first** — it's the prerequisite for the Web3Forms key, which is the prerequisite for the form, which is currently the only enquiry route the site is built to have.
+The inbox question is settled: **info@craftedideasltd.co.uk** is the published address and is what the
+site advertises. `hello@craftedideas.co` is deliberately *not* used — the Namecheap forward has never
+been confirmed to land anywhere a person reads. If it ever is, swap it in three places together:
+`index.html` `#contact`, the homepage JSON-LD, and `areas.mjs`.
+
+What's left, in order of what unblocks the most:
 
 | Needed | Where it goes | Why it matters |
 |---|---|---|
-| **A real inbox** | wherever it's hosted | Prerequisite for everything below. Namecheap forwarding is already active on the domain, so adding a `hello@` alias pointing at a real inbox is free and takes minutes — check whether a rule already exists and points somewhere stale. |
-| **Web3Forms access key** | `index.html` — replace `WEB3FORMS_ACCESS_KEY` | Connects the quote form. Free, no account or password: enter the real inbox at web3forms.com/#start and the key is emailed to it. Until replaced, the form refuses to submit and says so rather than pretending. |
-| **Mobile number** (full, e.g. `07XXX XXXXXX`) | `index.html` — the `HANDOVER:` block in `#contact`, plus `telephone` in the JSON-LD | Restores "Call Vasil" and WhatsApp. For a trade business these convert harder than anything else on the page. |
-| **WhatsApp number** — confirm it's the same mobile | same block, `wa.me/44…` | "Send a photo" is the lowest-friction lead this site can capture. |
-| **Public email address** | same block, plus `email` in both JSON-LD blocks | Can be the same inbox as above. |
-| **Working hours** | `openingHours` in the JSON-LD | Shows directly in Google local results. |
-| **Project photos** — 6+ finished kitchens | `media/work/` — see below | The `#work` tiles are placeholders. This is the single biggest conversion lever on the page. |
-| **Public liability insurance** — insurer + cover level | new trust card in `#why` | Standard proof for trades; customers look for it. |
+| **Web3Forms access key** | `index.html` — replace `WEB3FORMS_ACCESS_KEY` | The last stub. ⚠️ The flow changed: it is now a real account at `app.web3forms.com`, not an anonymous key-by-email. Create it **from the destination inbox** (`craftedideasltd@gmail.com`) so the credentials belong to the business, then copy the key from the dashboard. Until replaced the form refuses to submit and points at the phone instead — it no longer dead-ends. |
+| **Project photos** — 6+ finished kitchens | `media/work/` — see below | The `#work` tiles are placeholders. Worth more than everything else on this list combined. |
+| **Public liability insurance** — Allianz; cover level still needed | new trust card in `#why` | Insurer confirmed, certificate PDFs pending. Don't publish a figure until the document is in the repo. |
 | **Trade certifications** — Gas Safe / NICEIC / etc., if held | new trust card in `#why` | Only list what he actually holds. |
-| **Google Business Profile** — is one claimed? | enables reviews + map pin | Local search is how this business gets found. |
+| **Google Business Profile** — is one claimed? | enables reviews + map pin | Local search is how this business gets found. Opening hours are already in the JSON-LD, so they'll match. |
+
+### Settled 25 Aug 2026
+
+| Detail | Value | Where it lives |
+|---|---|---|
+| Mobile / WhatsApp | `+447597231778` (`07597 231778`) | `index.html` `#contact` + JSON-LD, `areas.mjs` provider + CTAs, form fallbacks |
+| Email | `info@craftedideasltd.co.uk` | same three places |
+| Opening hours | Mon–Fri, 09:00–18:00 | `openingHoursSpecification` in the homepage JSON-LD |
 
 ## Adding real photography
 

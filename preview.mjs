@@ -22,7 +22,7 @@ createServer((req, res) => {
   res.setHeader('Content-Type', TYPES[extname(f)] || 'application/octet-stream');
   res.end(readFileSync(f));
 }).listen(PORT, () => {
-  console.log(`\n  craftedideas.co preview → http://localhost:${PORT}\n`);
+  console.log(`\n  craftedideasltd.co.uk preview → http://localhost:${PORT}\n`);
   console.log('  Serving dist/ with production headers (CSP enforced).');
   console.log('  Pages:');
   console.log(`    http://localhost:${PORT}/`);
