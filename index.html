@@ -469,11 +469,21 @@ footer .freg{margin-top:10px}
    Never claim cover we haven't read off the document; see the standing rule in the plan. */
 .creds{padding-bottom:34px;margin-bottom:30px;border-bottom:1px solid var(--line)}
 .creds .falabel{display:block;margin-bottom:14px}
-.credlist{list-style:none;display:flex;flex-wrap:wrap;gap:10px 26px}
-.credlist li{display:flex;align-items:baseline;gap:9px;font-size:14px;color:var(--muted)}
-.credlist li::before{content:"";flex:0 0 5px;height:5px;border-radius:50%;
-  background:var(--accent);transform:translateY(-3px)}
+.credlist{list-style:none;display:flex;flex-wrap:wrap;gap:11px 30px}
+/* NOT display:flex on the li. That made the <b> and the text either side of it separate flex
+   items, so each one wrapped in its own column instead of the line reading as one sentence —
+   worst on the Gas Safe entry, which has three parts and became three ragged columns.
+   Normal inline flow, with the bullet taken out of the text stream. */
+.credlist li{position:relative;padding-left:17px;font-size:14px;line-height:1.6;
+  color:var(--muted);max-width:36ch}
+.credlist li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;
+  border-radius:50%;background:var(--accent)}
 .credlist b{font-weight:600;color:var(--ink)}
+/* one per line below 700px — four items side by side on a phone is four cramped columns */
+@media (max-width:700px){
+  .credlist{flex-direction:column;gap:13px}
+  .credlist li{max-width:none}
+}
 footer .fb{font-family:var(--fd);font-weight:600;font-size:18px;color:var(--ink)}
 footer .fb .dot{color:var(--accent)}
 footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
