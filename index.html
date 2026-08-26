@@ -152,6 +152,10 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 .jwrap{position:relative}
 .jstage{position:relative;min-height:100vh;min-height:100svh;overflow:hidden;display:flex;align-items:center}
 .ch{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+/* #ch5 is not decorative — it holds the headline and both CTAs. The old five-chapter scrub
+   re-enabled this from JS as the hero faded in; when that was collapsed into a single film
+   pass the line went with it and the buttons were dead. It belongs in CSS. */
+#ch5{pointer-events:auto}
 /* default (no fx): only the final chapter is a normal hero; the journey layers hide */
 #ch0,#ch1,#ch2,#ch3,#ch4{display:none}
 #ch5{position:relative;inset:auto;min-height:100vh;min-height:100svh;width:100%}
@@ -383,7 +387,11 @@ section.pg.alt{background:var(--bg2)}
   font-size:clamp(24px,3vw,44px);text-shadow:0 1px 22px rgba(16,13,11,.5);
   border-bottom:1px solid transparent;transition:border-color .3s var(--ease)}
 .gcap-btn:hover .gtitle{border-bottom-color:rgba(255,255,255,.5)}
-/* +/- affordance so it reads as openable without a "Details" label competing with the title */
+/* label reinstated: "Hide -" / "Details +" alongside the mark, so the control says what it does */
+.gcap-lbl{display:inline-flex;align-items:center;gap:8px;
+  font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(255,255,255,.86)}
+.gcap-btn:hover .gcap-lbl{color:#fff}
 .gcap-ico{width:13px;height:13px;position:relative;opacity:.8}
 .gcap-ico::before,.gcap-ico::after{content:"";position:absolute;background:currentColor;
   transition:transform .3s var(--ease)}
@@ -721,12 +729,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 1 of 9">
           <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd1">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd1">
               <span class="gnum">01 / 09</span>
               <span class="gtitle">Seamless &amp; Sophisticated</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd1" hidden>
+            <div class="gcap-body" id="gd1">
               <p>A refined soft-matt kitchen with concealed pocket doors, integrated appliances and a discreet downdraft extractor.</p>
               <span class="gloc">Soft Matt Schmidt Kitchen · Epsom</span>
             </div>
@@ -735,12 +743,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 2 of 9">
           <img src="/media/work/02-stone-island-handleless-fulham.jpg" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd2">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd2">
               <span class="gnum">02 / 09</span>
               <span class="gtitle">Sculptural Simplicity</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd2" hidden>
+            <div class="gcap-body" id="gd2">
               <p>A striking stone island with push-to-open cabinetry, creating a beautifully clean and uninterrupted aesthetic.</p>
               <span class="gloc">Handleless Kitchen &amp; Stone Island · Fulham</span>
             </div>
@@ -749,12 +757,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 3 of 9">
           <img src="/media/work/03-alno-kitchen-clapham-common.jpg" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd3">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd3">
               <span class="gnum">03 / 09</span>
               <span class="gtitle">Contemporary Meets Character</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd3" hidden>
+            <div class="gcap-body" id="gd3">
               <p>An elegant Alno kitchen that balances contemporary design with the warmth and character of a period home.</p>
               <span class="gloc">Alno Kitchen · Clapham Common</span>
             </div>
@@ -763,12 +771,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 4 of 9">
           <img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd4">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd4">
               <span class="gnum">04 / 09</span>
               <span class="gtitle">Made for the Space</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd4" hidden>
+            <div class="gcap-body" id="gd4">
               <p>Bespoke navy blue kitchen and pantry units, crafted in Brixton for a new contemporary Dulwich home, combining rich colour, natural timber and considered storage.</p>
               <span class="gloc">Bespoke Pantry &amp; Kitchen Cabinetry · Dulwich</span>
             </div>
@@ -777,12 +785,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 5 of 9">
           <img src="/media/work/05-hand-painted-kitchen-caterham.jpg" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd5">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd5">
               <span class="gnum">05 / 09</span>
               <span class="gtitle">Colour, Your Way</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd5" hidden>
+            <div class="gcap-body" id="gd5">
               <p>Hand-painted furniture finished in your choice of RAL colour, bringing individuality and personality to every interior.</p>
               <span class="gloc">Hand-Painted Kitchen and Island · Caterham</span>
             </div>
@@ -791,12 +799,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 6 of 9">
           <img src="/media/work/06-zone-lighting-control-guildford.jpg" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd6">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd6">
               <span class="gnum">06 / 09</span>
               <span class="gtitle">Light by Design</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd6" hidden>
+            <div class="gcap-body" id="gd6">
               <p>Flexible lighting controls create the perfect balance of task, ambient and architectural illumination.</p>
               <span class="gloc">Tailor-Made Zone Lighting Control · Guildford</span>
             </div>
@@ -805,12 +813,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 7 of 9">
           <img src="/media/work/07-interior-solutions-south-croydon.jpg" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd7">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd7">
               <span class="gnum">07 / 09</span>
               <span class="gtitle">Beyond the Kitchen</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd7" hidden>
+            <div class="gcap-body" id="gd7">
               <p>A fully considered approach to fitted furniture, creating a seamless design language throughout the home.</p>
               <span class="gloc">Complete Made-to-Measure Interior Solutions · South Croydon</span>
             </div>
@@ -819,12 +827,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 8 of 9">
           <img src="/media/work/08-renovation-remodelling.jpg" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd8">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd8">
               <span class="gnum">08 / 09</span>
               <span class="gtitle">Reimagining the Home</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd8" hidden>
+            <div class="gcap-body" id="gd8">
               <p>Idea, design, completion. Thoughtful renovation service and bespoke design transform existing spaces into sophisticated, highly functional interiors.</p>
               <span class="gloc">Complete Renovation &amp; Remodelling Projects</span>
             </div>
@@ -833,12 +841,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 9 of 9">
           <img src="/media/work/09-showroom-schmidt-epsom.jpg" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
           <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="false" aria-controls="gd9">
+            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd9">
               <span class="gnum">09 / 09</span>
               <span class="gtitle">Design in Detail</span>
-              <span class="gcap-ico" aria-hidden="true"></span>
+              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
             </button>
-            <div class="gcap-body" id="gd9" hidden>
+            <div class="gcap-body" id="gd9">
               <p>A contemporary Schmidt installation showcasing architectural cabinetry, integrated appliances and a statement central island.</p>
               <span class="gloc">Showroom Installations · Schmidt Epsom</span>
             </div>
@@ -1022,10 +1030,12 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
   [].forEach.call(btns,function(btn){
     var body=document.getElementById(btn.getAttribute('aria-controls'));
     if(!body)return;
+    var txt=btn.querySelector('.gcap-txt');
     btn.addEventListener('click',function(){
       var open=btn.getAttribute('aria-expanded')==='true';
       btn.setAttribute('aria-expanded',open?'false':'true');
       body.hidden=open;
+      if(txt)txt.textContent=open?'Details':'Hide';
     });
   });
 })();
