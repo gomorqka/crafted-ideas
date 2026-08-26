@@ -3,63 +3,63 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/kitchens/:slug*",
+      "source": "/kitchens/(.*)",
       "destination": "https://craftedideasltd.co.uk/#work",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "craftedideas.co"
         }
       ],
-      "destination": "https://craftedideasltd.co.uk/:path*",
+      "destination": "https://craftedideasltd.co.uk/$1",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "www.craftedideas.co"
         }
       ],
-      "destination": "https://craftedideasltd.co.uk/:path*",
+      "destination": "https://craftedideasltd.co.uk/$1",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "crafted-ideas.co.uk"
         }
       ],
-      "destination": "https://craftedideasltd.co.uk/:path*",
+      "destination": "https://craftedideasltd.co.uk/$1",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "www.crafted-ideas.co.uk"
         }
       ],
-      "destination": "https://craftedideasltd.co.uk/:path*",
+      "destination": "https://craftedideasltd.co.uk/$1",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "www.craftedideasltd.co.uk"
         }
       ],
-      "destination": "https://craftedideasltd.co.uk/:path*",
+      "destination": "https://craftedideasltd.co.uk/$1",
       "permanent": true
     }
   ],
