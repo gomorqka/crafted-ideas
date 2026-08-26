@@ -31,7 +31,7 @@ Historical note, kept because both mistakes cost time:
 - **`hello@craftedideas.co` was never a real mailbox.** It shipped in the launch commit and has been publicly advertised since. The domain's MX records point at Namecheap forwarding, but that only proves the *domain* accepts mail — it says nothing about whether an alias exists. Do not put any address back on the page without confirming it forwards somewhere a person reads.
 - **`+447000000000` was not a harmless dummy.** UK `070x` is Ofcom's premium-rated personal numbering range, not a mobile. Anyone who tapped "Call Vasil" was billed for it. Never ship a `070` number.
 
-The published address is **craftedideasltd@gmail.com** — Vasil's real inbox. `info@craftedideasltd.co.uk` exists as a Namecheap forward but nobody has yet watched a mail land in it, so it is not advertised. `hello@craftedideas.co` is deliberately *not* used — the Namecheap forward has never
+The published address is **info@craftedideasltd.co.uk**, forwarding to Vasil's Gmail. Delivery was confirmed by a real test mail on 26 Aug — that test is the bar, not the existence of MX records, because this domain had MX records the whole time `hello@` was nothing. `hello@craftedideas.co` is deliberately *not* used — the Namecheap forward has never
 been confirmed to land anywhere a person reads. If it ever is, swap it in three places together:
 `index.html` `#contact`, the homepage JSON-LD, and `areas.mjs`.
 
@@ -50,7 +50,7 @@ What's left, in order of what unblocks the most:
 | Detail | Value | Where it lives |
 |---|---|---|
 | Mobile / WhatsApp | `+447597231778` (`07597 231778`) | `index.html` `#contact` + JSON-LD, `areas.mjs` provider + CTAs, form fallbacks |
-| Email | `craftedideasltd@gmail.com` — Vasil's real inbox | CTA, homepage JSON-LD, form-failure copy |
+| Email | `info@craftedideasltd.co.uk` — forwards to Vasil's Gmail, delivery confirmed 26 Aug | CTA, homepage JSON-LD, form-failure copy |
 | Opening hours | Mon–Fri, 09:00–18:00 | `openingHoursSpecification` in the homepage JSON-LD |
 
 ## Adding real photography

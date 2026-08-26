@@ -32,7 +32,7 @@
   "identifier": "16881417",
   "url": "https://craftedideasltd.co.uk",
   "telephone": "+447597231778",
-  "email": "craftedideasltd@gmail.com",
+  "email": "info@craftedideasltd.co.uk",
   "openingHoursSpecification": [
     { "@type": "OpeningHoursSpecification",
       "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
@@ -338,51 +338,40 @@ section.pg.alt{background:var(--bg2)}
 .ba input[type=range]:focus-visible{outline:2px solid var(--accent-ink);outline-offset:-4px;border-radius:18px}
 .banote{margin-top:16px;color:var(--muted);font-size:14px}
 /* work */
-/* Edge-bleed portfolio: images run off the viewport, captions sit in the facing column.
-   Alternating sides gives the page a rhythm a uniform grid cannot. */
-/* The container escapes .wrap once, so each image column already reaches the viewport edge and
-   no per-tile negative margins are needed. Captions get their own padding instead. */
-.tiles{width:100vw;margin-left:calc(50% - 50vw);margin-top:64px;
-  display:flex;flex-direction:column;gap:clamp(56px,8vw,120px)}
-.tile{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(24px,4vw,64px)}
-.tile .shot{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--bg2)}
-.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  transition:transform 1.2s var(--ease)}
-/* hover darkens rather than scales: under .fx the transform belongs to the parallax loop,
-   and two owners of one property is how it ends up stuttering */
-.tile .shot::after{content:"";position:absolute;inset:0;background:var(--ink);opacity:0;
-  transition:opacity .5s var(--ease);pointer-events:none}
-.tile:hover .shot::after{opacity:.07}
-.fx .tile img{transition:none;will-change:transform}
-.fx .tile .shot{opacity:0}
-.fx .tile figcaption > *{opacity:0}
-.tile figcaption{padding:0 clamp(28px,5vw,88px);max-width:40ch}
-.tile figcaption p{color:var(--muted);font-size:15.5px;line-height:1.6}
-/* alternate which side the photo bleeds from */
-.tile:nth-child(even) .shot{order:2}
-.tile:nth-child(even) figcaption{order:1;justify-self:end}
-@media (max-width:820px){
-  .tile{grid-template-columns:1fr;gap:20px}
-  .tile:nth-child(even) .shot{order:0}
-  .tile:nth-child(even) figcaption{order:0;justify-self:start}
-  .tile figcaption{padding:0 28px}
-  .tile .shot{aspect-ratio:3/2}
-}
-/* drawing-paper placeholder — reads as intentional, and swaps out for a photo one line at a time.
-   Standalone class, so the before/after wipe gets the same treatment for free. */
-.plate{display:flex;align-items:center;justify-content:center;
-  background:
-    repeating-linear-gradient(0deg,transparent 0 23px,color-mix(in srgb,var(--ink) 6%,transparent) 23px 24px),
-    repeating-linear-gradient(90deg,transparent 0 23px,color-mix(in srgb,var(--ink) 6%,transparent) 23px 24px),
-    linear-gradient(160deg,var(--bg2),color-mix(in srgb,var(--oak) 22%,var(--bg2)))}
-.plate span{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--muted);background:var(--bg);padding:7px 13px;border-radius:99px;border:1px solid var(--line)}
-.tile figcaption{display:flex;flex-direction:column;gap:14px}
-.tile figcaption b{font-family:var(--fd);font-weight:400;font-size:clamp(24px,3vw,38px);
-  line-height:1.12;letter-spacing:-.01em;color:var(--ink)}
-.tile figcaption span{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--muted)}
-.worknote{margin-top:26px;color:var(--muted);font-size:14px}
+/* ---------- work gallery ----------
+   The tiled grid read as a catalogue: nine equal rectangles, none of them the subject.
+   Each project now owns a panel that fills most of the viewport, with its caption inside the
+   frame rather than beside it, so image and words arrive as one thing. */
+.gallery{margin-top:clamp(40px,5vw,72px);width:100vw;margin-left:calc(50% - 50vw)}
+.gstage{display:flex;align-items:center}
+.gtrack{display:flex;flex-direction:column;gap:clamp(18px,3vw,34px);width:100%}
+.gpanel{position:relative;overflow:hidden;background:var(--bg2);
+  aspect-ratio:4/3;flex:0 0 auto}
+.gpanel img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Scrim is opaque where the words sit, not a gentle wash — white type has to clear AA over
+   whatever the photograph happens to be doing underneath it. */
+.gpanel figcaption{position:absolute;left:0;right:0;bottom:0;z-index:2;color:#fff;
+  display:flex;flex-direction:column;gap:10px;
+  padding:clamp(80px,14vh,180px) clamp(24px,4vw,64px) clamp(24px,3.5vw,52px);
+  background:linear-gradient(transparent 0%,rgba(16,13,11,.30) 34%,rgba(16,13,11,.72) 62%,rgba(16,13,11,.93) 100%)}
+.gpanel .gnum{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.2em;
+  color:var(--accent-2)}
+.gpanel figcaption b{font-family:var(--fd);font-weight:400;line-height:1.08;letter-spacing:-.012em;
+  font-size:clamp(28px,3.6vw,54px)}
+.gpanel figcaption p{max-width:46ch;font-size:clamp(14.5px,1.15vw,16.5px);line-height:1.6;
+  color:rgba(255,255,255,.9)}
+.gpanel .gloc{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(255,255,255,.72);margin-top:2px}
+
+/* Desktop journey only: pin the section and run the track sideways. Everywhere else the
+   flex-direction:column default above already gives a clean vertical stack. */
+.fxd .gallery{height:var(--gal-h,420vh)}
+.fxd .gstage{position:sticky;top:0;height:100vh;overflow:hidden}
+.fxd .gtrack{flex-direction:row;width:auto;gap:clamp(20px,2.2vw,40px);
+  padding:0 max(28px,calc(50vw - 560px));will-change:transform}
+.fxd .gpanel{width:min(72vw,1080px);height:78vh;aspect-ratio:auto}
+@media (max-width:520px){.gpanel{aspect-ratio:3/4}}
+
 /* why */
 .trust{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:56px}
 @media (max-width:900px){.trust{grid-template-columns:1fr 1fr}}
@@ -693,70 +682,96 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <!-- Vasil's own projects — his order, his titles. Manifest: com/plans/work-photos.md.
          To swap one, replace the src AND rewrite the alt to describe that photo. The alt text
          here describes what is in each frame, not the marketing line printed beside it. -->
-    <div class="tiles">
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Seamless &amp; Sophisticated</b>
-          <p>A refined soft-matt kitchen with concealed pocket doors, integrated appliances and a discreet downdraft extractor.</p>
-          <span>Soft Matt Schmidt Kitchen · Epsom</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/02-stone-island-handleless-fulham.jpg" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Sculptural Simplicity</b>
-          <p>A striking stone island with push-to-open cabinetry, creating a beautifully clean and uninterrupted aesthetic.</p>
-          <span>Handleless Kitchen &amp; Stone Island · Fulham</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/03-alno-kitchen-clapham-common.jpg" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Contemporary Meets Character</b>
-          <p>An elegant Alno kitchen that balances contemporary design with the warmth and character of a period home.</p>
-          <span>Alno Kitchen · Clapham Common</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Made for the Space</b>
-          <p>Bespoke navy blue kitchen and pantry units, crafted in Brixton for a new contemporary Dulwich home, combining rich colour, natural timber and considered storage.</p>
-          <span>Bespoke Pantry &amp; Kitchen Cabinetry · Dulwich</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/05-hand-painted-kitchen-caterham.jpg" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Colour, Your Way</b>
-          <p>Hand-painted furniture finished in your choice of RAL colour, bringing individuality and personality to every interior.</p>
-          <span>Hand-Painted Kitchen and Island · Caterham</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/06-zone-lighting-control-guildford.jpg" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Light by Design</b>
-          <p>Flexible lighting controls create the perfect balance of task, ambient and architectural illumination.</p>
-          <span>Tailor-Made Zone Lighting Control · Guildford</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/07-interior-solutions-south-croydon.jpg" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Beyond the Kitchen</b>
-          <p>A fully considered approach to fitted furniture, creating a seamless design language throughout the home.</p>
-          <span>Complete Made-to-Measure Interior Solutions · South Croydon</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/08-renovation-remodelling.jpg" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Reimagining the Home</b>
-          <p>Idea, design, completion. Thoughtful renovation service and bespoke design transform existing spaces into sophisticated, highly functional interiors.</p>
-          <span>Complete Renovation &amp; Remodelling Projects</span>
-        </figcaption></figure>
-      <figure class="tile">
-        <div class="shot"><img src="/media/work/09-showroom-schmidt-epsom.jpg" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async"></div>
-        <figcaption>
-          <b>Design in Detail</b>
-          <p>A contemporary Schmidt installation showcasing architectural cabinetry, integrated appliances and a statement central island.</p>
-          <span>Showroom Installations · Schmidt Epsom</span>
-        </figcaption></figure>
+    <!-- Nine projects, each given the stage on its own rather than tiled into a list.
+         Under .fxd the section pins and the track moves horizontally with scroll; everywhere
+         else (mobile, reduced motion, no-JS) it is a plain vertical stack of the same panels,
+         which is why the caption lives inside the frame in both cases. -->
+    <div class="gallery" id="gal">
+      <div class="gstage">
+        <div class="gtrack" id="gtrack">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 1 of 9">
+          <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">01 / 09</span>
+            <b>Seamless &amp; Sophisticated</b>
+            <p>A refined soft-matt kitchen with concealed pocket doors, integrated appliances and a discreet downdraft extractor.</p>
+            <span class="gloc">Soft Matt Schmidt Kitchen · Epsom</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 2 of 9">
+          <img src="/media/work/02-stone-island-handleless-fulham.jpg" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">02 / 09</span>
+            <b>Sculptural Simplicity</b>
+            <p>A striking stone island with push-to-open cabinetry, creating a beautifully clean and uninterrupted aesthetic.</p>
+            <span class="gloc">Handleless Kitchen &amp; Stone Island · Fulham</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 3 of 9">
+          <img src="/media/work/03-alno-kitchen-clapham-common.jpg" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">03 / 09</span>
+            <b>Contemporary Meets Character</b>
+            <p>An elegant Alno kitchen that balances contemporary design with the warmth and character of a period home.</p>
+            <span class="gloc">Alno Kitchen · Clapham Common</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 4 of 9">
+          <img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">04 / 09</span>
+            <b>Made for the Space</b>
+            <p>Bespoke navy blue kitchen and pantry units, crafted in Brixton for a new contemporary Dulwich home, combining rich colour, natural timber and considered storage.</p>
+            <span class="gloc">Bespoke Pantry &amp; Kitchen Cabinetry · Dulwich</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 5 of 9">
+          <img src="/media/work/05-hand-painted-kitchen-caterham.jpg" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">05 / 09</span>
+            <b>Colour, Your Way</b>
+            <p>Hand-painted furniture finished in your choice of RAL colour, bringing individuality and personality to every interior.</p>
+            <span class="gloc">Hand-Painted Kitchen and Island · Caterham</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 6 of 9">
+          <img src="/media/work/06-zone-lighting-control-guildford.jpg" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">06 / 09</span>
+            <b>Light by Design</b>
+            <p>Flexible lighting controls create the perfect balance of task, ambient and architectural illumination.</p>
+            <span class="gloc">Tailor-Made Zone Lighting Control · Guildford</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 7 of 9">
+          <img src="/media/work/07-interior-solutions-south-croydon.jpg" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">07 / 09</span>
+            <b>Beyond the Kitchen</b>
+            <p>A fully considered approach to fitted furniture, creating a seamless design language throughout the home.</p>
+            <span class="gloc">Complete Made-to-Measure Interior Solutions · South Croydon</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 8 of 9">
+          <img src="/media/work/08-renovation-remodelling.jpg" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">08 / 09</span>
+            <b>Reimagining the Home</b>
+            <p>Idea, design, completion. Thoughtful renovation service and bespoke design transform existing spaces into sophisticated, highly functional interiors.</p>
+            <span class="gloc">Complete Renovation &amp; Remodelling Projects</span>
+          </figcaption>
+        </figure>
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 9 of 9">
+          <img src="/media/work/09-showroom-schmidt-epsom.jpg" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
+          <figcaption>
+            <span class="gnum">09 / 09</span>
+            <b>Design in Detail</b>
+            <p>A contemporary Schmidt installation showcasing architectural cabinetry, integrated appliances and a statement central island.</p>
+            <span class="gloc">Showroom Installations · Schmidt Epsom</span>
+          </figcaption>
+        </figure>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -793,13 +808,12 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <div class="ctas rise">
       <a class="btn pri" href="tel:+447597231778">Call Vasil</a>
       <a class="btn sec" href="https://wa.me/447597231778" rel="noopener">WhatsApp a photo</a>
-      <!-- HANDOVER: this deliberately advertises the Gmail, not info@craftedideasltd.co.uk.
-           The info@ forward exists — COWORK created it 26 Aug — but nobody has yet watched a mail
-           land in it, and this repo has already shipped one address that turned out to be nothing.
-           The Gmail is Vasil's real working inbox, so it clears that bar and the branded one does
-           not, yet. Swap to info@ in THREE places together the moment a test mail is seen to
-           arrive: this href, the JSON-LD "email" above, and the form-failure copy below. -->
-      <a class="btn sec" href="mailto:craftedideasltd@gmail.com?subject=Kitchen%20enquiry">Email</a>
+      <!-- info@craftedideasltd.co.uk confirmed working by Georgi, 26 Aug — a real mail was seen
+           to arrive through the Namecheap forward into craftedideasltd@gmail.com. That is the test
+           this repo requires before an address goes on the page, and it has now been met.
+           It appears in three places that must stay in step: this href, the JSON-LD "email"
+           above, and the form-failure copy below. -->
+      <a class="btn sec" href="mailto:info@craftedideasltd.co.uk?subject=Kitchen%20enquiry">Email</a>
     </div>
     <p class="cnote rise">Monday to Friday, 9am to 6pm. A photo on WhatsApp is the quickest start.</p>
 
@@ -1006,7 +1020,7 @@ if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in 
         say('Thank you — that’s with us. We’ll be in touch within a working day.');
       })
       .catch(function(){
-        say('That didn’t send — sorry. Please call 07597 231778, or email craftedideasltd@gmail.com.',true);
+        say('That didn’t send — sorry. Please call 07597 231778, or email info@craftedideasltd.co.uk.',true);
       })
       .finally(function(){btn.disabled=false;});
   });
@@ -1136,42 +1150,47 @@ if(fxDesktop&&film){
       opacity:[0,1],translateY:[26,0],duration:620,ease:'out(3)',
       autoplay:animeOnScroll({target:el,enter,leave:leaveC,sync:true})
     }));
-    /* ---------- work portfolio: motion, because nine static rectangles read as a catalogue ----------
-       Three things, deliberately small: the frame reveals as it arrives, the caption follows a beat
-       later, and the photograph drifts inside its own frame for as long as it is on screen. The
-       last one is what stops the section feeling like a contact sheet. */
+    /* ---------- work gallery: one project at a time ----------
+       Under the desktop journey the section pins and the track runs sideways, so each project
+       takes the stage on its own instead of competing with eight neighbours in a grid. The pin
+       height is derived from the real track width, not guessed — guessing it means the last
+       panel either never arrives or sits still while the page keeps scrolling. */
     {
-      const tiles=[...document.querySelectorAll('.tile')];
-      tiles.forEach(t=>{
-        const shot=t.querySelector('.shot');
-        const capKids=[...t.querySelectorAll('figcaption > *')];
-        animate(shot,{opacity:[0,1],translateY:[46,0],scale:[1.05,1],duration:1100,ease:'out(4)',
-          autoplay:animeOnScroll({target:t,enter:{target:'top',container:'bottom-=8%'},sync:true})});
-        animate(capKids,{opacity:[0,1],translateY:[18,0],duration:760,ease:'out(3)',delay:stagger(110,{start:220}),
-          autoplay:animeOnScroll({target:t,enter:{target:'top',container:'bottom-=8%'},sync:true})});
-      });
-
-      /* Parallax: the image is scaled a touch so it has headroom to travel inside the frame.
-         One rAF-throttled listener for all nine, and offscreen tiles are skipped entirely. */
-      const shots=tiles.map(t=>t.querySelector('.shot')).filter(Boolean);
-      const imgs=new Map(shots.map(sh=>[sh,sh.querySelector('img')]));
-      let ticking=false;
-      const park=()=>{
-        ticking=false;
-        const vh=innerHeight;
-        for(const sh of shots){
-          const r=sh.getBoundingClientRect();
-          if(r.bottom<-160||r.top>vh+160)continue;
-          /* -1 entering from below … +1 leaving at the top */
-          const t=clamp(((r.top+r.height/2)-vh/2)/((vh+r.height)/2),-1,1);
-          const im=imgs.get(sh);
-          if(im)im.style.transform=`translate3d(0,${(t*5.5).toFixed(2)}%,0) scale(1.13)`;
-        }
-      };
-      const onPark=()=>{if(!ticking){ticking=true;requestAnimationFrame(park);}};
-      addEventListener('scroll',onPark,{passive:true});
-      addEventListener('resize',onPark,{passive:true});
-      park();
+      const gal=document.getElementById('gal'), track=document.getElementById('gtrack');
+      if(gal&&track&&root.classList.contains('fxd')){
+        let travel=0, galTop=0, galDur=1;
+        const measure=()=>{
+          /* how far the track has to move for its last panel to reach the right edge */
+          travel=Math.max(0, track.scrollWidth - innerWidth);
+          /* pace it: roughly one viewport of scrolling per panel, floored so short tracks still work */
+          const h=Math.max(2, travel/innerWidth + 1) * innerHeight;
+          gal.style.setProperty('--gal-h', h+'px');
+          /* NOT offsetTop: #work is position:relative, so it is the offsetParent and offsetTop
+             would measure from inside the section rather than from the top of the document.
+             The pin would then start moving long before the stage was actually on screen. */
+          galTop=gal.getBoundingClientRect().top + scrollY;
+          galDur=Math.max(1, gal.offsetHeight - innerHeight);
+        };
+        let raf=false;
+        const run=()=>{
+          raf=false;
+          const p=clamp((scrollY-galTop)/galDur,0,1);
+          track.style.transform=`translate3d(${-(travel*p).toFixed(1)}px,0,0)`;
+        };
+        const onScrollGal=()=>{if(!raf){raf=true;requestAnimationFrame(run);}};
+        measure();run();
+        addEventListener('scroll',onScrollGal,{passive:true});
+        addEventListener('resize',()=>{measure();run();},{passive:true});
+        /* images arrive lazily; each one that decodes can change scrollWidth */
+        track.querySelectorAll('img').forEach(im=>{
+          if(!im.complete)im.addEventListener('load',()=>{measure();run();},{once:true});
+        });
+      }else if(gal){
+        /* vertical stack: reveal each panel as it arrives, nothing more */
+        [...gal.querySelectorAll('.gpanel')].forEach(pan=>animate(pan,{
+          opacity:[0,1],translateY:[40,0],duration:900,ease:'out(3)',
+          autoplay:animeOnScroll({target:pan,enter:{target:'top',container:'bottom-=6%'},sync:true})}));
+      }
     }
 
     /* process hairline draws across its section */
