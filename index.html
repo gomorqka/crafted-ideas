@@ -169,23 +169,31 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
     color-mix(in srgb,var(--bg) 30%,transparent) 72%)}
 .fxd #ch5{z-index:2}
 
-/* mobile journey: shorter pin, and the blueprint we already ship does the work.
-   No image sequence is required for this to be complete — the film is an extra
-   layer that only appears if the network can afford it. */
-.fxm .jwrap{height:280vh}
+/* mobile journey: the same hero as desktop, just fewer frames behind it.
+   It used to be a different design entirely — the blueprint drawing itself over 280vh, from
+   when there were no photographs to show. */
+.fxm .jwrap{height:120vh}
 .fxm .jstage{position:sticky;top:0;height:100svh;min-height:0;overflow:hidden}
-.fxm #ch5{position:absolute;inset:0;min-height:0;display:flex;align-items:center}
+.fxm .ch{display:flex}
+.fxm #ch0,.fxm #ch2,.fxm #ch3,.fxm #ch4{display:none}
+.fxm #ch1{display:flex}
+.fxm #ch5{position:absolute;inset:0;min-height:0;z-index:2;display:flex;align-items:center}
 .fxm #ch5 .inner{align-items:center;padding-top:0;padding-bottom:0;min-height:0}
-/* Visible enough to read as a drawing being made, faint enough that the lede stays
-   legible on top of it — the strokes sit directly behind body copy. */
-.fxm #ch5 .hero-bp{display:flex;opacity:.3;z-index:0}
-.fxm #ch5 .hero-bp svg{width:min(92vw,620px)}
-.fxm #ch5 .hero-bp .bp-path{stroke-width:2.1;opacity:1}
-.fxm #ch5 .inner{position:relative;z-index:1}
-/* film layer, only mounted once frames are actually decoding */
-.fxm #ch1{display:none}
-.fxm.film #ch1{display:flex;opacity:0}
-.fxm.film .filmstage{width:min(78vw,62svh)}
+.fxm #ch5 .hero-bp{display:none}
+.fxm #ch1 .filmstage{position:absolute;inset:0;width:100%;height:100%;border-radius:0;
+  box-shadow:none;outline:0;aspect-ratio:auto}
+.fxm #ch1 .mcopy{display:none}
+/* On a narrow screen the headline runs the full width, so the scrim is a flat wash rather
+   than the diagonal desktop uses — a gradient would leave one line legible and the next not. */
+.fxm #ch1::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:color-mix(in srgb,var(--bg) 82%,transparent)}
+/* Thrifty connection: no film, so no pin and no blank stage to scroll past. Static hero,
+   blueprint back as the faint wash it is on the no-JS page. */
+.fxm.nofilm .jwrap{height:auto}
+.fxm.nofilm .jstage{position:relative;height:auto;min-height:100svh}
+.fxm.nofilm #ch1{display:none}
+.fxm.nofilm #ch5{position:relative;inset:auto;min-height:100svh}
+.fxm.nofilm #ch5 .hero-bp{display:flex;opacity:.10}
 /* ambient hatching */
 #amb{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
 /* chapter rail */
@@ -344,6 +352,10 @@ section.pg.alt{background:var(--bg2)}
    it, which means it survives with JS off and needs nothing recalculated on resize. */
 .gallery{margin-top:clamp(40px,5vw,72px);width:100vw;margin-left:calc(50% - 50vw);position:relative}
 .gpanel{position:sticky;top:0;height:100svh;overflow:hidden;background:var(--bg2)}
+/* Dwell. With sticky stacking a panel is covered the moment the next one's flow position
+   reaches the top, so the space between them is how long it holds the screen. Without this
+   each project got exactly one viewport and they slid past almost as fast as you scrolled. */
+.gpanel:not(:last-child){margin-bottom:clamp(45vh,60vh,70vh)}
 .gpanel img{position:absolute;left:0;top:-8%;width:100%;height:116%;object-fit:cover;will-change:transform}
 /* a floor so the caption never sits on bare photograph at the very top */
 .gpanel::before{content:"";position:absolute;inset:0 0 auto 0;height:56%;z-index:1;pointer-events:none;
@@ -361,7 +373,8 @@ section.pg.alt{background:var(--bg2)}
 .gcap .gnum{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.2em;color:var(--accent-2)}
 .gcap b{font-family:var(--fd);font-weight:400;line-height:1.1;letter-spacing:-.012em;
   font-size:clamp(24px,3vw,44px);text-shadow:0 1px 22px rgba(16,13,11,.5)}
-.gcap-btn{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 2px;
+.gcap-btn{display:inline-flex;align-items:center;justify-content:flex-end;gap:9px;
+  min-height:48px;min-width:132px;padding:12px 4px;touch-action:manipulation;position:relative;z-index:1;
   background:none;border:0;cursor:pointer;color:rgba(255,255,255,.92);font:inherit;font-size:12px;
   letter-spacing:.14em;text-transform:uppercase;font-family:ui-monospace,Menlo,monospace}
 .gcap-btn:hover{color:#fff}
@@ -1306,107 +1319,50 @@ if(fxDesktop&&film){
       start();
     }
 
-    /* ============ the journey scrub (desktop only) ============ */
-    if(fxDesktop){
+    /* ============ the journey — one film pass, desktop and mobile alike ============
+       Mobile used to run an entirely different hero: the blueprint drawing itself over 280vh,
+       with the film as a second act. That was built when there were no photographs and the page
+       needed something to carry it. Desktop moved on; mobile had not. Same hero on both now —
+       the film behind the headline, one short pin — differing only in how many frames get sent. */
+    {
       const jwrap=document.querySelector('.jwrap');
       const ch1=document.getElementById('ch1'), ch5=document.getElementById('ch5');
       const st=(el,o)=>{for(const k in o)el.style[k]=o[k];};
-      /* eyebrow, headline, lede, buttons, meta — each drifts a little further than the one above */
       const heroLayers=[...ch5.querySelectorAll('.inner .wrap > *')];
 
-      /* One act now, not five. The film plays behind the hero across a 130vh pin and hands
-         straight over to the work. The old wordmark/word-beat chapters are gone — they were
-         carrying a page that had nothing to show, and it has nine projects now. */
-      let pinTop=0,pinDur=1;
-      const measure=()=>{pinTop=jwrap.offsetTop;pinDur=Math.max(1,jwrap.offsetHeight-innerHeight);};
-      const scrub=()=>{
-        const p=clamp((scrollY-pinTop)/pinDur,0,1);
-        fwant=easeOut(p)*(FN-1);
-        paintFilm(fwant);
-        /* The hero used to fade to 15% on the way out. Semi-transparent type over photography
-           reads as muddy, not as intent — so nothing fades now. The lines stay fully opaque and
-           drift up at slightly different rates, and .jstage's overflow clips them cleanly at the
-           top edge. Depth instead of dissolve. */
-        const out=easeOut(seg(p,.52,1));
-        heroLayers.forEach((el,i)=>{
-          el.style.transform=`translateY(${-out*9*(1+i*.20)}vh)`;
-        });
-        st(ch1,{opacity:String(.5+.5*easeOut(seg(p,0,.4)))});
-      };
-      measure();scrub();
-      addEventListener('scroll',scrub,{passive:true});
-      addEventListener('resize',()=>{measure();scrub();},{passive:true});
-    }else{
-      /* ============ the mobile journey ============
-         The blueprint we already ship is the animation. It's vector, it's in the DOM
-         already, and it costs nothing to send — so every phone gets a real journey
-         regardless of network. The film is a bonus act layered on top when affordable. */
-      const jwrap=document.querySelector('.jwrap');
-      const ch1=document.getElementById('ch1'), ch5=document.getElementById('ch5');
-      const bp=ch5.querySelector('.hero-bp'), inner=ch5.querySelector('.inner');
-      const paths=[...document.querySelectorAll('#bppaths .bp-path')];
-      const grid=document.getElementById('bpgrid'), dims=document.getElementById('bpdims');
-      const st=(el,o)=>{for(const k in o)el.style[k]=o[k];};
+      let useFilm=!!film;
+      if(!fxDesktop){
+        /* Mobile decides whether it can afford the film. Without one there is nothing to scrub,
+           so there is no pin either — a static hero beats scrolling past a blank stage. */
+        const conn=navigator.connection||navigator.webkitConnection||null;
+        const thrifty=!!conn&&(conn.saveData===true||/(^|\W)(slow-)?2g$/.test(conn.effectiveType||''));
+        useFilm=!!film&&!thrifty;
+        if(useFilm){ setTimeout(()=>{for(let i=0;i<FN;i++)fload(i);},700); }
+        else root.classList.add('nofilm');
+      }
 
-      /* prime each stroke so scroll can draw it on */
-      const lens=paths.map(p=>{
-        const L=p.getTotalLength();
-        p.style.strokeDasharray=L; p.style.strokeDashoffset=L;
-        return L;
-      });
-
-      /* Decide about the film now, synchronously, so the pin can be the right length from
-         the start. No Network Information API (all of iOS) means we assume it's fine —
-         520KB deferred behind first paint is a fair bet, and saveData still wins if set. */
-      const conn=navigator.connection||navigator.webkitConnection||null;
-      const thrifty=!!conn&&(conn.saveData===true||/(^|\W)(slow-)?2g$/.test(conn.effectiveType||''));
-      const useFilm=!!film&&!thrifty;
-      /* Without the film the second act has nothing to show, so don't make people scroll it. */
-      jwrap.style.height=useFilm?'280vh':'170vh';
-      let filmReady=false;
-      if(useFilm) setTimeout(()=>{
-        for(let i=0;i<FN;i++)fload(i);
-        root.classList.add('film');
-        filmReady=true;
-      },900);
-
-      /* Act one is the blueprint and always owns the majority of the pin, so the headline
-         and its CTA are on screen for most of the scroll. Act two only exists with a film. */
-      const DRAW0=.03, DRAW1=useFilm?.50:.66;
-      const DIM0=DRAW1+.02, DIM1=DIM0+.12;
-
-      let pinTop=0,pinDur=1;
-      const measure=()=>{pinTop=jwrap.offsetTop;pinDur=Math.max(1,jwrap.offsetHeight-innerHeight);};
-
-      const scrub=()=>{
-        const p=clamp((scrollY-pinTop)/pinDur,0,1);
-
-        grid.style.opacity=String(easeOut(seg(p,0,.12))*.9);
-        paths.forEach((el,i)=>{
-          const a=DRAW0+(i/paths.length)*(DRAW1-DRAW0)*.85;
-          el.style.strokeDashoffset=String(lens[i]*(1-easeOut(seg(p,a,a+.13))));
-        });
-        dims.style.opacity=String(easeOut(seg(p,DIM0,DIM1)));
-
-        const BP=.3; /* keep in step with .fxm #ch5 .hero-bp in the stylesheet */
-        if(useFilm){
-          /* hand over: the drawing steps back, the real kitchen takes the stage */
-          const hand=easeOut(seg(p,.58,.70));
-          st(bp,{opacity:String(BP*(1-hand)),transform:`scale(${1-hand*.05})`});
-          st(inner,{opacity:String(1-hand),pointerEvents:hand>.5?'none':'auto'});
-          if(filmReady){
-            st(ch1,{opacity:String(hand)});
-            if(p>.5){fwant=seg(p,.62,.96)*(FN-1);paintFilm(fwant);}
-          }
-        }else{
-          /* no film: let the finished drawing hold, and keep the headline up throughout */
-          st(bp,{opacity:String(BP)});
-          st(inner,{opacity:'1',pointerEvents:'auto'});
-        }
-      };
-      measure();scrub();
-      addEventListener('scroll',scrub,{passive:true});
-      addEventListener('resize',()=>{measure();scrub();},{passive:true});
+      if(useFilm){
+        let pinTop=0,pinDur=1;
+        const measure=()=>{
+          pinTop=jwrap.getBoundingClientRect().top+scrollY;
+          pinDur=Math.max(1,jwrap.offsetHeight-innerHeight);
+        };
+        const scrub=()=>{
+          const p=clamp((scrollY-pinTop)/pinDur,0,1);
+          fwant=easeOut(p)*(FN-1);
+          paintFilm(fwant);
+          /* Nothing fades: semi-transparent type over photography reads as muddy. The lines
+             stay opaque and drift up at different rates, and .jstage clips them at the top. */
+          const out=easeOut(seg(p,.52,1));
+          heroLayers.forEach((el,i)=>{el.style.transform=`translateY(${-out*9*(1+i*.20)}vh)`;});
+          st(ch1,{opacity:String(.5+.5*easeOut(seg(p,0,.4)))});
+        };
+        measure();scrub();
+        addEventListener('scroll',scrub,{passive:true});
+        addEventListener('resize',()=>{measure();scrub();},{passive:true});
+      }else{
+        animate('#ch5 .wrap > *',{opacity:[0,1],translateY:[20,0],duration:700,ease:'out(3)',delay:stagger(90)});
+      }
     }
   }catch(e){
     /* '__reverted__' is not a failure: the failsafe beat us to it on a slow connection and
