@@ -2,7 +2,11 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- viewport-fit=cover so the page reaches the physical edges of a notched iPhone. Without it
+     the layout viewport stops below the status bar and Safari paints that strip in the body
+     colour, which is why the nav's frosted band used to end in a flat opaque bar. Everything
+     that touches an edge pays it back through the --sa* variables in :root. -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Crafted Ideas Ltd — kitchens, built properly. Greater London</title>
 <meta name="description" content="Kitchen design, construction, installation and fitting across Greater London — full bespoke installations through to repairs, with the wider building trades in-house. One company, one standard.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -66,6 +70,11 @@
   --glow:rgba(168,123,63,.18);
   --ease:cubic-bezier(.22,.61,.36,1);
   --fd:'Fraunces',Georgia,serif; --fb:'InterV',system-ui,-apple-system,sans-serif;
+  /* The notch, the rounded corners and the home indicator. Read once here and spent through
+     variables rather than calling env() at each site, so a test can override them and see the
+     notched layout on a machine that has no notch. Everywhere else they resolve to 0px. */
+  --sat:env(safe-area-inset-top,0px);   --sar:env(safe-area-inset-right,0px);
+  --sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 /* The `hidden` attribute is only display:none in the UA sheet, so ANY author display rule
@@ -78,13 +87,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:17px;
 /* paper grain over everything, felt not seen */
 body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
-.wrap{max-width:1140px;margin:0 auto;padding:0 28px}
+.wrap{max-width:1140px;margin:0 auto;padding:0 calc(28px + var(--sar)) 0 calc(28px + var(--sal))}
 .mono{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .serif{font-family:var(--fd);font-optical-sizing:auto}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--accent-ink);outline-offset:3px;border-radius:2px}
-.skip{position:fixed;top:10px;left:10px;z-index:200;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:99px;
-  font-size:13px;transform:translateY(-64px);transition:transform .25s var(--ease)}
+.skip{position:fixed;top:calc(10px + var(--sat));left:calc(10px + var(--sal));z-index:200;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:99px;
+  /* -100% rather than the old flat -64px: the parked position has to clear its own height AND
+     whatever the notch just pushed it down by, or the skip link sits on screen permanently. */
+  font-size:13px;transform:translateY(calc(-100% - 12px - var(--sat)));transition:transform .25s var(--ease)}
 .skip:focus{transform:none}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
@@ -103,12 +114,12 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 @media (prefers-reduced-motion:reduce){.cur{display:none}}
 
 /* ---------- progress + nav ---------- */
-.progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;transform:scaleX(0);transform-origin:left center;
+.progress{position:fixed;top:var(--sat);left:0;height:2px;width:100%;z-index:60;transform:scaleX(0);transform-origin:left center;
   background:linear-gradient(90deg,var(--accent),var(--accent-2));will-change:transform}
 /* #nav, not nav — a bare element selector pins every <nav> on the page to the top,
    including the "Areas we cover" one in the footer. */
 #nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-  padding:18px 30px;backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 76%,transparent);
+  padding:calc(18px + var(--sat)) calc(30px + var(--sar)) 18px calc(30px + var(--sal));backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 76%,transparent);
   border-bottom:1px solid transparent;transition:border-color .4s}
 #nav.scrolled{border-color:var(--line)}
 .brand{font-family:var(--fd);font-weight:600;font-size:20px;letter-spacing:-.01em;
@@ -135,7 +146,7 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 .menubtn[aria-expanded="true"] span::before{transform:translateY(6px) rotate(45deg)}
 .menubtn[aria-expanded="true"] span::after{transform:translateY(-6px) rotate(-45deg)}
 #menu{position:absolute;top:100%;left:0;right:0;display:none;flex-direction:column;
-  padding:8px 22px 22px;background:color-mix(in srgb,var(--bg) 96%,transparent);
+  padding:8px calc(22px + var(--sar)) 22px calc(22px + var(--sal));background:color-mix(in srgb,var(--bg) 96%,transparent);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 #menu.open{display:flex}
 #menu a{padding:15px 8px;font-size:17px;color:var(--ink);border-top:1px solid var(--line)}
@@ -143,7 +154,7 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   .nlinks a:not(.cta){display:none}
   .brand small{display:none}
   .menubtn{display:inline-flex}
-  #nav{padding:12px 18px}
+  #nav{padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 12px calc(18px + var(--sal))}
   .nlinks{gap:6px}
 }
 @media (min-width:761px){#menu{display:none!important}}
@@ -236,7 +247,7 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
 .bp .bp-dim line{stroke:var(--muted);stroke-width:1}
 .bp .bp-dim text{font-family:ui-monospace,Menlo,monospace;font-size:15px;letter-spacing:.1em;fill:var(--muted)}
 .bp .bp-grid line{stroke:var(--ink);stroke-width:.5;opacity:.05}
-.mcopy{position:fixed;left:clamp(28px,4.5vw,72px);bottom:clamp(28px,7vh,72px);max-width:250px;opacity:0}
+.mcopy{position:fixed;left:calc(clamp(28px,4.5vw,72px) + var(--sal));bottom:calc(clamp(28px,7vh,72px) + var(--sab));max-width:250px;opacity:0}
 .mcopy .k{color:var(--accent-ink);letter-spacing:.2em}
 .mcopy p{font-family:var(--fd);font-size:clamp(19px,1.9vw,25px);font-weight:480;line-height:1.35;margin-top:12px}
 
@@ -383,7 +394,8 @@ section.pg.alt{background:var(--bg2)}
    below it or the title reads through the nav's blur. */
 .gcap{position:absolute;top:0;right:0;z-index:3;color:#fff;
   display:flex;flex-direction:column;align-items:flex-end;gap:12px;text-align:right;
-  padding:clamp(96px,11vh,124px) clamp(20px,3.5vw,44px) clamp(20px,3.5vw,44px);
+  padding:calc(clamp(96px,11vh,124px) + var(--sat)) calc(clamp(20px,3.5vw,44px) + var(--sar))
+           clamp(20px,3.5vw,44px) calc(clamp(20px,3.5vw,44px) + var(--sal));
   max-width:min(92vw,460px)}
 /* The title IS the control — one obvious target rather than a small separate toggle to find.
    Generous padding because it sits over photography where a thin hit area is easy to miss. */
@@ -462,7 +474,7 @@ section.pg.alt{background:var(--bg2)}
 .qsmall{margin-top:18px;font-size:13px;color:var(--muted)}
 .caddr{margin-top:56px;padding-top:26px;border-top:1px solid var(--line);display:flex;gap:34px;flex-wrap:wrap}
 /* footer */
-footer{border-top:1px solid var(--line);padding:44px 0 60px;color:var(--muted);font-size:13.5px}
+footer{border-top:1px solid var(--line);padding:44px 0 calc(60px + var(--sab));color:var(--muted);font-size:13.5px}
 footer .frow{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:baseline}
 footer .freg{margin-top:10px}
 .fareas{padding-bottom:34px;margin-bottom:30px;border-bottom:1px solid var(--line)}

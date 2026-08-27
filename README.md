@@ -110,3 +110,14 @@ Notes that matter if you touch this:
 - `media/seq-m/` is generated from `media/seq/` — every 3rd frame, `sips -Z 560 --setProperty formatOptions 40`. Regenerate it if the film changes.
 
 Other breakpoint: **`760px`**, where the nav collapses to the menu button and the services list stacks.
+
+## Safe areas (the iPhone notch)
+
+The viewport meta carries `viewport-fit=cover`, so the page reaches the physical edges of the screen and the nav's frosted band blurs the photography behind the status bar instead of ending in a flat opaque strip. The cost is that the notch, the rounded corners and the home indicator now sit *over* the page, so **anything that touches an edge has to pay the inset back**. They are read once into `--sat` / `--sar` / `--sab` / `--sal` on `:root` and spent from there — never call `env()` at the point of use, because a test can override a variable and see the notched layout on a machine that has no notch, which is the only way this is verifiable off-device.
+
+Two traps, both of which have already been hit:
+
+- **A parked offset must clear its own inset.** The skip link hid itself with a flat `translateY(-64px)`. Add 59px of notch to its `top` and it lands back on screen, permanently visible. It parks with `-100%` plus the inset now, so it cannot be outgrown.
+- **The gallery caption clears the nav by top padding**, not by anchoring to it. The nav gets taller by exactly `--sat`, so the caption's padding has to as well or the title reads through the frosted bar. The 27px gap between them is the number to check.
+
+Screenshots taken in headless Chrome cannot confirm any of this: `backdrop-filter` over the sticky gallery keeps a stale backdrop snapshot, so the top of the nav samples as opaque page background whether or not the fix is present. It clears on a forced repaint. Verify the **geometry** — nav box reaching y=0, contents starting below the inset, nothing clipped — and confirm the frost itself on a real device.
