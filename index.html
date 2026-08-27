@@ -99,6 +99,8 @@ a{color:inherit;text-decoration:none}
      short of hidden and sat on the clock. 160px clears any inset iOS has ever reported. */
   font-size:13px;transform:translateY(-160px);transition:transform .25s var(--ease)}
 .skip:focus{transform:none}
+/* the sheet takes the gesture (overscroll-behavior stops it chaining); this stops the wheel */
+html.menu-open{overflow:hidden}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .lenis.lenis-stopped{overflow:hidden}
@@ -151,6 +153,7 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   padding:8px calc(22px + var(--sar)) 22px calc(22px + var(--sal));background:color-mix(in srgb,var(--bg) 96%,transparent);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 #menu.open{display:flex}
+@keyframes menuIn{from{opacity:0}}
 #menu a{padding:15px 8px;font-size:17px;color:var(--ink);border-top:1px solid var(--line)}
 @media (max-width:760px){
   .nlinks a:not(.cta){display:none}
@@ -189,7 +192,22 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   /* open: the header goes solid so it reads as one panel with the menu hanging off it */
   #nav:has(.menubtn[aria-expanded="true"]){background:var(--bg);color:var(--ink)}
   #nav:has(.menubtn[aria-expanded="true"]) .menubtn{background:none;color:var(--ink)}
-  #menu{padding:8px calc(22px + var(--sar)) 22px calc(22px + var(--sal))}
+  /* Full screen when triggered. A dropdown left Safari's status strip sitting against whatever
+     was behind the page up there; covering the viewport in --bg means the strip (theme-color,
+     the same colour) has nothing to sit against. inset:0 under viewport-fit:cover really is the
+     whole screen, notch included. */
+  #menu{position:fixed;inset:0;z-index:1;justify-content:flex-start;
+    padding:calc(104px + var(--sat)) calc(26px + var(--sar)) calc(28px + var(--sab)) calc(26px + var(--sal));
+    background:var(--bg);backdrop-filter:none;border-bottom:0;
+    overflow-y:auto;overscroll-behavior:contain}
+  #menu.open{animation:menuIn .22s var(--ease)}
+  #menu a{font-size:clamp(20px,5.5vw,26px);padding:20px 0}
+  #menu .mcta{margin-top:auto;font-size:17px}
+  /* the header row has to stay on top of the sheet it opens */
+  .brand,.nlinks{position:relative;z-index:2}
+  /* and the logo comes back, so the open state reads as a page rather than a stray cross */
+  #nav:has(.menubtn[aria-expanded="true"]) .brand{
+    opacity:1;visibility:visible;transform:none;pointer-events:auto}
   /* Get a quote lives here now: the pill is gone the moment you scroll, and without this there
      would be no route to the form from anywhere but the bottom of the page. */
   #menu .mcta{border:1px solid var(--edge);border-radius:99px;text-align:center;
@@ -1129,7 +1147,16 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
 (function(){
   var btn=document.getElementById('menubtn'),menu=document.getElementById('menu');
   if(!btn||!menu)return;
-  var set=function(open){btn.setAttribute('aria-expanded',open?'true':'false');menu.classList.toggle('open',open);};
+  /* Full screen on a phone, so the page behind has to stop being both scrollable and
+     reachable — otherwise it scrolls under an opaque sheet and Tab walks into content nobody
+     can see. inert is a no-op on browsers that lack it, which leaves today's behaviour. */
+  var main=document.getElementById('main'),foot=document.querySelector('footer');
+  var set=function(open){
+    btn.setAttribute('aria-expanded',open?'true':'false');menu.classList.toggle('open',open);
+    document.documentElement.classList.toggle('menu-open',open);
+    if(window.__lenis)window.__lenis[open?'stop':'start']();
+    if(main)main.inert=open; if(foot)foot.inert=open;
+  };
   btn.addEventListener('click',function(){set(btn.getAttribute('aria-expanded')!=='true');});
   menu.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});
   addEventListener('keydown',function(e){
@@ -1301,6 +1328,11 @@ if(fxDesktop&&film){
 
     /* ---------- smooth scroll spine ---------- */
     const lenis=new Lenis({lerp:.1,wheelMultiplier:1,touchMultiplier:1.6});
+    /* The full-screen menu lives in the classic layer, which cannot see this const. html
+       overflow:hidden is not enough on its own: it stops the user scrolling but not Lenis,
+       which sets the scroll position programmatically — measured, the page moved 550px behind
+       an opaque sheet. Hand it out so the menu can actually stop it. */
+    window.__lenis=lenis;
     (function raf(t){lenis.raf(t);requestAnimationFrame(raf);})(0);
     document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
       const id=a.getAttribute('href');

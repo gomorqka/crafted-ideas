@@ -147,3 +147,19 @@ Traps, all of which have already bitten:
 - **A border sits outside the background's positioning area**, so `background-repeat` tiles the background into it — harmless with a flat colour, a visible hairline with a gradient.
 
 `<noscript>` gives the bar a translucent backing, since without JS it can never learn where it is or that the page has moved.
+
+### The menu is a full-screen sheet
+
+A dropdown left page content showing under Safari's status strip, which is the seam again in a different place. Triggered, the menu is `position:fixed; inset:0` in flat `--bg` — under `viewport-fit=cover` that really is the whole screen, notch included, so the strip (`theme-color`, the same colour) has nothing to sit against.
+
+Covering the viewport means the page behind has to stop being both scrollable and reachable:
+
+- **`html{overflow:hidden}` is not enough on its own.** It stops the *user* scrolling but not Lenis, which sets the scroll position programmatically — measured, the page moved 550px behind an opaque sheet. Lenis is handed out as `window.__lenis` so the classic layer can `stop()` it, because the menu script cannot see the module's `const`.
+- **`inert` on `#main` and `footer`**, or Tab walks into content nobody can see. It is a no-op on browsers that lack it, which leaves the old behaviour rather than breaking.
+- `overscroll-behavior: contain` on the sheet stops the touch gesture chaining to the page.
+
+### Why cakecv.work has no notch problem and this site does
+
+cakecv sets **no `viewport-fit`** and one static `themeColor: '#050505'`, with no dynamic override anywhere in its source. Its page never goes under the status bar and that strip is the same colour whatever theme is showing — a stable piece of browser chrome nobody reads as part of the page.
+
+This site made the opposite choice deliberately: `viewport-fit=cover` is what lets the gallery photographs run to the very top of the screen. The cost is that the boundary is inside the page rather than above it, so everything that meets it has to be handled. Dropping `viewport-fit=cover` would remove the whole class of problem and cost the full-bleed photography.
