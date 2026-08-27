@@ -249,14 +249,32 @@ html.lenis,html.lenis body{height:auto}
   /* the aperture: a band that opens from the centre to full bleed on arrival */
   animation:aperture 1s var(--ease) both}
 @keyframes aperture{from{clip-path:inset(38% 0 38% 0)}to{clip-path:inset(0 0 0 0)}}
-.hero-shot{position:absolute;inset:0;opacity:0;transition:opacity .7s linear}
-.hero-shot.is-on{opacity:1}
+/* The frame is 20% wider than the hero and hangs off both sides, so the slide below can travel
+   without ever uncovering an edge — and so the rotation has margin to turn into. */
+/* Slow on purpose. A quick cut between two photographs of the same kind of room reads as a
+   glitch; drawn out, it reads as one continuous camera move. The transform outlasts the fade so
+   the outgoing frame is still travelling after it has gone. */
+.hero-shot{position:absolute;top:0;bottom:0;left:-10%;right:-10%;opacity:0;
+  transform:translate3d(7%,0,0);
+  transition:opacity 2s linear,transform 2.8s cubic-bezier(.32,.06,.24,1)}
+.hero-shot.is-on{opacity:1;transform:none}
+/* the outgoing frame keeps going the way it was travelling instead of springing back */
+.hero-shot.is-out{opacity:0;transform:translate3d(-6%,0,0)}
 .hero-shot img{width:100%;height:100%;object-fit:cover;object-position:var(--fx,50% 50%);
-  display:block;transform:scale(1.005)}
-/* Ken Burns. Only the visible frame animates, so there is exactly one animating layer at a time.
-   Under prefers-reduced-motion the global rule below collapses this to .001s — it never travels. */
-.hero-shot.is-on img{animation:kb 9s linear forwards}
-@keyframes kb{from{transform:scale(1.005)}to{transform:scale(1.085)}}
+  display:block;transform:scale(1.10)}
+/* Ken Burns, on the image inside the sliding frame — two layers, so the push-in and the slide
+   never fight over one transform. Only the visible frame animates.
+
+   Rotation is kept under half a degree and the floor scale is 1.10 on purpose: a rotated cover
+   image needs about 1.4% of extra scale to keep its corners inside the frame at this aspect
+   ratio, and 1.10 leaves 5% of margin against that. Wind the rotation up and the corners come
+   in. Direction alternates so five frames in a row do not feel mechanical. */
+/* Longer than the 10s each frame is held, so the push-in never arrives at a standstill before
+   the next frame takes over — it is always still moving when it hands off. */
+.hero-shot.is-on img{animation:kb 14s linear forwards}
+.hero-shot:nth-child(even).is-on img{animation-name:kb2}
+@keyframes kb{from{transform:scale(1.10) rotate(-.4deg)}to{transform:scale(1.34) rotate(.3deg)}}
+@keyframes kb2{from{transform:scale(1.10) rotate(.4deg)}to{transform:scale(1.34) rotate(-.3deg)}}
 /* Measured scrim. Sampled across all nine photographs, white text in the headline zone sits at
    1.31–2.32:1 against the 90th-percentile brightest pixel, so this is load-bearing, not mood.
    Bottom-anchored on a phone where the type is at the bottom; a left wash is added at 761px
@@ -287,9 +305,14 @@ html.lenis,html.lenis body{height:auto}
   text-shadow:0 1px 18px rgba(16,13,11,.5)}
 .hero-cta{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
 /* ---- caption panel (reference B) ---- */
-.hero-cap{position:relative;z-index:2;display:flex;flex-direction:column;gap:5px;
+.hero-cap{position:relative;z-index:2;
   margin-top:34px;padding:14px 16px;border-left:2px solid var(--accent-2);
   background:rgba(16,13,11,.62);backdrop-filter:blur(6px);max-width:34ch}
+/* The stack has to go on the figcaption, not on .hero-cap. The three spans are its children,
+   not the figure's — putting flex-direction:column on the figure stacked one element and let
+   the spans run together as inline text. It only looked right on a phone, where the line was
+   narrow enough to wrap anyway. */
+.hero-cap figcaption{display:flex;flex-direction:column;gap:5px}
 .hero-cap .n{color:var(--accent-2)}
 .hero-cap .t{font-family:var(--fd);font-size:19px;font-weight:500;line-height:1.2;color:#fff}
 .hero-cap .l{color:rgba(246,243,238,.76)}
@@ -614,6 +637,13 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     transition-property:opacity!important;
     transition-duration:.4s!important;
   }
+  /* The rule above collapses the push-in to nothing, but `forwards` would still land the image
+     on the keyframe's END state — a 1.34 crop, held static, which is not what anyone asked for.
+     Pin it to the resting scale and drop the rotation instead. The frames still cross-fade;
+     nothing travels, which is the whole point of 2.3.3. */
+  .hero-shot.is-on img,.hero-shot:nth-child(even).is-on img{
+    animation:none!important;transform:scale(1.06)!important}
+  .hero-shot{transform:none!important}
 }
 </style>
 <script>
@@ -1210,11 +1240,24 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
     i=((i%N)+N)%N;
     if(i===at&&shots[i].classList.contains('is-on'))return;
     shots.forEach(function(s,k){
+      var was=s.classList.contains('is-on');
       s.classList.toggle('is-on',k===i);
-      /* restart the push-in: removing and re-adding the class alone does not retrigger an
-         animation that is already on the element, so drop it for a frame first */
-      var im=s.querySelector('img');
-      if(im&&k===i){im.style.animation='none';void im.offsetWidth;im.style.animation='';}
+      if(k===i){
+        s.classList.remove('is-out');
+        /* restart the push-in: removing and re-adding the class alone does not retrigger an
+           animation that is already on the element, so drop it for a frame first */
+        var im=s.querySelector('img');
+        if(im){im.style.animation='none';void im.offsetWidth;im.style.animation='';}
+      }else if(was){
+        /* Send it out the far side. Without this the frame springs back to its entry position
+           the instant .is-on leaves, which reads as a snap rather than a pass. */
+        s.classList.add('is-out');
+        /* must outlast the 2.8s transform transition, or the frame is yanked back to its entry
+           position while it is still visibly travelling out */
+        setTimeout(function(){
+          if(!s.classList.contains('is-on'))s.classList.remove('is-out');
+        },3000);
+      }
     });
     thumbs.forEach(function(b,k){
       if(k===i)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
@@ -1224,7 +1267,7 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
     if(ct)ct.textContent=CAP[i][0];
     if(cl)cl.textContent=CAP[i][1];
   }
-  function schedule(){ if(reduced)return; clearTimeout(timer); timer=setTimeout(function(){show(at+1);schedule();},7000); }
+  function schedule(){ if(reduced)return; clearTimeout(timer); timer=setTimeout(function(){show(at+1);schedule();},10000); }
   thumbs.forEach(function(b){
     b.addEventListener('click',function(){
       show(parseInt(b.getAttribute('data-i'),10)||0);
