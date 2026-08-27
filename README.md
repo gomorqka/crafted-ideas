@@ -120,4 +120,20 @@ Two traps, both of which have already been hit:
 - **A parked offset must clear its own inset.** The skip link hid itself with a flat `translateY(-64px)`. Add 59px of notch to its `top` and it lands back on screen, permanently visible. It parks with `-100%` plus the inset now, so it cannot be outgrown.
 - **The gallery caption clears the nav by top padding**, not by anchoring to it. The nav gets taller by exactly `--sat`, so the caption's padding has to as well or the title reads through the frosted bar. The 27px gap between them is the number to check.
 
+The nav itself does **not** try to blur through that strip on mobile, because it cannot — see below.
+
 Screenshots taken in headless Chrome cannot confirm any of this: `backdrop-filter` over the sticky gallery keeps a stale backdrop snapshot, so the top of the nav samples as opaque page background whether or not the fix is present. It clears on a forced repaint. Verify the **geometry** — nav box reaching y=0, contents starting below the inset, nothing clipped — and confirm the frost itself on a real device.
+
+## Why the mobile nav is a veil, not a bar
+
+The strip above the page on an iPhone is Safari's own chrome, painted from `<meta name="theme-color">`. There is no page content up there, so no amount of `backdrop-filter` will ever blur it — the seam people notice is that opaque `#F6F3EE` meeting the nav's *76%-translucent* cream over a photograph. Two different creams with a hard line between them.
+
+Below `760px` the nav therefore closes the seam by matching instead of frosting: it starts at exactly `--bg`, fully opaque, so there is no edge where the two meet, then dissolves to nothing over 34px of bottom padding. `backdrop-filter` is off there — a blur that stops dead mid-photograph is its own visible edge, and it was the most expensive thing on the page for a phone to composite.
+
+Three things this depends on, all of which have already bitten:
+
+- **The links must sit inside the opaque part.** They occupy the top 62% of the nav box and the gradient holds full `--bg` to 64%. Measured across all nine gallery photographs, the worst ink-on-background contrast behind a nav control is 15.3:1. Move the stops and re-measure — a flat transparent nav puts dark text on a dark kitchen and fails outright.
+- **No border, no repeat.** A border sits *outside* the background's positioning area, so `background-repeat` tiles the gradient's opaque top edge into it — a 1px cream hairline at exactly the bottom of the veil, which is the edge being removed.
+- **The menu needs solid ground.** `#nav:has(.menubtn[aria-expanded="true"])` goes solid while the menu is open, or the panel hangs off a gradient.
+
+If `theme-color` ever changes, the opaque top of this gradient has to change with it, or the seam comes back.

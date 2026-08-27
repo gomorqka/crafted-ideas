@@ -154,7 +154,26 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   .nlinks a:not(.cta){display:none}
   .brand small{display:none}
   .menubtn{display:inline-flex}
-  #nav{padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 12px calc(18px + var(--sal))}
+  /* The strip above the page on an iPhone is Safari's own chrome, painted from theme-color.
+     No page CSS can blur it — there is no page up there to blur — so the seam was never going
+     to close by frosting harder. It closed by matching: the nav now STARTS at exactly the
+     theme-color, opaque, so there is no edge where the two meet, and dissolves downward into
+     the photograph instead of ending on one. The extra bottom padding is the room the fade
+     needs; the links sit inside the opaque part, which is what keeps them readable.
+     backdrop-filter goes with it — a blur that stops dead mid-photograph is its own visible
+     edge, and it was the most expensive thing on the page for a phone to composite. */
+  #nav{padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 34px calc(18px + var(--sal));
+    background:linear-gradient(var(--bg) 0,var(--bg) 64%,
+      color-mix(in srgb,var(--bg) 66%,transparent) 76%,
+      color-mix(in srgb,var(--bg) 30%,transparent) 87%,
+      color-mix(in srgb,var(--bg) 8%,transparent) 95%,transparent 100%);
+    background-repeat:no-repeat;
+    /* The border is 1px OUTSIDE the background's positioning area, so background-repeat tiled
+       the gradient's opaque top edge into it — a cream hairline at exactly the bottom of the
+       veil, which is the edge being removed. No border at all on mobile, and no repeat. */
+    border-bottom:0;backdrop-filter:none}
+  /* the menu needs solid ground, and so does the nav above it while it is open */
+  #nav:has(.menubtn[aria-expanded="true"]){background:var(--bg)}
   .nlinks{gap:6px}
 }
 @media (min-width:761px){#menu{display:none!important}}
