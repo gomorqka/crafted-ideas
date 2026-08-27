@@ -273,8 +273,12 @@ html.lenis,html.lenis body{height:auto}
    the next frame takes over — it is always still moving when it hands off. */
 .hero-shot.is-on img{animation:kb 14s linear forwards}
 .hero-shot:nth-child(even).is-on img{animation-name:kb2}
-@keyframes kb{from{transform:scale(1.10) rotate(-.4deg)}to{transform:scale(1.34) rotate(.3deg)}}
-@keyframes kb2{from{transform:scale(1.10) rotate(.4deg)}to{transform:scale(1.34) rotate(-.3deg)}}
+/* The end value is deliberately past what anyone sees. Each frame is held 10s against a 14s
+   animation, so the visible travel stops around 1.42 — the deepest, softest part of the curve
+   never actually arrives. Six of the nine photographs are upscales, so that headroom is the
+   difference between a bold push-in and a mushy one. */
+@keyframes kb{from{transform:scale(1.10) rotate(-.4deg)}to{transform:scale(1.55) rotate(.3deg)}}
+@keyframes kb2{from{transform:scale(1.10) rotate(.4deg)}to{transform:scale(1.55) rotate(-.3deg)}}
 /* Measured scrim. Sampled across all nine photographs, white text in the headline zone sits at
    1.31–2.32:1 against the 90th-percentile brightest pixel, so this is load-bearing, not mood.
    Bottom-anchored on a phone where the type is at the bottom; a left wash is added at 761px
@@ -1261,29 +1265,56 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
     });
     thumbs.forEach(function(b,k){
       if(k===i)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
+      /* Roving tabindex: the strip is ONE tab stop and the arrow keys move inside it. Five
+         separate stops for five views of the same thing is a lot of Tab presses to get past. */
+      b.tabIndex=(k===i?0:-1);
     });
     at=i;
     if(cn)cn.textContent=String(i+1).padStart(2,'0')+' / '+String(N).padStart(2,'0');
     if(ct)ct.textContent=CAP[i][0];
     if(cl)cl.textContent=CAP[i][1];
   }
-  function schedule(){ if(reduced)return; clearTimeout(timer); timer=setTimeout(function(){show(at+1);schedule();},10000); }
+  /* Auto-advance: each frame is held HOLD, and a deliberate pick buys GRACE before the carousel
+     takes the wheel back. It resumes rather than stopping for good — stopping meant that one
+     arrow key press early on left the rest of the work sitting there unseen. */
+  var HOLD=10000, GRACE=22000;
+  function schedule(ms){ if(reduced)return; clearTimeout(timer); timer=setTimeout(function(){show(at+1);schedule();},ms||HOLD); }
+  function pick(n){ show(n); schedule(GRACE); }
+  /* show() returns early for the frame that is already on, so the roving tabindex has to be
+     seeded here or all five buttons stay natural tab stops until the first change. */
+  thumbs.forEach(function(b,k){ b.tabIndex=(k===0?0:-1); });
   thumbs.forEach(function(b){
-    b.addEventListener('click',function(){
-      show(parseInt(b.getAttribute('data-i'),10)||0);
-      /* a deliberate choice pauses the carousel rather than being overwritten three seconds
-         later — the visitor asked for that frame */
-      clearTimeout(timer);timer=0;
-    });
+    b.addEventListener('click',function(){ pick(parseInt(b.getAttribute('data-i'),10)||0); });
+  });
+  /* Arrow keys, scoped to the strip. Deliberately NOT bound to the window: arrow keys scroll the
+     page, and stealing that whenever the hero happens to be on screen would be worse than not
+     having the shortcut. Up/Down are left alone for the same reason — only Left/Right, plus
+     Home/End, which is what the ARIA practice for a composite widget expects. */
+  strip.addEventListener('keydown',function(e){
+    var n;
+    if(e.key==='ArrowRight')n=at+1;
+    else if(e.key==='ArrowLeft')n=at-1;
+    else if(e.key==='Home')n=0;
+    else if(e.key==='End')n=N-1;
+    else return;
+    e.preventDefault();
+    n=((n%N)+N)%N;
+    pick(n);
+    thumbs[n].focus();
   });
   /* nothing should animate in a tab nobody is looking at */
   addEventListener('visibilitychange',function(){
-    if(document.hidden){clearTimeout(timer);timer=0;}else if(timer!==0||at===0)schedule();
+    if(document.hidden)clearTimeout(timer); else schedule();
   });
   /* Only start once the first frame has actually decoded, so the opening beat is the aperture
      rather than a cross-fade into a half-loaded image. */
   var first=shots[0].querySelector('img');
-  if(first&&!first.complete)first.addEventListener('load',schedule,{once:true});else schedule();
+  /* Wrapped, not passed bare. schedule() now takes a delay, and a listener is handed the Event
+     as its first argument — so `schedule` as a handler became schedule(Event), setTimeout
+     coerced that to NaN, and the first frame flipped instantly instead of holding its ten
+     seconds. Caught because the carousel had already advanced three seconds after load. */
+  if(first&&!first.complete)first.addEventListener('load',function(){schedule();},{once:true});
+  else schedule();
 })();
 
 /* gallery captions: collapsed to a title, details on demand. Lives in the classic layer so it
@@ -1522,16 +1553,34 @@ const easeOut=t=>1-Math.pow(1-t,3);
             const nw=o.im.naturalWidth, nh=o.im.naturalHeight;
             const imgRatio=(nw&&nh)?nw/nh:4/3;
             if(imgRatio>panRatio*1.08){
+              /* Portrait frame — in practice this is the phone. Direction alternates: project 01
+                 sweeps left to right, 02 right to left, and so on. Nine panels all travelling the
+                 same way turned the section into a conveyor belt; alternating reads as the camera
+                 looking around each room rather than one long tracking shot. */
+              const ltr=(i%2===0);
+              const from=ltr?12:88, to=ltr?88:12;
               set(o.im,'transform','');
-              set(o.im,'objectPosition',`${(12+e*76).toFixed(1)}% 50%`);  /* 12%->88%, off the edges */
+              set(o.im,'objectPosition',`${(from+(to-from)*e).toFixed(1)}% 50%`);
             }else{
               /* A wide panel crops the top and bottom, not the sides, so there is no hidden
-                 margin to pan sideways into. The restrained equivalent: drift on the axis that
-                 IS cropped, plus a push-in small enough to read as the frame breathing. Both
-                 stay inside the 8% overhang the image already has. */
+                 margin to pan sideways into. Drift on the axis that IS cropped, plus a real
+                 push-in — 1.00 to 1.15 rather than the 1.045 this started at.
+
+                 The maths that keeps it inside the frame: the image is 116% of the panel's
+                 height and hangs 8% off each end, so at scale s it clears (116s-100)/2 percent
+                 top and bottom — 16.7% at s=1.15. The drift is 3.5% of the image's own box,
+                 which is 4.1% of the panel. 4.1 well inside 16.7. Sideways it clears
+                 (100s-100)/2 = 7.5% and travels nowhere. */
               set(o.im,'objectPosition','');
-              set(o.im,'transform',`translate3d(0,${(e*7-3.5).toFixed(2)}%,0) scale(${(1+e*.045).toFixed(4)})`);
+              set(o.im,'transform',`translate3d(0,${(e*7-3.5).toFixed(2)}%,0) scale(${(1+e*.15).toFixed(4)})`);
             }
+            /* Blend the seam. Each panel rises over the one before it and, left alone, its top
+               edge is a hard line travelling up the screen. Fading it up as it rises turns that
+               into a dissolve while keeping the movement. Panel 0 is excluded — there is no
+               photograph beneath it, only the cream band, which it would wash out against. */
+            const rise=clamp(1-(galTop+i*stride-scrollY)/vh,0,1);
+            const blend=i===0?1:(.42+.58*(rise*rise*(3-2*rise)));
+            set(o.pan,'opacity',blend.toFixed(3));
             /* The caption is the second act: it rises and fades in once the photograph has
                settled, holds through the dwell, then lifts away as the next panel closes over
                it — so one caption is always arriving as another leaves. */
