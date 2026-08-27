@@ -126,26 +126,24 @@ Screenshots taken in headless Chrome cannot confirm any of this: `backdrop-filte
 
 ## The mobile nav
 
-Below `760px` the bar sits at the **bottom** — thumb-reachable, out of the notch entirely, and off the top of the photographs where the gallery captions are. `--navh` is what it occupies (`68px` plus the bottom inset) and everything that has to clear it reads that one number.
+Below `760px` the bar is at the top and **fully transparent**. At rest you get the whole banner — logo, quote pill, menu. The moment the page moves (`.scrolled`, past 20px) the logo and the pill go and one floating control stays.
 
-Two facts about this page shape everything else here.
+That shedding is what makes transparency possible at all. A transparent bar was tried with the banner intact and it failed on evidence: the copy scrolled straight *through* the logo and the quote button, and at 92% opacity it ghosted through. With nothing there but the menu button, there is nothing left to collide with.
 
-**The strip above the page on an iPhone is Safari's own chrome**, painted from `<meta name="theme-color">`. There is no page content up there, so no amount of `backdrop-filter` will ever blur it. Two attempts went that way — frosting harder, then dissolving the bar into a gradient — and both only made the bar taller. Moving it to the bottom removes the question.
+**Both strips a phone browser puts over the page are Safari's own chrome** — the status bar at the top, the address bar at the bottom — painted from `<meta name="theme-color">` with no page beneath them to blur. Three attempts went into joining the top one seamlessly (frosting harder, dissolving into a gradient, then moving the whole bar to the bottom, which just met the same wall at the other edge). Neither edge can be joined. Nothing here tries.
 
-**The panels carry a dark scrim across their top 56% and nothing at the bottom.** Measured across all nine photographs, the strip the bar occupies runs 66–233 at the bottom against a uniform 33–93 at the top. So the bar cannot simply invert the way a top bar could: white would vanish on panel 9's pale floor, ink would vanish on panel 6.
+**Colour-aware.** Measured behind the top of the nav down the whole page, everything is bright (204–240) except the gallery, whose panels carry a dark scrim across their top 56% (33–93). `#nav.on-dark` inverts to white across exactly that block, toggled in the classic layer from a plain box-overlap test between the gallery and the nav, so it holds with the fx module absent.
 
-What it does instead, via `#nav.on-dark`, toggled in the classic layer from a plain overlap test between the gallery's box and the nav's:
+**The floating control still carries a chip** — `--bg` at 86%, or `rgba(16,13,11,.52)` inverted. Two reasons: the *last* gallery panel scrolls out from under its own scrim and reaches 155, where a bare white glyph is 2.8:1; and a dark heading can pass under the button anywhere else. Worst glyph-against-chip contrast across all nine photographs is 9.9:1.
 
-- **Over the photographs** — a vignette that brings its own contrast, guaranteeing the ground under the controls whatever the photograph is doing. Worst white-on-ground contrast behind any control, all nine photographs: 7.9:1. The first third of the fade is carried on `#nav.on-dark::before` *above* the bar and outside the layout, because reaching full density inside the bar's own 12px left a visible band edge across the image.
-- **Everywhere else** — flat, fully opaque `--bg`. Not for looks (it is invisible against a cream page; the measured step across its edge is 0–10) but because text sections scroll *under* a fixed bar, and at anything less the copy ghosts straight through the logo and the quote button.
+**Get a quote moved into the menu.** The pill is gone the moment you scroll, and without it there would be no route to the form from anywhere but the bottom of the page.
 
 Traps, all of which have already bitten:
 
-- **`.menubtn` sets its own `color`**, so it does not inherit the inversion from `#nav`. It shipped black over the photographs once. Anything added to the bar needs checking against `on-dark` directly, not assumed to inherit.
-- **The clearance rules must be the LAST block in the sheet.** `footer`, `.gcap` and friends are declared further down than the mobile nav block, and at equal specificity the later declaration wins — put the overrides up there and they are silently ignored, which is how the footer came to reserve room for a bar 34px shorter than the one in front of it.
-- **`env()` inside a nested `calc()` is not safe in `transform`.** Safari resolves it to the `0px` fallback there while honouring it in `top`, so the skip link parked 59px short of hidden and sat on the clock on a real iPhone. Its offset is a flat `-160px` now. Anything that parks itself off an edge must do the same.
+- **`.menubtn` sets its own `color`**, so it does not inherit the inversion from `#nav`. It shipped black over the photographs once. Anything added to the bar needs checking against `on-dark` directly.
+- **Hide with `visibility`, not opacity alone.** An invisible tab stop is worse than a visible one. Verified by a real Tab sweep: while scrolled, focus goes skip link → menu button → page.
+- **Overrides must sit below the rules they override.** `footer` and `.gcap` are declared further down than the mobile nav block, and at equal specificity the later declaration wins — a clearance written up there is silently ignored.
+- **`env()` inside a nested `calc()` is not safe in `transform`.** Safari resolves it to the `0px` fallback there while honouring it in `top`, so the skip link parked 59px short of hidden and sat on the clock on a real iPhone. Its offset is a flat `-160px` now.
 - **A border sits outside the background's positioning area**, so `background-repeat` tiles the background into it — harmless with a flat colour, a visible hairline with a gradient.
 
-`<noscript>` restores the backing, since without JS the bar can never learn where it is. `.hint` and `.mcopy` also meet the bottom edge but live inside `#ch0`/`#ch1`, which are `display:none` on every journey, so there is deliberately no rule for them.
-
-If `theme-color` ever changes, the opaque bar colour has to change with it.
+`<noscript>` gives the bar a translucent backing, since without JS it can never learn where it is or that the page has moved.

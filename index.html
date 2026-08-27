@@ -156,49 +156,45 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   .nlinks a:not(.cta){display:none}
   .brand small{display:none}
   .menubtn{display:inline-flex}
-  /* The bar lives at the BOTTOM on a phone: thumb-reachable, out of the notch entirely, and
-     off the top of the photographs where the captions are. One number for what it occupies, so
-     everything that has to clear it agrees. */
-  :root{--navh:calc(68px + var(--sab))}
-  #nav{top:auto;bottom:0;
-    padding:12px calc(18px + var(--sar)) calc(12px + var(--sab)) calc(18px + var(--sal));
-    background:var(--bg);backdrop-filter:none;border-bottom:0;
-    transition:background-color .35s var(--ease),color .35s var(--ease)}
-  /* Over text sections: flat, fully opaque cream. Invisible against a cream page (the measured
-     step across its edge is 0-10), and opaque because those sections scroll UNDER a fixed bar —
-     at anything less the copy ghosts straight through the logo and the quote button.
+  /* Back at the top, and fully transparent — which only works because the banner leaves.
+     At rest you get the whole thing; the moment the page moves, the logo and the quote pill go
+     and one floating control stays. That is the piece that makes transparency viable: with no
+     logo and no pill there is nothing left for the copy to collide with as it scrolls under,
+     which is what killed the transparent version of this bar the first time.
 
-     Over the photographs: a vignette rather than a bar, so the image still reads through it.
-     It cannot simply invert to white the way the top bar did. The panels carry a dark scrim
-     across their TOP 56% and nothing at the bottom, and measured across all nine the bottom
-     strip runs 66 to 233 — pale floors and worktops. White would vanish on panel 9, ink would
-     vanish on panel 6. So the bar brings its own contrast: the gradient guarantees the ground
-     under the controls whatever the photograph is doing, and fades to nothing at its top edge
-     so it reads as the bottom of the image darkening, not as a band sitting on it. */
-  #nav.on-dark{background:linear-gradient(rgba(16,13,11,.3) 0,rgba(16,13,11,.62) 20px,rgba(16,13,11,.72) 100%);
-    color:#fff;text-shadow:0 1px 10px rgba(16,13,11,.55)}
-  /* The fade needs more room than the bar has: reaching full density inside 12px left a visible
-     band edge across the photograph. This carries the first third of it ABOVE the bar, outside
-     the layout, so the whole vignette runs ~96px and reads as the image darkening. The menu is
-     a later child and taller than this, so it covers it completely when open. */
-  #nav.on-dark::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:76px;
-    pointer-events:none;background:linear-gradient(rgba(16,13,11,0),rgba(16,13,11,.3))}
+     Both strips a phone browser puts over the page — the status bar at the top, the address bar
+     at the bottom — are Safari's own chrome, painted from theme-color with no page beneath them
+     to blur. Neither edge can be joined seamlessly, so nothing here tries to. */
+  #nav{top:0;bottom:auto;
+    padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 12px calc(18px + var(--sal));
+    background:none;backdrop-filter:none;border-bottom:0;transition:color .3s var(--ease)}
+  .brand,.nlinks .cta{transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s}
+  /* visibility, not just opacity: an invisible tab stop is worse than a visible one */
+  #nav.scrolled .brand,#nav.scrolled .nlinks .cta{
+    opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none}
+  /* Colour-aware, from the same measurement as before: everything behind the top of the nav is
+     bright (204-240) except the gallery, whose panels carry a dark scrim across their top 56%.
+     The floating control still brings a chip, because the LAST panel scrolls out from under its
+     own scrim and reaches 155, where a bare white glyph is 2.8:1 — and because a dark heading
+     can pass under it anywhere else. */
+  #nav.scrolled .menubtn{border-radius:50%;background:color-mix(in srgb,var(--bg) 86%,transparent);
+    transition:background-color .3s var(--ease)}
+  #nav.on-dark{color:#fff}
+  #nav.on-dark .brand{text-shadow:0 1px 12px rgba(16,13,11,.7)}
   #nav.on-dark .brand .dot{color:var(--accent-2)}
-  #nav.on-dark .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);text-shadow:none;
-    background:rgba(16,13,11,.3)}
-  /* .menubtn sets its own colour, so it never inherited the inversion and stayed black. */
-  #nav.on-dark .menubtn{color:#fff;text-shadow:none;filter:drop-shadow(0 1px 6px rgba(16,13,11,.85))}
-  /* the menu opens upward out of the bar, and the bar goes solid under it */
-  #menu{top:auto;bottom:100%;border-bottom:0;border-top:1px solid var(--line);
-    padding:20px calc(22px + var(--sar)) 14px calc(22px + var(--sal))}
-  /* opening upward, the panel's own top rule and the first link's double up 20px apart */
-  #menu a:first-child{border-top:0}
-  #nav:has(.menubtn[aria-expanded="true"]){background:var(--bg);color:var(--ink);text-shadow:none}
-  #nav:has(.menubtn[aria-expanded="true"]) .nlinks .cta{color:var(--ink);border-color:var(--edge);background:none}
-  #nav:has(.menubtn[aria-expanded="true"]) .menubtn{color:var(--ink);filter:none}
-  /* the hairline moves to the bar's top edge; the rest of the clearances are at the very end
-     of the sheet, because they override rules declared further down than this block */
-  .progress{top:auto;bottom:var(--navh)}
+  #nav.on-dark .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);background:rgba(16,13,11,.3)}
+  /* .menubtn sets its own colour, so it does not inherit the inversion. It shipped black once. */
+  #nav.on-dark .menubtn{color:#fff}
+  #nav.on-dark.scrolled .menubtn{background:rgba(16,13,11,.52)}
+  /* open: the header goes solid so it reads as one panel with the menu hanging off it */
+  #nav:has(.menubtn[aria-expanded="true"]){background:var(--bg);color:var(--ink)}
+  #nav:has(.menubtn[aria-expanded="true"]) .menubtn{background:none;color:var(--ink)}
+  #menu{padding:8px calc(22px + var(--sar)) 22px calc(22px + var(--sal))}
+  /* Get a quote lives here now: the pill is gone the moment you scroll, and without this there
+     would be no route to the form from anywhere but the bottom of the page. */
+  #menu .mcta{border:1px solid var(--edge);border-radius:99px;text-align:center;
+    margin-top:14px;padding:14px 18px;color:var(--ink)}
+  .progress{top:var(--sat);bottom:auto}
   .nlinks{gap:6px}
 }
 @media (min-width:761px){#menu{display:none!important}}
@@ -568,17 +564,6 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     transition-duration:.4s!important;
   }
 }
-
-/* Bottom-bar clearances. Deliberately the LAST block in the sheet: every one of these overrides
-   a rule declared further down than the mobile nav block, and at equal specificity the later
-   declaration wins — put them up there and they are silently ignored, which is how the footer
-   came to reserve room for a bar 34px shorter than the one now in front of it. */
-@media (max-width:760px){
-  footer{padding-bottom:calc(60px + var(--navh))}
-  /* .hint and .mcopy also meet the bottom edge, but they live inside #ch0 and #ch1, which are
-     display:none on every journey — no rule for them here, because it could never fire. */
-  /* the caption was clearing a nav that is no longer above it — only the status bar is */
-  .gcap{padding-top:calc(clamp(36px,6vh,56px) + var(--sat))}
 }
 </style>
 <script>
@@ -622,6 +607,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <a href="#services">Services</a>
     <a href="#process">Process</a>
     <a href="#work">Work</a>
+    <a class="mcta" href="#contact">Get a quote</a>
   </div>
 </nav>
 
