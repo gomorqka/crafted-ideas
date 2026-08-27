@@ -7,16 +7,12 @@
      colour, which is why the nav's frosted band used to end in a flat opaque bar. Everything
      that touches an edge pays it back through the --sa* variables in :root. -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- Surrey belongs in both of these: the page body, the footer coverage line and the JSON-LD
-     areaServed all name it, and half the projects shown are outside Greater London. -->
-<title>Crafted Ideas Ltd — kitchens, built properly. London &amp; Surrey</title>
-<meta name="description" content="Kitchen design, construction, installation and fitting across Greater London and Surrey — full bespoke installations through to repairs, with the wider building trades in-house. One company, one standard.">
+<title>Crafted Ideas Ltd — kitchens, built properly. Greater London</title>
+<meta name="description" content="Kitchen design, construction, installation and fitting across Greater London — full bespoke installations through to repairs, with the wider building trades in-house. One company, one standard.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:title" content="Crafted Ideas Ltd — kitchens, built properly.">
-<!-- "Measured twice. Crafted once." was the old #process heading and no longer appears anywhere
-     on the page. A share card should not sell a line the visitor will never find. -->
-<meta property="og:description" content="Kitchen design, construction, installation and fitting across Greater London and Surrey. Designed, built and fitted by the same hands.">
+<meta property="og:description" content="Kitchen design, construction, installation and fitting across Greater London. Measured twice. Crafted once.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://craftedideasltd.co.uk">
 <meta property="og:image" content="https://craftedideasltd.co.uk/og.png">
@@ -150,16 +146,8 @@ html.lenis,html.lenis body{height:auto}
 #nav.on-dark .brand{text-shadow:0 1px 12px rgba(16,13,11,.7)}
 #nav.on-dark .brand .dot{color:var(--accent-2)}
 #nav.on-dark .brand small{color:rgba(255,255,255,.72)}
-/* Measured at 86% white over the first hero frame the links came out at 2.88:1, and over the
-   last gallery panel at 1.61:1 — the primary nav, failing AA at every desktop width. The old
-   bar always carried a frosted cream backing; this one is transparent, so the contrast has to
-   come from somewhere. A gradient scrim behind the bar is real contrast, which a text-shadow
-   is not — WCAG does not count shadows. */
-#nav.on-dark .nlinks a{color:#fff}
+#nav.on-dark .nlinks a{color:rgba(255,255,255,.86)}
 #nav.on-dark .nlinks a:hover{color:#fff}
-@media (min-width:761px){
-  #nav.on-dark{background:linear-gradient(180deg,rgba(16,13,11,.62) 0%,rgba(16,13,11,.34) 58%,rgba(16,13,11,0) 100%)}
-}
 #nav.on-dark .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);background:rgba(16,13,11,.3)}
 .brand{font-family:var(--fd);font-weight:600;font-size:20px;letter-spacing:-.01em;
   display:inline-flex;align-items:center;min-height:44px;min-width:44px} /* 2.5.8 target size */
@@ -226,13 +214,7 @@ html.lenis,html.lenis body{height:auto}
      whole screen, notch included. */
   #menu{position:fixed;inset:0;z-index:1;justify-content:flex-start;
     padding:calc(104px + var(--sat)) calc(26px + var(--sar)) calc(28px + var(--sab)) calc(26px + var(--sal));
-    /* overflow-y:auto is load-bearing, not decoration. The sheet went from four items to seven
-       when Call and WhatsApp moved into it, and without a scroll container the last two — the
-       phone number and WhatsApp, the highest-converting controls on a trade site — are simply
-       unreachable in landscape or at large text. overscroll-behavior below is also a no-op
-       without it, since there is no scroll container for it to contain. */
-    background:var(--bg);backdrop-filter:none;border-bottom:0;
-    overflow-y:auto;overscroll-behavior:contain;
+    background:var(--bg);backdrop-filter:none;border-bottom:0;overscroll-behavior:contain;
     opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none;
     display:flex;transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s}
   #menu.open{opacity:1;visibility:visible;transform:none;pointer-events:auto}
@@ -242,10 +224,7 @@ html.lenis,html.lenis body{height:auto}
      it painted straight over its own close button: a hit test at the X returned #menu, not the
      button. With no keyboard to press Escape, that left tapping a link as the only way out of a
      full-screen menu. Both controls now sit above the sheet they belong to. */
-  /* .nlinks belongs in this lift too: it still holds the "Get a quote" pill, which stays
-     focusable while the sheet is open. Leaving it out put a tab stop underneath an opaque
-     full-screen sheet — focus landing on a control nobody can see. */
-  #nav .brand,#nav .nlinks,#nav .menubtn{position:relative;z-index:2}
+  #nav .brand,#nav .menubtn{position:relative;z-index:2}
   /* Call and WhatsApp live here too. The pill is gone the moment you scroll, and the sheet was
      previously the only route to the form — but not to the phone, which is the highest-
      converting control on a trade site. */
@@ -306,7 +285,7 @@ html.lenis,html.lenis body{height:auto}
    where the type moves into the left column. The figures are in the plan. */
 .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
   background:
-    linear-gradient(to top,rgba(16,13,11,.88) 0%,rgba(16,13,11,.72) 30%,rgba(16,13,11,.56) 58%,rgba(16,13,11,.46) 78%,rgba(16,13,11,.56) 100%)}
+    linear-gradient(to top,rgba(16,13,11,.86) 0%,rgba(16,13,11,.66) 30%,rgba(16,13,11,.42) 58%,rgba(16,13,11,.30) 78%,rgba(16,13,11,.46) 100%)}
 /* deepens as the hero leaves, so the band below rises out of it rather than butting against it */
 .hero-dim{position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--dark);opacity:0}
 .hero-inner{position:relative;z-index:2;width:100%;
@@ -319,17 +298,14 @@ html.lenis,html.lenis body{height:auto}
 /* Brass at 11px cannot be guaranteed over an unpredictable photograph — measured against the
    brightest frame in the rotation it fell to about 1.3:1. The rule stays brass; the words go
    white, which the scrim can actually carry. */
-/* #fff, not 94% of bone. The scrim strengths were computed against pure white; shipping the
-   type dimmer than the colour the sums assumed quietly spends the margin they bought. The
-   shadow stays for legibility but is not what makes this pass — WCAG does not count it. */
-.hero .eyebrow{color:#fff;text-shadow:0 1px 16px rgba(16,13,11,.92)}
+.hero .eyebrow{color:rgba(246,243,238,.94);text-shadow:0 1px 16px rgba(16,13,11,.92)}
 .hero h1{font-family:var(--fd);font-weight:340;letter-spacing:-.012em;line-height:1.04;
   font-size:clamp(42px,7.4vw,104px);margin:20px 0 22px;max-width:13ch;
   text-shadow:0 2px 30px rgba(16,13,11,.45)}
 /* Reference A mixes weights inside one headline. Fraunces italic is already loaded and does that
    job without a bold, which would fight the lighter setting the rest of the line is now in. */
 .hero h1 .em{color:var(--accent-2);font-style:italic;font-weight:400}
-.hero .lede{max-width:46ch;color:rgba(255,255,255,.97);font-size:clamp(16px,1.5vw,19px);
+.hero .lede{max-width:46ch;color:rgba(246,243,238,.88);font-size:clamp(16px,1.5vw,19px);
   text-shadow:0 1px 18px rgba(16,13,11,.5)}
 .hero-cta{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
 /* ---- caption panel (reference B) ---- */
@@ -356,21 +332,6 @@ html.lenis,html.lenis body{height:auto}
   border:1px solid rgba(255,255,255,.65);background:transparent;transition:background .3s,border-color .3s}
 .hero-thumb[aria-current="true"]::after{background:var(--accent-2);border-color:var(--accent-2)}
 .hero-thumb img{display:none}
-/* pause / play — a 44px target at every width, unlike the thumbnails which shrink to dots */
-.hero-pause{width:44px;height:44px;flex:none;margin-right:6px;padding:0;cursor:pointer;
-  display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;
-  background:rgba(16,13,11,.68);border:1px solid rgba(255,255,255,.55);
-  transition:background .3s var(--ease),border-color .3s var(--ease)}
-.hero-pause:hover{background:rgba(16,13,11,.85);border-color:#fff}
-.hero-pause i{display:block;position:relative;width:11px;height:13px}
-.hero-pause i::before,.hero-pause i::after{content:"";position:absolute;top:0;width:3.5px;height:13px;background:currentColor}
-.hero-pause i::before{left:0}
-.hero-pause i::after{right:0}
-/* pressed = paused, so the glyph becomes "play" */
-.hero-pause[aria-pressed="true"] i::before{left:1px;width:0;height:0;background:none;
-  border-left:11px solid currentColor;border-top:6.5px solid transparent;border-bottom:6.5px solid transparent}
-.hero-pause[aria-pressed="true"] i::after{display:none}
-.rm .hero-pause{display:none}
 .hero-cue{position:absolute;right:calc(28px + var(--sar));bottom:calc(26px + var(--sab));z-index:2;
   color:rgba(246,243,238,.6);display:none}
 
@@ -512,9 +473,7 @@ html.lenis,html.lenis body{height:auto}
    either would be the same class of error as the 070 phone number. */
 .gchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 .gchip{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:99px;
-  /* .42 left 10px type at 3.5:1 over the two brightest photographs. The chip has to carry the
-     contrast, because what is behind it changes with every project. */
-  border:1px solid rgba(255,255,255,.5);background:rgba(16,13,11,.72);
+  border:1px solid rgba(255,255,255,.42);background:rgba(16,13,11,.42);
   font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.14em;
   text-transform:uppercase;color:rgba(255,255,255,.92)}
 .gchip i{width:5px;height:5px;border-radius:50%;background:var(--accent-2);flex:none}
@@ -547,10 +506,7 @@ html.lenis,html.lenis body{height:auto}
   padding-top:32px;border-top:1px solid var(--line)}
 .crow .k{display:block;margin-bottom:7px}
 .crow .v{font-size:16px;line-height:1.5}
-/* These two are what a customer actually taps. At 16px/1.5 they were a ~24px target sitting
-   next to 56px pills — reading as tappable while behaving like body text. inline-flex keeps the
-   underline hugging the text; min-height grows the hit box without moving anything visually. */
-.crow a.v{display:inline-flex;align-items:center;min-height:44px;border-bottom:1px solid var(--edge)}
+.crow a.v{border-bottom:1px solid var(--edge)}
 .crow a.v:hover{border-bottom-color:var(--accent-2)}
 /* ---------- quote form ---------- */
 .qform{background:var(--card);border:1px solid var(--line);border-radius:22px;
@@ -643,13 +599,6 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
   .hero-thumb img{display:block;width:100%;height:100%;object-fit:cover}
   .hero-thumb:hover{opacity:.85}
   .hero-thumb[aria-current="true"]{opacity:1;outline-color:var(--accent-2);outline-width:2px}
-  /* The thumbnail sets its own outline, which cancelled the global :focus-visible ring byte for
-     byte — so the strip, which is the hero's only tab stop, showed nothing at all when focused.
-     Needs to beat both .hero-thumb and its [aria-current] state, and needs a shape the current-
-     state ring cannot be mistaken for, hence the offset ring plus a halo. */
-  .hero-strip .hero-thumb:focus-visible{
-    outline:3px solid var(--accent-2);outline-offset:3px;
-    box-shadow:0 0 0 6px rgba(16,13,11,.75);opacity:1}
   .hero-cue{display:inline-flex;left:calc(28px + var(--sal));right:auto}
   .qsplit{grid-template-columns:1fr 1fr;gap:56px;align-items:start}
   .qsplit .qcol{order:0;position:sticky;top:112px}
@@ -703,21 +652,18 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 </style>
 <script>
 /* Motion gate. Decides ONCE, here, and writes the answer to <html> as a class:
-     rm   reduced motion — cross-fades only, no movement, no scroll hijack, no rAF, and the
-          hero does not advance itself. The fx module is never even downloaded.
-     fx   everything else — reveals, Lenis, hero parallax, gallery pan.
-
-   It used to also write `fxd` and `fxm`, which selected between a 700vh pinned film on desktop
-   and a self-drawing blueprint on mobile. Both of those were deleted in the v3 redesign and the
-   motion path is now the same at every width, so the two classes were being written and read by
-   nobody. Removed rather than left as decoration — a class the README describes as a live
-   switch, which in fact switches nothing, is worse than no class at all. */
+     rm   reduced motion  — cross-fades only, no movement, no scroll hijack, no rAF
+     fxd  desktop journey — the 700vh pinned film
+     fxm  mobile journey  — the blueprint draws itself; film only if the network allows
+   Everything downstream keys off these classes, so the breakpoint lives in exactly one
+   place instead of being duplicated between a media query and matchMedia. */
 (function(){try{
   var r=document.documentElement;
   if(matchMedia('(prefers-reduced-motion:reduce)').matches){r.classList.add('rm');return;}
   if(!('IntersectionObserver' in window)||!('noModule' in HTMLScriptElement.prototype))return;
   r.classList.add('fx');
-  window.__fxTimer=setTimeout(function(){r.classList.remove('fx');},3000);
+  r.classList.add(matchMedia('(min-width:1025px) and (hover:hover) and (pointer:fine)').matches?'fxd':'fxm');
+  window.__fxTimer=setTimeout(function(){r.classList.remove('fx','fxd','fxm');},3000);
 }catch(e){}})();
 </script>
 <noscript><style>
@@ -814,10 +760,6 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     </figure>
 
     <div class="hero-strip" id="hero-strip" role="group" aria-label="Choose a project to show">
-      <!-- The hero moves by itself every ten seconds, so WCAG 2.2.2 (Level A) requires a way to
-           stop it. Hover- or focus-only pausing does not satisfy that on a touch screen; this is
-           a real control. Hidden under reduced motion, where nothing auto-advances anyway. -->
-      <button class="hero-pause" id="hero-pause" type="button" aria-pressed="false" aria-label="Pause the slideshow"><i aria-hidden="true"></i></button>
       <button class="hero-thumb" type="button" data-i="0" aria-current="true" aria-label="Show: Sculptural Simplicity, Fulham"><img src="/media/work-thumb/02-stone-island-handleless-fulham.jpg" alt="" loading="lazy" decoding="async" width="240" height="175"></button>
       <button class="hero-thumb" type="button" data-i="1" aria-label="Show: Seamless &amp; Sophisticated, Epsom"><img src="/media/work-thumb/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="" loading="lazy" decoding="async" width="240" height="176"></button>
       <button class="hero-thumb" type="button" data-i="2" aria-label="Show: Beyond the Kitchen, South Croydon"><img src="/media/work-thumb/07-interior-solutions-south-croydon.jpg" alt="" loading="lazy" decoding="async" width="240" height="178"></button>
@@ -948,11 +890,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
       <div class="tr rise">
         <span class="fig">£10m</span>
         <h3>Employers&rsquo; liability</h3>
-        <!-- Employers' liability covers people we EMPLOY. It is not blanket cover for everyone
-             on site — visitors and their property fall under the public liability policy above.
-             Describing it as "everyone who sets foot on your job" overstated what the schedule
-             in com/docs actually buys. -->
-        <p>The statutory cover for the people we employ on your site.</p>
+        <p>Everyone who sets foot on your job is covered while they are there.</p>
       </div>
       <div class="tr rise">
         <span class="fig">16881417</span>
@@ -975,19 +913,18 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 <section class="band paper" id="work" aria-labelledby="wrkH">
   <div class="wrap">
     <span class="tag mono rise"><i></i>The work</span>
-    <!-- Reference A bolds a numeral inside its heading. Nine counts the PROJECTS shown below,
-         which is a fact about this page; it is not a count of years or of jobs completed, which
-         are not ours to claim. Deliberately not "nine finished kitchens" either — tile 08 is a
-         renovation and tile 09 is a showroom installation, so that phrasing would have been
-         contradicted by the gallery directly underneath it. -->
-    <h2 class="big rise" id="wrkH"><span class="em">Nine</span> projects, looked at closely.</h2>
+    <!-- Reference A bolds a numeral inside its heading. Nine is a count of photographs, which is
+         a fact; it is not a count of years or of jobs, which are not ours to claim. -->
+    <h2 class="big rise" id="wrkH"><span class="em">Nine</span> finished kitchens, looked at closely.</h2>
     <p class="sub rise">Recent installations in Epsom, Fulham, Clapham, Dulwich, Caterham, Guildford and South Croydon — handleless runs, stone islands, bespoke cabinetry, and the lighting and joinery that finish them.</p>
 
     <!-- Vasil's own projects — his order, his titles. Manifest: com/plans/work-photos.md.
          To swap one, replace the src AND rewrite the alt to describe that photo. The alt text
          here describes what is in each frame, not the marketing line printed beside it. -->
     <div class="gallery" id="gal">
-        <figure class="gpanel" aria-label="Project 1 of 9">
+      <div class="gstage">
+        <div class="gtrack" id="gtrack">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 1 of 9">
           <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" srcset="/media/work-800/01-soft-matt-schmidt-kitchen-epsom.jpg 800w, /media/work/01-soft-matt-schmidt-kitchen-epsom.jpg 1600w" sizes="100vw" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd1">
@@ -1002,7 +939,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Epsom</span><span class="gchip"><i></i>Full installation</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 2 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 2 of 9">
           <img src="/media/work/02-stone-island-handleless-fulham.jpg" srcset="/media/work-800/02-stone-island-handleless-fulham.jpg 800w, /media/work/02-stone-island-handleless-fulham.jpg 1600w" sizes="100vw" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd2">
@@ -1017,7 +954,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Fulham</span><span class="gchip"><i></i>Stone island</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 3 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 3 of 9">
           <img src="/media/work/03-alno-kitchen-clapham-common.jpg" srcset="/media/work-800/03-alno-kitchen-clapham-common.jpg 800w, /media/work/03-alno-kitchen-clapham-common.jpg 1600w" sizes="100vw" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd3">
@@ -1032,7 +969,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Clapham Common</span><span class="gchip"><i></i>Period home</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 4 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 4 of 9">
           <img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" srcset="/media/work-800/04-bespoke-pantry-cabinetry-dulwich.jpg 800w, /media/work/04-bespoke-pantry-cabinetry-dulwich.jpg 1024w" sizes="100vw" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd4">
@@ -1047,7 +984,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Dulwich</span><span class="gchip"><i></i>Bespoke cabinetry</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 5 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 5 of 9">
           <img src="/media/work/05-hand-painted-kitchen-caterham.jpg" srcset="/media/work-800/05-hand-painted-kitchen-caterham.jpg 800w, /media/work/05-hand-painted-kitchen-caterham.jpg 1024w" sizes="100vw" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd5">
@@ -1062,7 +999,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Caterham</span><span class="gchip"><i></i>Hand-painted</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 6 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 6 of 9">
           <img src="/media/work/06-zone-lighting-control-guildford.jpg" srcset="/media/work-800/06-zone-lighting-control-guildford.jpg 800w, /media/work/06-zone-lighting-control-guildford.jpg 1600w" sizes="100vw" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd6">
@@ -1077,7 +1014,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Guildford</span><span class="gchip"><i></i>Zone lighting</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 7 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 7 of 9">
           <img src="/media/work/07-interior-solutions-south-croydon.jpg" srcset="/media/work-800/07-interior-solutions-south-croydon.jpg 800w, /media/work/07-interior-solutions-south-croydon.jpg 1600w" sizes="100vw" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd7">
@@ -1092,7 +1029,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>South Croydon</span><span class="gchip"><i></i>Fitted furniture</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 8 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 8 of 9">
           <img src="/media/work/08-renovation-remodelling.jpg" srcset="/media/work-800/08-renovation-remodelling.jpg 800w, /media/work/08-renovation-remodelling.jpg 1600w" sizes="100vw" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd8">
@@ -1107,7 +1044,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Renovation</span><span class="gchip"><i></i>Full remodel</span></div>
           </figcaption>
         </figure>
-        <figure class="gpanel" aria-label="Project 9 of 9">
+        <figure class="gpanel" aria-roledescription="slide" aria-label="Project 9 of 9">
           <img src="/media/work/09-showroom-schmidt-epsom.jpg" srcset="/media/work-800/09-showroom-schmidt-epsom.jpg 800w, /media/work/09-showroom-schmidt-epsom.jpg 1024w" sizes="100vw" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd9">
@@ -1122,6 +1059,8 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             <div class="gchips"><span class="gchip"><i></i>Epsom</span><span class="gchip"><i></i>Showroom fit-out</span></div>
           </figcaption>
         </figure>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1148,21 +1087,14 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <figure><img src="/media/work-800/08-renovation-remodelling.jpg" alt="A newly finished room mid-renovation, with a marble-effect island and integrated ovens." loading="lazy" decoding="async" width="800" height="600"></figure>
         <div class="cbody">
           <h3>Renovation &amp; remodelling</h3>
-          <!-- "contracted work and ongoing upkeep" is restored here deliberately: the old
-               #services list carried a "Repairs & maintenance — contracted jobs, odd structural
-               fixes, ongoing upkeep" line, and the redesign dropped it off the page entirely.
-               That is a whole service line, and landlords and managing agents search for it. -->
-          <p>Domestic and commercial building work, structural alterations and refurbishment — including contracted work and ongoing upkeep, plus the last ten per cent of finishing that makes the other ninety look right.</p>
+          <p>Domestic and commercial building work, structural alterations and refurbishment — plus the last ten per cent of finishing that makes the other ninety look right.</p>
           <a class="tlink" href="#work">See the work</a>
         </div>
       </article>
       <article class="card rise">
         <figure><img src="/media/work-800/06-zone-lighting-control-guildford.jpg" alt="Under-cabinet and plinth lighting picking out a handleless kitchen run." loading="lazy" decoding="async" width="800" height="620"></figure>
         <div class="cbody">
-          <!-- Heading leads on "details" because the photograph is zone lighting, not a repair.
-               The section's own rule is that each image genuinely illustrates the words above
-               it, and we have no photograph of a repair. -->
-          <h3>The details &amp; the repairs</h3>
+          <h3>Repairs &amp; the details</h3>
           <p>Misaligned doors, worn hinges, damaged worktops, leaks — restored properly rather than patched. Most firms at this level only want the full installation. We&rsquo;ll come for a hinge.</p>
           <a class="tlink" href="tel:+447597231778">Call 07597 231778</a>
         </div>
@@ -1345,20 +1277,8 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
   /* Auto-advance: each frame is held HOLD, and a deliberate pick buys GRACE before the carousel
      takes the wheel back. It resumes rather than stopping for good — stopping meant that one
      arrow key press early on left the rest of the work sitting there unseen. */
-  var HOLD=10000, GRACE=22000, paused=false;
-  function schedule(ms){ if(reduced||paused)return; clearTimeout(timer); timer=setTimeout(function(){show(at+1);schedule();},ms||HOLD); }
-  /* WCAG 2.2.2. Pausing on hover or focus alone does not count on a touch screen, so this is a
-     real control with a real pressed state. */
-  var pauseBtn=document.getElementById('hero-pause');
-  function setPaused(p){
-    paused=p;
-    if(pauseBtn){
-      pauseBtn.setAttribute('aria-pressed',p?'true':'false');
-      pauseBtn.setAttribute('aria-label',p?'Play the slideshow':'Pause the slideshow');
-    }
-    if(p)clearTimeout(timer); else schedule();
-  }
-  if(pauseBtn)pauseBtn.addEventListener('click',function(){setPaused(!paused);});
+  var HOLD=10000, GRACE=22000;
+  function schedule(ms){ if(reduced)return; clearTimeout(timer); timer=setTimeout(function(){show(at+1);schedule();},ms||HOLD); }
   function pick(n){ show(n); schedule(GRACE); }
   /* show() returns early for the frame that is already on, so the roving tabindex has to be
      seeded here or all five buttons stay natural tab stops until the first change. */
@@ -1701,11 +1621,36 @@ const easeOut=t=>1-Math.pow(1-t,3);
        the static page is already the right answer. Anything else is a genuine fault. */
     if(e!=='__reverted__'){
       console.error('[fx] setup failed — revealing all content',e);
-      root.classList.remove('fx');
+      root.classList.remove('fx','fxd','fxm');
     }
     try{clearTimeout(window.__fxTimer);}catch(_){}
   }
 }
+</script>
+
+<script>
+(function(){
+ function go(){
+  var m=document.getElementById('menu'),b=document.getElementById('menubtn');
+  b.click();
+  setTimeout(function(){
+   var cs=getComputedStyle(m);
+   var kids=[].map.call(m.children,function(a){var r=a.getBoundingClientRect();return a.textContent.trim().slice(0,22)+' top='+Math.round(r.top)+' bot='+Math.round(r.bottom)+' h='+Math.round(r.height);});
+   var out={vw:innerWidth,vh:innerHeight,overflowY:cs.overflowY,overflowX:cs.overflowX,
+     menuClientH:m.clientHeight,menuScrollH:m.scrollHeight,
+     docScrollH:document.documentElement.scrollHeight,docClientH:document.documentElement.clientHeight,
+     htmlOverflow:getComputedStyle(document.documentElement).overflow,
+     kids:kids};
+   var d=document.createElement('pre');d.id='PROBE';d.textContent=JSON.stringify(out,null,1);
+   document.body.appendChild(d);
+   // try to scroll the sheet
+   m.scrollTop=9999; out.menuScrollTopAfter=m.scrollTop;
+   scrollTo(0,9999); out.winScrollYAfter=window.scrollY;
+   d.textContent=JSON.stringify(out,null,1);
+  },400);
+ }
+ if(document.readyState==='complete')go(); else addEventListener('load',go);
+})();
 </script>
 </body>
 </html>

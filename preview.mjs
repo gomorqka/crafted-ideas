@@ -29,9 +29,10 @@ createServer((req, res) => {
 }).listen(PORT, () => {
   console.log(`\n  craftedideasltd.co.uk preview → http://localhost:${PORT}\n`);
   console.log('  Serving dist/ with production headers (CSP enforced).');
-  console.log('  Pages:');
+  // The six /kitchens/<area>/ pages were deleted on 26 Aug 2026 and now 301 to #work. Listing
+  // them here sent whoever ran this straight to six redirects and made it look like the build
+  // had produced pages it never produces. This is a one-page site.
+  console.log('  Page:');
   console.log(`    http://localhost:${PORT}/`);
-  for (const s of ['croydon','south-croydon','purley','bromley','sutton','beckenham'])
-    console.log(`    http://localhost:${PORT}/kitchens/${s}/`);
   console.log('\n  Ctrl-C to stop.\n');
 });

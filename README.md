@@ -4,7 +4,7 @@ Primary domain since 25 Aug 2026. `craftedideas.co` (and both `www.` hosts) 308-
 
 Site for **Crafted Ideas Ltd** — kitchen construction, installation, fitting & repairs, Croydon / Greater London.
 
-Static one-pager with a 700vh scroll-driven hero. `build.mjs` copies `index.html` + assets into `dist/` and pulls vendor files (anime.js v4, Lenis, Fraunces/Inter fonts) from npm at build time. No runtime dependencies, no third-party requests — everything is served from our own origin.
+Static one-pager. The hero is five real project photographs on a slow cross-fade with a deep push-in, driven by the classic script so it survives the fx module never loading. `build.mjs` copies `index.html` + assets into `dist/` and pulls vendor files (anime.js v4, Lenis, Fraunces/Inter fonts) from npm at build time. No runtime dependencies, no third-party requests — everything is served from our own origin.
 
 ## Deploy (Vercel)
 - Framework preset: **Other**
@@ -23,8 +23,8 @@ python3 -m http.server 8080 -d dist   # → http://localhost:8080
 
 ## Handover
 
-**Contact details went live 25 Aug 2026.** Phone, WhatsApp and email now work on the homepage
-and on all six area pages. The quote form is the one thing still stubbed — see the table below.
+**Contact details went live 25 Aug 2026.** Phone, WhatsApp and email work on the homepage — the
+only page there is. The quote form is the one thing still stubbed — see the table below.
 
 Historical note, kept because both mistakes cost time:
 
@@ -33,23 +33,28 @@ Historical note, kept because both mistakes cost time:
 
 The published address is **info@craftedideasltd.co.uk**, forwarding to Vasil's Gmail. Delivery was confirmed by a real test mail on 26 Aug — that test is the bar, not the existence of MX records, because this domain had MX records the whole time `hello@` was nothing. `hello@craftedideas.co` is deliberately *not* used — the Namecheap forward has never
 been confirmed to land anywhere a person reads. If it ever is, swap it in three places together:
-`index.html` `#contact`, the homepage JSON-LD, and `areas.mjs`.
+`index.html` `#contact`, the homepage JSON-LD, and the form-failure copy in the classic script.
 
 What's left, in order of what unblocks the most:
 
 | Needed | Where it goes | Why it matters |
 |---|---|---|
 | **Web3Forms access key** | `index.html` — replace `WEB3FORMS_ACCESS_KEY` | The last stub. ⚠️ The flow changed: it is now a real account at `app.web3forms.com`, not an anonymous key-by-email. Create it **from the destination inbox** (`craftedideasltd@gmail.com`) so the credentials belong to the business, then copy the key from the dashboard. Until replaced the form refuses to submit and points at the phone instead — it no longer dead-ends. |
-| **Project photos** — 6+ finished kitchens | `media/work/` — see below | The `#work` tiles are placeholders. Worth more than everything else on this list combined. |
-| **Public liability insurance** — Allianz; cover level still needed | new trust card in `#why` | Insurer confirmed, certificate PDFs pending. Don't publish a figure until the document is in the repo. |
-| **Trade certifications** — Gas Safe / NICEIC / etc., if held | new trust card in `#why` | Only list what he actually holds. |
-| **Google Business Profile** — is one claimed? | enables reviews + map pin | Local search is how this business gets found. Opening hours are already in the JSON-LD, so they'll match. |
+| **Camera originals of the nine photos** | `media/work/` | Six of the nine are upscales of 1024–1280px sources, so the full-bleed hero is soft at 2× DPR. See "Adding real photography". |
+| **Google Business Profile** — none exists | enables reviews | Vasil confirmed 26 Aug that no profile exists and he is happy for one to be created. Local search is how this business gets found. Opening hours are already in the JSON-LD, so they'll match. |
+| **Written consent for customer names** | a testimonial block, not yet built | Three names were offered on 26 Aug flagged *"provisional without their written consent yet"*. Nothing gets published until each has agreed in writing. |
+
+**Closed — do not re-open these as "needed":**
+
+- ~~Project photos~~ — nine arrived 26 Aug and are live in `#work`. Manifest: `com/plans/work-photos.md`.
+- ~~Public liability insurance~~ — £5m public & products, £10m employers', read off the Allianz schedule in `com/docs`. Both figures now ship in the `#why` band **and** the footer strip. ⚠️ **Renewal 05/02/2027** — re-read the schedule then; a stale cover figure is a misrepresentation, not a typo.
+- ~~Trade certifications~~ — settled 26 Aug: Crafted Ideas Ltd is **not** itself Gas Safe or NICEIC registered. Gas and electrical work goes to subcontractors who are. The page says exactly that, in `#why` and in the footer, and must keep saying exactly that.
 
 ### Settled 25 Aug 2026
 
 | Detail | Value | Where it lives |
 |---|---|---|
-| Mobile / WhatsApp | `+447597231778` (`07597 231778`) | `index.html` `#contact` + JSON-LD, `areas.mjs` provider + CTAs, form fallbacks |
+| Mobile / WhatsApp | `+447597231778` (`07597 231778`) | `index.html` `#contact` rows + `#menu` sheet + the "What we do" repairs card + JSON-LD + form fallbacks |
 | Email | `info@craftedideasltd.co.uk` — forwards to Vasil's Gmail, delivery confirmed 26 Aug | CTA, homepage JSON-LD, form-failure copy |
 | Opening hours | Mon–Fri, 09:00–18:00 | `openingHoursSpecification` in the homepage JSON-LD |
 
@@ -108,16 +113,18 @@ The gate script in `<head>` decides **once** and writes the answer to `<html>` a
 | Class | Who gets it | What they get |
 |---|---|---|
 | `rm` | `prefers-reduced-motion: reduce` | Cross-fade reveals only, and **the hero does not auto-advance**. No Lenis, no rAF at all — the module never loads. The filmstrip still works, because that change is user-initiated. |
-| `fxd` | ≥1025px **and** a fine pointer | Reveals, Lenis, hero parallax, gallery pan. |
-| `fxm` | everything else | The same, tuned for touch. |
+| `fx` | everyone else | Reveals, Lenis, hero parallax, gallery pan. The same at every width. |
 | *(none)* | no IntersectionObserver / no modules | Static page, fully visible, hero on its first frame. |
+
+`fxd` and `fxm` are **gone**. They selected between the 700vh desktop film and the mobile blueprint; both were deleted, the motion path no longer differs by width, and the classes were being written and read by nobody.
 
 Notes that matter if you touch this:
 
 - **Reduced motion is not "no motion".** WCAG 2.3.3 is about vestibular triggers — movement, parallax, scaling. Cross-fades are fine, so those users still get reveals. The `prefers-reduced-motion` block forces `transition-property: opacity` globally and collapses `animation-duration` to `.001s`, which is also what neutralises the hero's aperture and Ken Burns push-in without special-casing them in JS.
 - **A landscape phone is 844px wide.** Any width-only gate hands it the desktop journey — that's why `fxd` also requires a fine pointer.
 - **The 3s failsafe can beat a slow connection.** If it strips the classes before the module finishes downloading, the module aborts rather than animating a page whose CSS has already reverted.
-- **The hero rotator lives in the classic layer, not the module**, so it works when the module never loads. Auto-advance is skipped under `rm`; a thumbnail click pauses it permanently, because the visitor asked for that frame.
+- **The hero rotator lives in the classic layer, not the module**, so it works when the module never loads. Auto-advance is skipped under `rm`. A thumbnail click or arrow key buys 22s of grace and then it resumes — it does **not** stop for good, or one early keypress would leave the rest of the work unseen.
+- **The pause button is not decoration.** The hero moves by itself every 10s, which is a WCAG 2.2.2 (Level A) obligation to provide a way to stop it. Hover- or focus-only pausing does not satisfy that on a touch screen. Do not remove it.
 
 ### The 700vh film is gone
 
