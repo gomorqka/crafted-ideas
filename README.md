@@ -158,8 +158,18 @@ Covering the viewport means the page behind has to stop being both scrollable an
 - **`inert` on `#main` and `footer`**, or Tab walks into content nobody can see. It is a no-op on browsers that lack it, which leaves the old behaviour rather than breaking.
 - `overscroll-behavior: contain` on the sheet stops the touch gesture chaining to the page.
 
-### Why cakecv.work has no notch problem and this site does
+### theme-color follows the content
 
-cakecv sets **no `viewport-fit`** and one static `themeColor: '#050505'`, with no dynamic override anywhere in its source. Its page never goes under the status bar and that strip is the same colour whatever theme is showing — a stable piece of browser chrome nobody reads as part of the page.
+Safari paints the strip above the page from `<meta name="theme-color">`, and **it repaints when the meta changes**. That is the actual answer to the whole notch thread: the strip cannot be blurred, but it can be told what colour to be.
 
-This site made the opposite choice deliberately: `viewport-fit=cover` is what lets the gallery photographs run to the very top of the screen. The cost is that the boundary is inside the page rather than above it, so everything that meets it has to be handled. Dropping `viewport-fit=cover` would remove the whole class of problem and cost the full-bleed photography.
+Measured, the top 24px of the gallery averages `#554b40` across 27 samples and its lightest is `#b3916d` — against a strip at `#F6F3EE`. That gap *is* the band. `paintChrome()` in the classic layer sets the meta to `--ink` across the gallery and back to `--bg` everywhere else, off the same `on-dark` signal the nav uses.
+
+- **Biased dark on purpose.** A strip darker than the photograph reads as a frame; a lighter one reads as a bar, which is the failure this started from. `--ink` is never lighter than any sample.
+- **Narrow screens only.** On a desktop this tints the browser's own window furniture, and nobody asked for that to move while they scroll.
+- **Cream again while the menu sheet is up**, since the sheet itself is cream.
+
+### Why cakecv.work has no notch problem
+
+cakecv sets **no `viewport-fit`** and one static `themeColor: '#050505'`, with no dynamic override anywhere in its source — so its page never goes under the status bar, and that strip is the same colour whatever theme is showing. It is stable browser chrome that nobody reads as part of the page. (It does *not* match its backgrounds; it has several.)
+
+This site made the opposite choice deliberately — `viewport-fit=cover` is what lets the photographs run to the top of the screen — and therefore has to make the strip agree with the page instead of ignoring it. Dropping `viewport-fit=cover` would remove the whole class of problem and cost the full-bleed photography.
