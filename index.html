@@ -21,9 +21,17 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://craftedideasltd.co.uk/">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#F6F3EE">
+<!-- The page now OPENS on a dark photographic hero, so the strip iOS paints above the page has
+     to start dark too — a cream strip over a dark kitchen is the exact band this whole thread
+     began with. paintChrome() takes over from here and follows the bands. -->
+<meta name="theme-color" content="#191510">
 <link rel="preload" href="/vendor/fraunces-latin-full-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/vendor/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<!-- The first hero frame is the largest contentful paint on the page; without this it waits for
+     the stylesheet to be parsed before the request even starts. -->
+<link rel="preload" as="image" href="/media/work/02-stone-island-handleless-fulham.jpg"
+      imagesrcset="/media/work-800/02-stone-island-handleless-fulham.jpg 800w, /media/work/02-stone-island-handleless-fulham.jpg 1600w"
+      imagesizes="100vw">
 <!-- Contact details confirmed by Vasil 25 Aug 2026. The phone is a real 07597 mobile in
      E.164 form; the email is his live Gmail. All three surface in local search results. -->
 <script type="application/ld+json">
@@ -55,21 +63,32 @@
 }
 </script>
 <style>
-/* ============================== design system — Porcelain & Brass ============================== */
+/* ============================== design system — Porcelain, Brass & Char ==============================
+   Palette is the house one, unchanged, plus a dark band ground borrowed from the two references
+   this page was built against (see com/plans/redesign-v3-preview.md). Every pairing below clears
+   WCAG AA and the numbers are in that plan rather than guessed here. */
 @font-face{font-family:'Fraunces';src:url('/vendor/fraunces-latin-full-normal.woff2') format('woff2-variations');
   font-weight:100 900;font-style:normal;font-display:swap}
 @font-face{font-family:'InterV';src:url('/vendor/inter-latin-wght-normal.woff2') format('woff2-variations');
   font-weight:100 900;font-style:normal;font-display:swap}
 :root{
-  --bg:#F6F3EE; --bg2:#EFEAE2; --card:#FBF9F5;
+  --bg:#F6F3EE; --bg2:#EFEAE2; --card:#FBF9F5; --paper:#FFFCF8;
   --ink:#1E1B17; --muted:#70695F;
+  /* One step deeper than --ink, so a dark band ground and ink type are never mistaken for
+     each other. 16.41:1 against --bg. */
+  --dark:#191510;
+  --muted-dark:#B8B0A5;   /* warm; a cool grey reads dirty against a warm ground. 8.47:1 */
   /* --line is decorative hairlines only; --edge is for interactive borders (WCAG 1.4.11 needs 3:1) */
   --line:#DFD7CA; --edge:#8A857D;
+  --line-dark:#332E27; --edge-dark:#6E675D;
   /* --accent is the brass, for large type and ornament; --accent-ink is its AA-safe twin for small text */
   --accent:#A87B3F; --accent-ink:#866232; --accent-2:#C29A62; --oak:#C9A97C; --oak-d:#A9885C;
   --glow:rgba(168,123,63,.18);
   --ease:cubic-bezier(.22,.61,.36,1);
   --fd:'Fraunces',Georgia,serif; --fb:'InterV',system-ui,-apple-system,sans-serif;
+  /* The visible column grid, the one motif taken wholesale from reference A. Four columns on a
+     phone, twelve on a desktop — see the two overrides at the foot of this sheet. */
+  --cols:4; --grid:rgba(30,27,23,.05);
   /* The notch, the rounded corners and the home indicator. Read once here and spent through
      variables rather than calling env() at each site, so a test can override them and see the
      notched layout on a machine that has no notch. Everywhere else they resolve to 0px. */
@@ -87,11 +106,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:17px;
 /* paper grain over everything, felt not seen */
 body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;opacity:.05;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E")}
-.wrap{max-width:1140px;margin:0 auto;padding:0 calc(28px + var(--sar)) 0 calc(28px + var(--sal))}
+.wrap{max-width:1140px;margin:0 auto;padding:0 calc(28px + var(--sar)) 0 calc(28px + var(--sal));
+  position:relative;z-index:1}
 .mono{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
 .serif{font-family:var(--fd);font-optical-sizing:auto}
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--accent-ink);outline-offset:3px;border-radius:2px}
+.dark :focus-visible,.hero :focus-visible{outline-color:var(--accent-2)}
 .skip{position:fixed;top:calc(10px + var(--sat));left:calc(10px + var(--sal));z-index:200;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:99px;
   /* A flat offset, and deliberately not calc(). The parked position has to clear its own height
      plus whatever the notch pushed `top` down by, but Safari resolves env() to its 0px fallback
@@ -105,34 +126,36 @@ html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .lenis.lenis-stopped{overflow:hidden}
 
-/* ---------- custom cursor (fine pointers only) ---------- */
-.cur{position:fixed;top:0;left:0;z-index:100;pointer-events:none;mix-blend-mode:difference;
-  opacity:0;transition:opacity .3s var(--ease);will-change:transform}
-body.cursor-on .cur{opacity:1}
-#cur-dot{width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#fff}
-#cur-ring{width:38px;height:38px;margin:-19px 0 0 -19px;border:1.5px solid #fff;border-radius:50%;
-  scale:1;transition:scale .28s var(--ease)}
-body.cursor-on.cur-hover #cur-ring{scale:1.6}
-body.cursor-on.cur-down #cur-ring{scale:.74}
-@media (hover:hover) and (pointer:fine){body.cursor-on{cursor:none}}
-@media (prefers-reduced-motion:reduce){.cur{display:none}}
-
 /* ---------- progress + nav ---------- */
 .progress{position:fixed;top:var(--sat);left:0;height:2px;width:100%;z-index:60;transform:scaleX(0);transform-origin:left center;
   background:linear-gradient(90deg,var(--accent),var(--accent-2));will-change:transform}
 /* #nav, not nav — a bare element selector pins every <nav> on the page to the top,
    including the "Areas we cover" one in the footer. */
 #nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
-  padding:calc(18px + var(--sat)) calc(30px + var(--sar)) 18px calc(30px + var(--sal));backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 76%,transparent);
-  border-bottom:1px solid transparent;transition:border-color .4s}
-#nav.scrolled{border-color:var(--line)}
+  padding:calc(18px + var(--sat)) calc(30px + var(--sar)) 18px calc(30px + var(--sal));
+  border-bottom:1px solid transparent;transition:border-color .4s,background .4s}
+/* The bar spans the full width of the page but is mostly empty air. Without this it swallowed
+   every tap and click in the top ~68px + notch of the screen, on a page whose hero puts its
+   headline and CTA exactly there. Only the real controls take pointer events. */
+#nav{pointer-events:none}
+#nav .brand,#nav .nlinks a,#nav .menubtn,#nav #menu{pointer-events:auto}
+#nav.scrolled{border-color:var(--line);backdrop-filter:blur(12px);background:color-mix(in srgb,var(--bg) 76%,transparent)}
+/* Over the hero photograph the bar is transparent and inverted on every screen size, not just
+   on a phone — the hero is dark at all widths now. */
+#nav.on-dark{color:#fff;border-color:transparent;background:none;backdrop-filter:none}
+#nav.on-dark .brand{text-shadow:0 1px 12px rgba(16,13,11,.7)}
+#nav.on-dark .brand .dot{color:var(--accent-2)}
+#nav.on-dark .brand small{color:rgba(255,255,255,.72)}
+#nav.on-dark .nlinks a{color:rgba(255,255,255,.86)}
+#nav.on-dark .nlinks a:hover{color:#fff}
+#nav.on-dark .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);background:rgba(16,13,11,.3)}
 .brand{font-family:var(--fd);font-weight:600;font-size:20px;letter-spacing:-.01em;
   display:inline-flex;align-items:center;min-height:44px;min-width:44px} /* 2.5.8 target size */
 .brand .dot{color:var(--accent)}
 .brand small{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;
   color:var(--muted);margin-left:12px;font-weight:500}
 .nlinks{display:flex;align-items:center;gap:26px;font-size:14px;color:var(--muted)}
-.nlinks a{display:inline-flex;align-items:center;min-height:44px} /* 2.5.8 — bare links were 23px */
+.nlinks a{display:inline-flex;align-items:center;min-height:44px}
 .nlinks a:hover{color:var(--ink)}
 .nlinks .cta{color:var(--ink);border:1px solid var(--edge);border-radius:99px;padding:8px 18px;
   transition:border-color .3s,background .3s}
@@ -153,7 +176,6 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   padding:8px calc(22px + var(--sar)) 22px calc(22px + var(--sal));background:color-mix(in srgb,var(--bg) 96%,transparent);
   backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 #menu.open{display:flex}
-@keyframes menuIn{from{opacity:0}}
 #menu a{padding:15px 8px;font-size:17px;color:var(--ink);border-top:1px solid var(--line)}
 @media (max-width:760px){
   .nlinks a:not(.cta){display:none}
@@ -171,21 +193,15 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   #nav{top:0;bottom:auto;
     padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 12px calc(18px + var(--sal));
     background:none;backdrop-filter:none;border-bottom:0;transition:color .3s var(--ease)}
+  #nav.scrolled{background:none;backdrop-filter:none;border-color:transparent}
   .brand,.nlinks .cta{transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s}
   /* visibility, not just opacity: an invisible tab stop is worse than a visible one */
   #nav.scrolled .brand,#nav.scrolled .nlinks .cta{
     opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none}
-  /* Colour-aware, from the same measurement as before: everything behind the top of the nav is
-     bright (204-240) except the gallery, whose panels carry a dark scrim across their top 56%.
-     The floating control still brings a chip, because the LAST panel scrolls out from under its
-     own scrim and reaches 155, where a bare white glyph is 2.8:1 — and because a dark heading
-     can pass under it anywhere else. */
+  /* The floating control still brings a chip, because a heading or a bright worktop can pass
+     under it anywhere on the page. */
   #nav.scrolled .menubtn{border-radius:50%;background:color-mix(in srgb,var(--bg) 86%,transparent);
     transition:background-color .3s var(--ease)}
-  #nav.on-dark{color:#fff}
-  #nav.on-dark .brand{text-shadow:0 1px 12px rgba(16,13,11,.7)}
-  #nav.on-dark .brand .dot{color:var(--accent-2)}
-  #nav.on-dark .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);background:rgba(16,13,11,.3)}
   /* .menubtn sets its own colour, so it does not inherit the inversion. It shipped black once. */
   #nav.on-dark .menubtn{color:#fff}
   #nav.on-dark.scrolled .menubtn{background:rgba(16,13,11,.52)}
@@ -198,265 +214,209 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
      whole screen, notch included. */
   #menu{position:fixed;inset:0;z-index:1;justify-content:flex-start;
     padding:calc(104px + var(--sat)) calc(26px + var(--sar)) calc(28px + var(--sab)) calc(26px + var(--sal));
-    background:var(--bg);backdrop-filter:none;border-bottom:0;
-    overflow-y:auto;overscroll-behavior:contain}
-  #menu.open{animation:menuIn .22s var(--ease)}
-  #menu a{font-size:clamp(20px,5.5vw,26px);padding:20px 0}
-  #menu .mcta{margin-top:auto;font-size:17px}
-  /* the header row has to stay on top of the sheet it opens */
-  .brand,.nlinks{position:relative;z-index:2}
-  /* and the logo comes back, so the open state reads as a page rather than a stray cross */
+    background:var(--bg);backdrop-filter:none;border-bottom:0;overscroll-behavior:contain;
+    opacity:0;visibility:hidden;transform:translateY(-8px);pointer-events:none;
+    display:flex;transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s}
+  #menu.open{opacity:1;visibility:visible;transform:none;pointer-events:auto}
   #nav:has(.menubtn[aria-expanded="true"]) .brand{
     opacity:1;visibility:visible;transform:none;pointer-events:auto}
-  /* Get a quote lives here now: the pill is gone the moment you scroll, and without this there
-     would be no route to the form from anywhere but the bottom of the page. */
+  /* The sheet is a child of #nav at z-index 1, and the bar's own controls are unpositioned, so
+     it painted straight over its own close button: a hit test at the X returned #menu, not the
+     button. With no keyboard to press Escape, that left tapping a link as the only way out of a
+     full-screen menu. Both controls now sit above the sheet they belong to. */
+  #nav .brand,#nav .menubtn{position:relative;z-index:2}
+  /* Call and WhatsApp live here too. The pill is gone the moment you scroll, and the sheet was
+     previously the only route to the form — but not to the phone, which is the highest-
+     converting control on a trade site. */
   #menu .mcta{border:1px solid var(--edge);border-radius:99px;text-align:center;
     margin-top:14px;padding:14px 18px;color:var(--ink)}
+  #menu .mcta.pri{background:var(--ink);color:var(--bg);border-color:var(--ink)}
   .progress{top:var(--sat);bottom:auto}
   .nlinks{gap:6px}
 }
 @media (min-width:761px){#menu{display:none!important}}
 
-/* ============================== the journey (pinned hero) ============================== */
-.jwrap{position:relative}
-.jstage{position:relative;min-height:100vh;min-height:100svh;overflow:hidden;display:flex;align-items:center}
-.ch{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-/* #ch5 is not decorative — it holds the headline and both CTAs. The old five-chapter scrub
-   re-enabled this from JS as the hero faded in; when that was collapsed into a single film
-   pass the line went with it and the buttons were dead. It belongs in CSS. */
-#ch5{pointer-events:auto}
-/* default (no fx): only the final chapter is a normal hero; the journey layers hide */
-#ch0,#ch1,#ch2,#ch3,#ch4{display:none}
-#ch5{position:relative;inset:auto;min-height:100vh;min-height:100svh;width:100%}
-/* desktop journey: 700vh, sticky stage, all chapters layered */
-.fxd .jwrap{height:130vh}
-.fxd .jstage{position:sticky;top:0;height:100vh;min-height:0}
-.fxd .ch{display:flex}
-/* The 700vh act (wordmark, word beats, chapter rail) is retired — it existed to carry a page
-   with no photographs. Only the film survives, and only as the hero's backdrop. */
-.fxd #ch0,.fxd #ch2,.fxd #ch3,.fxd #ch4{display:none}
-.fxd #ch1{display:flex}
-.fxd #ch5{position:absolute;inset:0;min-height:0}
-/* film full-bleed behind the hero, with a scrim so the headline stays legible over it */
-.fxd #ch1 .filmstage{position:absolute;inset:0;width:100%;height:100%;border-radius:0;
-  box-shadow:none;outline:0;aspect-ratio:auto}
-.fxd #ch1 .mcopy{display:none}
-.fxd #ch1::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(100deg,var(--bg) 4%,color-mix(in srgb,var(--bg) 86%,transparent) 38%,
-    color-mix(in srgb,var(--bg) 30%,transparent) 72%)}
-.fxd #ch5{z-index:2}
+/* ============================== the hero ==============================
+   Reference B's move: the photograph is the interface. Five real projects cross-fade behind the
+   headline with a slow push-in, a caption panel names whichever one is showing, and a filmstrip
+   lets a visitor drive it. Replaces the 700vh pinned film — whose 50 frames were AI-generated
+   (two ezgif dumps of a Wan render, still in media/) and which therefore had no business being
+   the first thing anyone saw on a page about real finished work. */
+.hero{position:relative;min-height:100svh;overflow:hidden;background:var(--dark);color:var(--bg);
+  display:flex;flex-direction:column;justify-content:flex-end;isolation:isolate}
+.hero-media{position:absolute;left:0;right:0;top:0;height:calc(100% + 24vh);z-index:0;
+  will-change:transform;
+  /* the aperture: a band that opens from the centre to full bleed on arrival */
+  animation:aperture 1s var(--ease) both}
+@keyframes aperture{from{clip-path:inset(38% 0 38% 0)}to{clip-path:inset(0 0 0 0)}}
+.hero-shot{position:absolute;inset:0;opacity:0;transition:opacity .7s linear}
+.hero-shot.is-on{opacity:1}
+.hero-shot img{width:100%;height:100%;object-fit:cover;object-position:var(--fx,50% 50%);
+  display:block;transform:scale(1.005)}
+/* Ken Burns. Only the visible frame animates, so there is exactly one animating layer at a time.
+   Under prefers-reduced-motion the global rule below collapses this to .001s — it never travels. */
+.hero-shot.is-on img{animation:kb 9s linear forwards}
+@keyframes kb{from{transform:scale(1.005)}to{transform:scale(1.085)}}
+/* Measured scrim. Sampled across all nine photographs, white text in the headline zone sits at
+   1.31–2.32:1 against the 90th-percentile brightest pixel, so this is load-bearing, not mood.
+   Bottom-anchored on a phone where the type is at the bottom; a left wash is added at 761px
+   where the type moves into the left column. The figures are in the plan. */
+.hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(to top,rgba(16,13,11,.86) 0%,rgba(16,13,11,.66) 30%,rgba(16,13,11,.42) 58%,rgba(16,13,11,.30) 78%,rgba(16,13,11,.46) 100%)}
+/* deepens as the hero leaves, so the band below rises out of it rather than butting against it */
+.hero-dim{position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--dark);opacity:0}
+.hero-inner{position:relative;z-index:2;width:100%;
+  padding-top:calc(120px + var(--sat));padding-bottom:26px}
+/* flex-start, not center: when the label wraps to two lines on a narrow screen a centred rule
+   floats into the gap between them. 9px is half the 11px/1.65 line box, so it sits on the
+   first line's centre whether the label wraps or not. */
+.eyebrow{display:inline-flex;align-items:flex-start;gap:12px;color:var(--accent-2)}
+.eyebrow i{display:block;width:34px;height:1px;background:var(--accent-2);flex:none;margin-top:9px}
+/* Brass at 11px cannot be guaranteed over an unpredictable photograph — measured against the
+   brightest frame in the rotation it fell to about 1.3:1. The rule stays brass; the words go
+   white, which the scrim can actually carry. */
+.hero .eyebrow{color:rgba(246,243,238,.94);text-shadow:0 1px 16px rgba(16,13,11,.92)}
+.hero h1{font-family:var(--fd);font-weight:340;letter-spacing:-.012em;line-height:1.04;
+  font-size:clamp(42px,7.4vw,104px);margin:20px 0 22px;max-width:13ch;
+  text-shadow:0 2px 30px rgba(16,13,11,.45)}
+/* Reference A mixes weights inside one headline. Fraunces italic is already loaded and does that
+   job without a bold, which would fight the lighter setting the rest of the line is now in. */
+.hero h1 .em{color:var(--accent-2);font-style:italic;font-weight:400}
+.hero .lede{max-width:46ch;color:rgba(246,243,238,.88);font-size:clamp(16px,1.5vw,19px);
+  text-shadow:0 1px 18px rgba(16,13,11,.5)}
+.hero-cta{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap}
+/* ---- caption panel (reference B) ---- */
+.hero-cap{position:relative;z-index:2;display:flex;flex-direction:column;gap:5px;
+  margin-top:34px;padding:14px 16px;border-left:2px solid var(--accent-2);
+  background:rgba(16,13,11,.62);backdrop-filter:blur(6px);max-width:34ch}
+.hero-cap .n{color:var(--accent-2)}
+.hero-cap .t{font-family:var(--fd);font-size:19px;font-weight:500;line-height:1.2;color:#fff}
+.hero-cap .l{color:rgba(246,243,238,.76)}
+/* ---- filmstrip (reference B) ---- */
+.hero-strip{position:relative;z-index:2;display:flex;align-items:center;gap:10px;
+  padding:18px 0 calc(22px + var(--sab));flex-wrap:wrap}
+.hero-thumb{display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;padding:0;border:0;background:none;cursor:pointer;
+  border-radius:50%;touch-action:manipulation;position:relative}
+/* On a phone the strip is dots — five thumbnails would fight the CTA for the bottom of a 390px
+   screen. The button keeps its 44px target; only the mark inside it shrinks. */
+.hero-thumb::after{content:"";width:9px;height:9px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.65);background:transparent;transition:background .3s,border-color .3s}
+.hero-thumb[aria-current="true"]::after{background:var(--accent-2);border-color:var(--accent-2)}
+.hero-thumb img{display:none}
+.hero-cue{position:absolute;right:calc(28px + var(--sar));bottom:calc(26px + var(--sab));z-index:2;
+  color:rgba(246,243,238,.6);display:none}
 
-/* mobile journey: the same hero as desktop, just fewer frames behind it.
-   It used to be a different design entirely — the blueprint drawing itself over 280vh, from
-   when there were no photographs to show. */
-.fxm .jwrap{height:120vh}
-.fxm .jstage{position:sticky;top:0;height:100svh;min-height:0;overflow:hidden}
-.fxm .ch{display:flex}
-.fxm #ch0,.fxm #ch2,.fxm #ch3,.fxm #ch4{display:none}
-.fxm #ch1{display:flex}
-.fxm #ch5{position:absolute;inset:0;min-height:0;z-index:2;display:flex;align-items:center}
-.fxm #ch5 .inner{align-items:center;padding-top:0;padding-bottom:0;min-height:0}
-.fxm #ch5 .hero-bp{display:none}
-.fxm #ch1 .filmstage{position:absolute;inset:0;width:100%;height:100%;border-radius:0;
-  box-shadow:none;outline:0;aspect-ratio:auto}
-.fxm #ch1 .mcopy{display:none}
-/* On a narrow screen the headline runs the full width, so the scrim is a flat wash rather
-   than the diagonal desktop uses — a gradient would leave one line legible and the next not. */
-.fxm #ch1::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:color-mix(in srgb,var(--bg) 82%,transparent)}
-/* Thrifty connection: no film, so no pin and no blank stage to scroll past. Static hero,
-   blueprint back as the faint wash it is on the no-JS page. */
-.fxm.nofilm .jwrap{height:auto}
-.fxm.nofilm .jstage{position:relative;height:auto;min-height:100svh}
-.fxm.nofilm #ch1{display:none}
-.fxm.nofilm #ch5{position:relative;inset:auto;min-height:100svh}
-.fxm.nofilm #ch5 .hero-bp{display:flex;opacity:.10}
-/* ambient hatching */
-#amb{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
-/* chapter rail */
-.chrail{position:absolute;right:30px;top:50%;transform:translateY(-50%);z-index:5;display:none;
-  flex-direction:column;align-items:center;gap:12px}
-/* chapter rail retired with the five-chapter act — there is one chapter now */
-.fxd .chrail{display:none}
-.chrail .bar{width:1px;height:120px;background:var(--line);position:relative;overflow:hidden}
-.chrail .bar i{position:absolute;inset:0;background:var(--accent);transform:scaleY(0);transform-origin:top}
-.chrail .n{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.18em;color:var(--muted)}
-@media (max-width:1000px){.chrail{display:none!important}}
-
-/* ---- ch0 · arrival ---- */
-.wm{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
-.wm .ln{font-family:var(--fd);font-weight:560;letter-spacing:.01em;line-height:.98;
-  font-size:clamp(56px,10.5vw,150px);display:flex;overflow:hidden}
-.wm .lt{display:inline-block;will-change:transform,opacity}
-.wm .seam{width:2px;height:clamp(60px,11vw,150px);background:var(--accent);opacity:0;position:absolute;
-  box-shadow:0 0 24px 2px var(--glow)}
-.wm .tag0{margin-top:26px;font-size:clamp(16px,1.6vw,20px);color:var(--muted);opacity:0}
-.hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px}
-.hint .line{width:1px;height:36px;background:linear-gradient(var(--muted),transparent);animation:drop 2s infinite}
-@keyframes drop{0%{transform:scaleY(0);transform-origin:top}55%{transform:scaleY(1);transform-origin:top}
-  56%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
-
-/* ---- ch1 · blueprint ---- */
-.bp{width:min(84vw,1060px);position:relative}
-.bp svg{width:100%;height:auto;display:block}
-.bp .bp-path{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.92}
-.bp .bp-acc{stroke:var(--accent);stroke-width:1.4}
-.bp .bp-dim{opacity:0}
-.bp .bp-dim line{stroke:var(--muted);stroke-width:1}
-.bp .bp-dim text{font-family:ui-monospace,Menlo,monospace;font-size:15px;letter-spacing:.1em;fill:var(--muted)}
-.bp .bp-grid line{stroke:var(--ink);stroke-width:.5;opacity:.05}
-.mcopy{position:fixed;left:calc(clamp(28px,4.5vw,72px) + var(--sal));bottom:calc(clamp(28px,7vh,72px) + var(--sab));max-width:250px;opacity:0}
-.mcopy .k{color:var(--accent-ink);letter-spacing:.2em}
-.mcopy p{font-family:var(--fd);font-size:clamp(19px,1.9vw,25px);font-weight:480;line-height:1.35;margin-top:12px}
-
-/* ---- the film (paper → drawing → real kitchen, frame-scrubbed) ---- */
-.filmstage{position:relative;width:min(76vh,86vw,780px);aspect-ratio:1/1;border-radius:18px;overflow:hidden;
-  box-shadow:0 30px 90px rgba(30,27,23,.22);outline:1px solid color-mix(in srgb,var(--accent) 35%,transparent);outline-offset:-1px}
-#film{position:absolute;inset:0;width:100%;height:100%;display:block;background:var(--bg2)}
-
-/* ---- ch4 · the words ---- */
-.wd4{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;will-change:opacity}
-.wd4 span{font-family:var(--fd);font-size:clamp(64px,11vw,170px);font-weight:300;letter-spacing:-.01em}
-.wd4 span b{color:var(--accent);font-weight:inherit}
-.wd4.fin span{font-size:clamp(30px,4.6vw,64px);font-weight:420;color:var(--muted);letter-spacing:0}
-.wd4.fin b{color:var(--ink)}
-
-/* ---- ch5 · release (also the static hero) ---- */
-#ch5 .inner{width:100%;display:flex;min-height:inherit;align-items:center}
-#ch5 .hero-bp{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.10;pointer-events:none}
-#ch5 .hero-bp svg{width:min(94vw,1150px)}
-.fxd #ch5 .hero-bp{display:none}
-.eyebrow{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
-.eyebrow i{display:block;width:34px;height:1px;background:var(--accent)}
-#ch5 h1{font-family:var(--fd);font-weight:340;letter-spacing:-.012em;line-height:1.04;
-  font-size:clamp(46px,7.6vw,108px);margin:22px 0 26px;max-width:12ch}
-#ch5 h1 .em{color:var(--accent);font-style:italic;font-weight:400}
-#ch5 .lede{max-width:52ch;color:var(--muted);font-size:clamp(16px,1.55vw,19px)}
-.hero-cta{display:flex;gap:14px;margin-top:40px;flex-wrap:wrap}
+/* ============================== bands ============================== */
+.band{padding:clamp(84px,11vh,142px) 0;position:relative}
+.band.cream{background:var(--bg2)}
+.band.paper{background:var(--paper)}
+.band.dark{background:var(--dark);color:var(--bg);--grid:rgba(255,255,255,.055);
+  --muted:var(--muted-dark);--line:var(--line-dark);--edge:var(--edge-dark);--accent-ink:var(--accent-2)}
+/* The visible column grid — reference A's signature. One rule, no markup, and it must never take
+   a pointer event or fight the gallery's full-bleed breakout below. */
+.band::before,.hero::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:calc(100% / var(--cols)) 100%}
+.hero::before{z-index:1}
+.tag{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
+.tag i{display:block;width:34px;height:1px;background:var(--accent)}
+.dark .tag i{background:var(--accent-2)}
+.big{font-family:var(--fd);font-weight:400;letter-spacing:-.012em;line-height:1.08;
+  font-size:clamp(32px,4.4vw,58px);margin:18px 0 20px;max-width:22ch}
+.big .em{color:var(--accent-ink);font-style:italic}
+.dark .big .em{color:var(--accent-2)}
+.sub{color:var(--muted);max-width:60ch}
 .btn{display:inline-flex;align-items:center;gap:10px;border-radius:99px;padding:15px 30px;font-size:15.5px;font-weight:560;
   transition:transform .3s var(--ease),box-shadow .3s,background .3s,border-color .3s}
 .btn.pri{background:var(--ink);color:var(--bg);box-shadow:0 14px 40px rgba(30,27,23,.22)}
-.btn.pri:hover{transform:translateY(-2px);background:#000}
 .btn.sec{border:1px solid var(--edge);color:var(--ink)}
-.btn.sec:hover{border-color:var(--accent);transform:translateY(-2px)}
-#ch5 .meta{margin-top:54px;display:flex;gap:26px;flex-wrap:wrap}
-/* Mobile has no journey above the hero, so centring it inside a 100svh box left ~200px of
-   dead air at the top — the first thing on the page was nothing. Sit the content just under
-   the nav and let the hero size to itself, so a sliver of the next section shows at the fold. */
-@media (max-width:760px){
-  .jstage{min-height:auto}
-  #ch5{min-height:auto}
-  #ch5 .inner{align-items:flex-start;min-height:0;padding-top:92px;padding-bottom:64px}
+/* Reference A's glowing pill, in brass rather than its chartreuse — which measures 1.12:1 against
+   our bone ground and simply disappears there. --glow already existed for exactly this. */
+.dark .btn.pri,.hero .btn.pri{background:var(--accent-2);color:var(--ink);
+  box-shadow:0 12px 40px var(--glow),0 0 0 6px rgba(194,154,98,.10)}
+.dark .btn.sec,.hero .btn.sec{border-color:rgba(255,255,255,.5);color:#fff}
+@media (hover:hover){
+  .btn.pri:hover{transform:translateY(-2px);background:#000}
+  .btn.sec:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .dark .btn.pri:hover,.hero .btn.pri:hover{background:var(--oak);transform:translateY(-2px)}
+  .dark .btn.sec:hover,.hero .btn.sec:hover{border-color:#fff;background:rgba(255,255,255,.08)}
 }
+/* an underlined text link alongside the pills, per the reference and redesign-v2 §4.4 */
+.tlink{display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:var(--ink);
+  border-bottom:1px solid var(--edge);transition:border-color .3s,color .3s}
+.tlink:hover{border-bottom-color:var(--accent);color:var(--accent-ink)}
+.dark .tlink{color:#fff;border-bottom-color:rgba(255,255,255,.5)}
+.dark .tlink:hover{border-bottom-color:var(--accent-2);color:var(--accent-2)}
 
-/* ============================== page sections ============================== */
-section.pg{padding:clamp(90px,12vh,150px) 0;position:relative}
-section.pg.alt{background:var(--bg2)}
-.tag{display:inline-flex;align-items:center;gap:12px;color:var(--accent-ink)}
-.tag i{display:block;width:34px;height:1px;background:var(--accent)}
-.big{font-family:var(--fd);font-weight:400;letter-spacing:-.012em;line-height:1.08;
-  font-size:clamp(34px,4.6vw,60px);margin:18px 0 20px;max-width:22ch}
-.sub{color:var(--muted);max-width:60ch}
-/* services */
-.svcs{display:grid;grid-template-columns:1.5fr 1fr;gap:26px;margin-top:56px}
-@media (max-width:900px){.svcs{grid-template-columns:1fr}}
-.svc{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:40px;position:relative;overflow:hidden}
-.svc h3{font-family:var(--fd);font-size:26px;font-weight:560;letter-spacing:-.01em}
-.svc .k{margin-bottom:14px;display:block}
-.svc ul{list-style:none;margin-top:26px;display:flex;flex-direction:column}
-.svc li{display:flex;gap:16px;padding:16px 0;border-top:1px solid var(--line);align-items:baseline}
-.svc li:first-child{border-top:0}
-.svc li b{font-weight:600;min-width:9.5em}
-.svc li span{color:var(--muted);font-size:15px}
-/* below ~760px the 9.5em label column starves the description into a 46px ribbon that
-   overflows and gets clipped by .svc{overflow:hidden} — stack the pair instead */
-@media (max-width:760px){
-  .svc{padding:28px 24px}
-  .svc li{flex-direction:column;align-items:stretch;gap:5px}
-  .svc li b{min-width:0}
-}
-.svc.side{background:linear-gradient(170deg,var(--card),color-mix(in srgb,var(--oak) 14%,var(--card)))}
-.svc .cornice{position:absolute;top:0;right:0;width:120px;height:120px;pointer-events:none;opacity:.5;
-  background:radial-gradient(circle at top right,var(--glow),transparent 70%)}
-/* process */
-.proc{margin-top:64px;position:relative}
-.proc-line{position:absolute;top:26px;left:0;right:0;height:1px;background:var(--line)}
-.proc-line i{position:absolute;inset:0;background:var(--accent);transform:scaleX(0);transform-origin:left}
-.proc ol{list-style:none;display:grid;grid-template-columns:repeat(5,1fr);gap:22px}
-@media (max-width:900px){.proc ol{grid-template-columns:1fr;gap:0}.proc-line{display:none}
-  .proc li{padding:18px 0;border-top:1px solid var(--line)}}
-.proc li{position:relative;padding-top:52px}
-@media (max-width:900px){.proc li{padding-top:18px}}
-.proc .dotp{position:absolute;top:21px;left:0;width:11px;height:11px;border-radius:50%;background:var(--bg);
-  border:2px solid var(--accent)}
-@media (max-width:900px){.proc .dotp{display:none}}
-.proc h3{font-family:var(--fd);font-size:19px;font-weight:580;margin-bottom:6px}
-.proc p{color:var(--muted);font-size:14.5px;line-height:1.55}
-.proc .stepno{color:var(--accent-ink);display:block;margin-bottom:8px}
-/* ---------- before / after ---------- */
-.bawrap{margin-top:52px}
-.ba{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;
-  outline:1px solid var(--line);outline-offset:-1px;background:var(--bg2)}
-@media (max-width:600px){.ba{aspect-ratio:4/3}}
-.ba .side{position:absolute;inset:0}
-.ba .side img,.ba .side .plate{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* the "after" layer is revealed left-to-right by the slider */
-.ba .after{clip-path:inset(0 calc(100% - var(--sp,50%)) 0 0)}
-/* both layers sit at the same coordinates, so two centred captions would collide into mush.
-   The Before/After chips already say which is which. */
-.ba .plate span{display:none}
-.ba .tagx{position:absolute;top:16px;font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--ink);background:var(--bg);padding:6px 12px;border-radius:99px;
-  border:1px solid var(--line);z-index:6;pointer-events:none} /* above the handle, but never blocks the drag */
-.ba .tagx.l{left:16px}.ba .tagx.r{right:16px}
-.ba .handle{position:absolute;top:0;bottom:0;left:var(--sp,50%);width:2px;background:var(--bg);z-index:4;
-  transform:translateX(-1px);box-shadow:0 0 0 1px rgba(30,27,23,.28)}
-.ba .handle::after{content:"";position:absolute;top:50%;left:50%;width:44px;height:44px;transform:translate(-50%,-50%);
-  border-radius:50%;background:var(--bg);border:1px solid var(--edge);box-shadow:0 6px 20px rgba(30,27,23,.22);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='12'%3E%3Cpath d='M8 1L2 6l6 5M14 1l6 5-6 5' fill='none' stroke='%231E1B17' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:center}
-/* a real range input drives it: pointer drag, arrow keys, Home/End and AT support come free */
-.ba input[type=range]{position:absolute;inset:0;width:100%;height:100%;z-index:5;margin:0;
-  appearance:none;background:transparent;cursor:ew-resize}
-.ba input[type=range]::-webkit-slider-thumb{appearance:none;width:52px;height:100%;cursor:ew-resize}
-.ba input[type=range]::-moz-range-thumb{width:52px;height:100%;border:0;background:transparent;cursor:ew-resize}
-.ba input[type=range]:focus-visible{outline:2px solid var(--accent-ink);outline-offset:-4px;border-radius:18px}
-.banote{margin-top:16px;color:var(--muted);font-size:14px}
-/* work */
-/* ---------- work gallery ----------
+/* ============================== get a price (reference A §2) ============================== */
+.qsplit{display:grid;grid-template-columns:1fr;gap:44px;margin-top:52px}
+/* Form first on a phone. A visitor who has already decided should not have to scroll past an
+   explanation of the process to reach the thing that takes their number. */
+.qsplit .qcol{order:-1}
+.steps{list-style:none;display:flex;flex-direction:column;gap:0}
+.steps li{position:relative;padding:0 0 0 58px;min-height:46px;
+  display:flex;flex-direction:column;justify-content:center}
+.steps li+li{margin-top:26px}
+.stepn{position:absolute;left:0;top:0;width:42px;height:42px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--accent);color:var(--accent-ink);background:var(--card);
+  font-family:ui-monospace,Menlo,monospace;font-size:13px}
+.steps h3{font-family:var(--fd);font-size:19px;font-weight:560;margin-bottom:4px}
+.steps p{color:var(--muted);font-size:14.5px;line-height:1.55}
+/* The hand-drawn connector between steps. Vertical on a phone, and it only becomes reference A's
+   curved arrow at 761px where the steps sit side by side — a curved arrow between two vertically
+   stacked items reads as a mistake, not as a flourish. */
+.steps .arw{position:absolute;left:20px;top:52px;bottom:-26px;width:1px;
+  background:linear-gradient(var(--line),var(--line));opacity:.9}
+.steps li:last-child .arw{display:none}
+.stepnote{margin-top:30px;display:inline-flex;align-items:flex-start;gap:12px;
+  padding:14px 16px;border:1px dashed var(--edge);border-radius:12px;
+  color:var(--muted);font-size:14px;max-width:44ch}
+.stepnote b{color:var(--ink);font-weight:600}
+
+/* ============================== what backs the work (reference A §3) ============================== */
+.trust{display:grid;grid-template-columns:1fr;gap:30px;margin-top:52px}
+.tr{border-top:2px solid var(--accent-2);padding-top:18px}
+.tr .fig{font-family:var(--fd);font-size:clamp(30px,4vw,42px);font-weight:400;line-height:1;
+  color:var(--accent-2);display:block;margin-bottom:10px;letter-spacing:-.02em}
+.tr h3{font-family:var(--fd);font-size:18px;font-weight:560;margin-bottom:6px}
+.tr p{color:var(--muted);font-size:14.5px;line-height:1.55}
+
+/* ============================== the work ==============================
    Sticky-stacked: every panel pins at the top and the next one scrolls over it, so exactly one
    project holds the screen at a time. No horizontal track, no pin arithmetic — the layout does
-   it, which means it survives with JS off and needs nothing recalculated on resize. */
+   it, which means it survives with JS off and needs nothing recalculated on resize.
+
+   Deliberately NOT reference A's mosaic. That is its answer to five hundred anonymous projects;
+   we have nine named ones, and on a 390px screen a mosaic shrinks the best asset on the page.
+   See com/plans/redesign-v3-preview.md §5. */
 .gallery{margin-top:clamp(40px,5vw,72px);width:100vw;margin-left:calc(50% - 50vw);position:relative}
 .gpanel{position:sticky;top:0;height:100svh;overflow:hidden;background:var(--bg2)}
 /* Dwell. With sticky stacking a panel is covered the moment the next one's flow position
-   reaches the top, so the space between them is how long it holds the screen. Without this
-   each project got exactly one viewport and they slid past almost as fast as you scrolled. */
+   reaches the top, so the space between them is how long it holds the screen. */
 .gpanel:not(:last-child){margin-bottom:clamp(45vh,60vh,70vh)}
 .gpanel img{position:absolute;left:0;top:-8%;width:100%;height:116%;object-fit:cover;will-change:transform}
 /* Orientation mismatch: these are 4:3 photographs in a portrait panel, so object-fit:cover
    throws away roughly a third of the frame off each side and you only ever see the middle.
    The image keeps filling the frame; the module script pans object-position across the part
-   that is cropped. Letting the element overhang instead was the first attempt and it slid
-   clean off the panel, because the overhang maths and the layout disagreed. */
+   that is cropped. */
 @media (max-width:820px){
   .gpanel img{width:100%;height:100%;top:0;left:0;object-position:50% 50%}
 }
 /* a floor so the caption never sits on bare photograph at the very top */
 .gpanel::before{content:"";position:absolute;inset:0 0 auto 0;height:56%;z-index:1;pointer-events:none;
   background:linear-gradient(rgba(16,13,11,.62),rgba(16,13,11,.22) 55%,transparent)}
-
-/* Caption top-right, out of the way of worktops and islands, which is where the eye goes and
-   where the bottom-left overlay used to sit. Collapsed to a number and a title by default. */
-/* Panels pin at top:0 but the nav is fixed over that first ~80px, so the caption has to start
+/* Caption top-right, out of the way of worktops and islands, which is where the eye goes.
+   Panels pin at top:0 but the nav is fixed over that first ~80px, so the caption has to start
    below it or the title reads through the nav's blur. */
 .gcap{position:absolute;top:0;right:0;z-index:3;color:#fff;
   display:flex;flex-direction:column;align-items:flex-end;gap:12px;text-align:right;
   padding:calc(clamp(96px,11vh,124px) + var(--sat)) calc(clamp(20px,3.5vw,44px) + var(--sar))
            clamp(20px,3.5vw,44px) calc(clamp(20px,3.5vw,44px) + var(--sal));
   max-width:min(92vw,460px)}
-/* The title IS the control — one obvious target rather than a small separate toggle to find.
-   Generous padding because it sits over photography where a thin hit area is easy to miss. */
+/* The title IS the control — one obvious target rather than a small separate toggle to find. */
 .gcap-btn{display:flex;flex-direction:column;align-items:flex-end;gap:7px;
   background:none;border:0;padding:10px 4px;margin:-10px -4px;cursor:pointer;color:inherit;
   font:inherit;text-align:right;touch-action:manipulation;position:relative;z-index:1}
@@ -465,7 +425,6 @@ section.pg.alt{background:var(--bg2)}
   font-size:clamp(24px,3vw,44px);text-shadow:0 1px 22px rgba(16,13,11,.5);
   border-bottom:1px solid transparent;transition:border-color .3s var(--ease)}
 .gcap-btn:hover .gtitle{border-bottom-color:rgba(255,255,255,.5)}
-/* label reinstated: "Hide -" / "Details +" alongside the mark, so the control says what it does */
 .gcap-lbl{display:inline-flex;align-items:center;gap:8px;
   font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
   text-transform:uppercase;color:rgba(255,255,255,.86)}
@@ -482,38 +441,66 @@ section.pg.alt{background:var(--bg2)}
 .gcap-body p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.94)}
 .gcap .gloc{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.16em;
   text-transform:uppercase;color:rgba(255,255,255,.75)}
+/* Reference A's meta chips, carrying the two things we actually hold data for. Its clock and
+   price chips have nothing behind them here — no durations, no prices exist — and inventing
+   either would be the same class of error as the 070 phone number. */
+.gchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.gchip{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:99px;
+  border:1px solid rgba(255,255,255,.42);background:rgba(16,13,11,.42);
+  font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:rgba(255,255,255,.92)}
+.gchip i{width:5px;height:5px;border-radius:50%;background:var(--accent-2);flex:none}
 @media (max-width:560px){
   .gcap{max-width:none;left:0;align-items:flex-start;text-align:left}
-  .gcap-head{align-items:flex-start}
+  .gcap-btn{align-items:flex-start;text-align:left}
+  .gchips{justify-content:flex-start}
 }
 
-/* why */
-.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:56px}
-@media (max-width:900px){.trust{grid-template-columns:1fr 1fr}}
-@media (max-width:560px){.trust{grid-template-columns:1fr;gap:30px}}
-.tr{border-top:2px solid var(--accent);padding-top:18px}
-.tr h3{font-family:var(--fd);font-size:19px;font-weight:580;margin-bottom:8px}
-.tr p{color:var(--muted);font-size:14.5px;line-height:1.55}
-/* contact */
-#contact .big{max-width:16ch}
-.ctas{display:flex;gap:14px;flex-wrap:wrap;margin-top:44px}
-.cnote{margin-top:30px;color:var(--muted);font-size:14px}
+/* ============================== what we do (live mawadgroup.com) ============================== */
+.cards{display:grid;grid-template-columns:1fr;gap:26px;margin-top:52px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  display:flex;flex-direction:column}
+.card figure{margin:0;aspect-ratio:16/10;overflow:hidden;background:var(--bg2)}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
+.card .cbody{padding:26px 24px 28px;display:flex;flex-direction:column;gap:10px;flex:1}
+.card h3{font-family:var(--fd);font-size:22px;font-weight:560;letter-spacing:-.01em}
+.card p{color:var(--muted);font-size:14.5px;line-height:1.6;flex:1}
+
+/* ============================== contact ============================== */
+.ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:36px}
+/* the text link gets its own row on a phone rather than being squeezed against the pill beside
+   it, where its underline ran to the screen edge */
+.ctas .tlink{flex-basis:100%}
+@media (min-width:561px){.ctas .tlink{flex-basis:auto;margin-left:8px}}
+.cnote{margin-top:26px;color:var(--muted);font-size:14px}
+/* Email / Address / Phone as three labelled rows — both references land on this shape, and all
+   three values here are confirmed. */
+.crows{display:grid;grid-template-columns:1fr;gap:24px;margin-top:48px;
+  padding-top:32px;border-top:1px solid var(--line)}
+.crow .k{display:block;margin-bottom:7px}
+.crow .v{font-size:16px;line-height:1.5}
+.crow a.v{border-bottom:1px solid var(--edge)}
+.crow a.v:hover{border-bottom-color:var(--accent-2)}
 /* ---------- quote form ---------- */
-.qform{margin-top:48px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:clamp(24px,3.4vw,40px)}
+.qform{background:var(--card);border:1px solid var(--line);border-radius:22px;
+  padding:clamp(22px,3vw,34px);position:relative}
+/* reference A's dashed inner rule on the lead card */
+.qform::before{content:"";position:absolute;inset:9px;border:1px dashed var(--line);
+  border-radius:15px;pointer-events:none}
+.qform>*{position:relative}
 .qtitle{font-size:23px;font-weight:560;margin-bottom:6px}
-.qlede{color:var(--muted);font-size:14.5px;margin-bottom:26px}
-.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media (max-width:640px){.qgrid{grid-template-columns:1fr}}
+.qlede{color:var(--muted);font-size:14.5px;margin-bottom:22px}
+.qgrid{display:grid;grid-template-columns:1fr;gap:18px}
 .fld{display:flex;flex-direction:column;gap:7px}
 .fld.wide{grid-column:1/-1}
 .fld label{font-size:14px;font-weight:560}
 .fld .req{color:var(--accent-ink)}
-/* NOT .hint — that's the hero's scroll cue, and it's position:absolute */
+/* NOT .hint — that name belonged to the old hero's scroll cue */
 .fld .fhint{font-size:13px;color:var(--muted)}
 .fld input,.fld select,.fld textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);
   border:1px solid var(--edge);border-radius:12px;padding:13px 14px;min-height:48px;width:100%;
   transition:border-color .2s,box-shadow .2s}
-.fld textarea{min-height:120px;resize:vertical;line-height:1.55}
+.fld textarea{min-height:110px;resize:vertical;line-height:1.55}
 .fld select{appearance:none;cursor:pointer;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2370695F' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 16px center;padding-right:42px}
@@ -522,25 +509,21 @@ section.pg.alt{background:var(--bg2)}
 .fld [aria-invalid="true"]{border-color:#9B2C1E}
 .fld .err{font-size:13px;color:#9B2C1E;min-height:0}
 .qhp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.qfoot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:26px}
-.qform button[type=submit]{border:0;cursor:pointer;font-family:inherit}
+.qfoot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:24px}
+.qform button[type=submit]{border:0;cursor:pointer;font-family:inherit;width:100%;justify-content:center}
 .qform button[disabled]{opacity:.55;cursor:progress}
 .qstatus{font-size:14.5px;line-height:1.5}
 .qstatus:empty{display:none}
 .qstatus.ok{color:var(--ink)}
 .qstatus.bad{color:#9B2C1E}
-.qsmall{margin-top:18px;font-size:13px;color:var(--muted)}
-.caddr{margin-top:56px;padding-top:26px;border-top:1px solid var(--line);display:flex;gap:34px;flex-wrap:wrap}
-/* footer */
+.qsmall{margin-top:16px;font-size:13px;color:var(--muted)}
+
+/* ============================== footer ============================== */
 footer{border-top:1px solid var(--line);padding:44px 0 calc(60px + var(--sab));color:var(--muted);font-size:13.5px}
 footer .frow{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:baseline}
 footer .freg{margin-top:10px}
 .fareas{padding-bottom:34px;margin-bottom:30px;border-bottom:1px solid var(--line)}
 .fareas .falabel{display:block;margin-bottom:14px}
-.arealist{list-style:none;display:flex;flex-wrap:wrap;gap:10px}
-.arealist a{display:inline-flex;align-items:center;min-height:40px;padding:8px 15px;font-size:14px;
-  border:1px solid var(--line);border-radius:99px;color:var(--muted);transition:border-color .3s,color .3s}
-.arealist a:hover{border-color:var(--accent);color:var(--ink)}
 .coverline{max-width:60ch;font-size:14.5px;line-height:1.6}
 .coverline b{color:var(--ink);font-weight:600}
 /* credentials — every figure here comes off the Allianz schedule in com/docs.
@@ -549,15 +532,12 @@ footer .freg{margin-top:10px}
 .creds .falabel{display:block;margin-bottom:14px}
 .credlist{list-style:none;display:flex;flex-wrap:wrap;gap:11px 30px}
 /* NOT display:flex on the li. That made the <b> and the text either side of it separate flex
-   items, so each one wrapped in its own column instead of the line reading as one sentence —
-   worst on the Gas Safe entry, which has three parts and became three ragged columns.
-   Normal inline flow, with the bullet taken out of the text stream. */
+   items, so each one wrapped in its own column instead of the line reading as one sentence. */
 .credlist li{position:relative;padding-left:17px;font-size:14px;line-height:1.6;
   color:var(--muted);max-width:36ch}
 .credlist li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;
   border-radius:50%;background:var(--accent)}
 .credlist b{font-weight:600;color:var(--ink)}
-/* one per line below 700px — four items side by side on a phone is four cramped columns */
 @media (max-width:700px){
   .credlist{flex-direction:column;gap:13px}
   .credlist li{max-width:none}
@@ -565,7 +545,58 @@ footer .freg{margin-top:10px}
 footer .fb{font-family:var(--fd);font-weight:600;font-size:18px;color:var(--ink)}
 footer .fb .dot{color:var(--accent)}
 footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
-/* reveals — visible by default; fx adds motion */
+
+/* ============================== widths ============================== */
+@media (min-width:561px){
+  .trust{grid-template-columns:1fr 1fr;gap:34px 26px}
+  .crows{grid-template-columns:1fr 1fr}
+  .qgrid{grid-template-columns:1fr 1fr}
+  .qform button[type=submit]{width:auto}
+}
+@media (min-width:761px){
+  :root{--cols:8}
+  .hero{justify-content:center}
+  .hero-inner{padding-top:calc(140px + var(--sat));padding-bottom:0}
+  .hero-scrim{background:
+    linear-gradient(to top,rgba(16,13,11,.72) 0%,rgba(16,13,11,.34) 34%,rgba(16,13,11,.12) 62%,rgba(16,13,11,.34) 100%),
+    linear-gradient(100deg,rgba(16,13,11,.78) 0%,rgba(16,13,11,.52) 32%,rgba(16,13,11,.14) 62%,transparent 82%)}
+  .hero-cap{position:absolute;right:calc(28px + var(--sar));bottom:calc(122px + var(--sab));
+    margin:0;max-width:30ch;z-index:2}
+  .hero-strip{position:absolute;right:calc(28px + var(--sar));bottom:calc(30px + var(--sab));
+    padding:0;gap:8px;flex-wrap:nowrap;z-index:2}
+  /* the strip becomes real thumbnails, which is reference B's control */
+  .hero-thumb{width:92px;height:62px;border-radius:3px;overflow:hidden;
+    outline:1px solid rgba(255,255,255,.3);outline-offset:-1px;opacity:.55;
+    transition:opacity .3s var(--ease),outline-color .3s}
+  .hero-thumb::after{display:none}
+  .hero-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+  .hero-thumb:hover{opacity:.85}
+  .hero-thumb[aria-current="true"]{opacity:1;outline-color:var(--accent-2);outline-width:2px}
+  .hero-cue{display:inline-flex;left:calc(28px + var(--sal));right:auto}
+  .qsplit{grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  .qsplit .qcol{order:0;position:sticky;top:112px}
+  /* side by side, so reference A's curved connector finally makes sense */
+  .steps{flex-direction:row;gap:22px}
+  /* justify-content:center is right when each step is its own row on a phone. Side by side the
+     items stretch to the tallest one and centring floats each heading to a different height —
+     three columns that visibly fail to line up. */
+  .steps li{flex:1;padding:64px 0 0 0;min-height:0;justify-content:flex-start}
+  .steps li+li{margin-top:0}
+  .stepn{top:0;left:0}
+  .steps .arw{left:52px;right:-14px;top:20px;bottom:auto;width:auto;height:22px;
+    background:none;opacity:.75}
+  .steps .arw svg{width:100%;height:100%;display:block;overflow:visible}
+  .steps .arw path{fill:none;stroke:var(--accent);stroke-width:1.3;stroke-linecap:round}
+  .cards{grid-template-columns:repeat(3,1fr)}
+  .crows{grid-template-columns:repeat(3,1fr)}
+}
+@media (min-width:1025px){
+  :root{--cols:12}
+  .trust{grid-template-columns:repeat(4,1fr)}
+  .hero h1{max-width:14ch}
+}
+
+/* ---------- reveals — visible by default; fx adds motion ---------- */
 .fx .rise{opacity:0}
 /* Reduced motion is not "no animation" — WCAG 2.3.3 is about vestibular triggers, which
    means movement, parallax and scaling. A cross-fade has no motion vector, so these users
@@ -575,13 +606,14 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   /* Allow opacity to transition, forbid everything else from doing so. Transforms and
-     scale still apply instantly, they just never travel. */
+     scale still apply instantly, they just never travel. This is also what neutralises the
+     hero's aperture and its Ken Burns push-in — both become instant rather than being
+     special-cased in JS. */
   *,*::before,*::after{
     animation-duration:.001s!important;
     transition-property:opacity!important;
     transition-duration:.4s!important;
   }
-}
 }
 </style>
 <script>
@@ -602,227 +634,264 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 </script>
 <noscript><style>
   /* Without JS the nav can never learn it is over a photograph, and ink on a dark kitchen is
-     unreadable. Give these visitors the bar back — it is the one case where it earns its keep. */
-  @media (max-width:760px){#nav{background:color-mix(in srgb,var(--bg) 88%,transparent)}}
+     unreadable. The hero is dark at every width now, so invert there and give the bar a backing
+     everywhere else. */
+  #nav{color:#fff}
+  #nav .brand .dot{color:#C29A62}
+  #nav .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);background:rgba(16,13,11,.3)}
+  @media (max-width:760px){#nav .menubtn{color:#fff}}
+  /* No JS means no rotator, so only the first frame will ever show — make that explicit. */
+  .hero-strip{display:none}
 </style></noscript>
 </head>
 <body>
-<a class="skip" href="#services">Skip intro</a>
+<a class="skip" href="#quote">Skip to the quote form</a>
 <div class="progress" aria-hidden="true"></div>
-<div class="cur" id="cur-dot" aria-hidden="true"></div>
-<div class="cur" id="cur-ring" aria-hidden="true"></div>
 
 <nav id="nav" aria-label="Main">
   <a class="brand" href="#top">ci<span class="dot">.</span><small>Crafted Ideas Ltd</small></a>
   <div class="nlinks">
-    <a href="#services">Services</a>
-    <a href="#process">Process</a>
     <a href="#work">Work</a>
-    <a class="cta" href="#contact">Get a quote</a>
+    <a href="#services">What we do</a>
+    <a href="#why">Cover</a>
+    <a class="cta" href="#quote">Get a quote</a>
     <button class="menubtn" id="menubtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Menu"><span></span></button>
   </div>
   <div id="menu">
-    <a href="#services">Services</a>
-    <a href="#process">Process</a>
     <a href="#work">Work</a>
-    <a class="mcta" href="#contact">Get a quote</a>
+    <a href="#services">What we do</a>
+    <a href="#why">Cover &amp; registration</a>
+    <a href="#contact">Contact</a>
+    <a class="mcta pri" href="#quote">Get a quote</a>
+    <a class="mcta" href="tel:+447597231778">Call 07597 231778</a>
+    <a class="mcta" href="https://wa.me/447597231778" rel="noopener">WhatsApp a photo</a>
   </div>
 </nav>
 
 <main id="main">
-<!-- ============================== the journey ============================== -->
-<header class="jwrap" id="top">
-  <div class="jstage">
-    <canvas id="amb" aria-hidden="true"></canvas>
 
-    <!-- ch0 · arrival -->
-    <section class="ch" id="ch0" aria-hidden="true">
-      <div class="wm">
-        <div class="ln" id="wm1"></div>
-        <div class="ln" id="wm2"></div>
-        <span class="seam" id="seam"></span>
-        <p class="tag0" id="tag0">Kitchens, built properly.</p>
-      </div>
-      <div class="hint" id="hint"><span class="mono">Scroll</span><span class="line"></span></div>
-    </section>
-
-    <!-- ch1 · the film: paper → drawing → the real kitchen -->
-    <section class="ch" id="ch1" aria-hidden="true">
-      <div class="filmstage">
-        <canvas id="film" width="960" height="960" role="img" aria-label="A kitchen being designed on paper, then built for real — drawn and assembled as you scroll"></canvas>
-      </div>
-      <div class="mcopy" id="mc1">
-        <span class="mono k">01 — The drawing</span>
-        <p>Every job starts on paper.</p>
-      </div>
-      <div class="mcopy" id="mc2">
-        <span class="mono k">02 — The build</span>
-        <p>Then it gets built. Properly.</p>
-      </div>
-    </section>
-
-    <!-- ch4 · the words -->
-    <section class="ch" id="ch4" aria-hidden="true">
-      <div class="wd4" id="w40"><span>Design<b>.</b></span></div>
-      <div class="wd4" id="w41"><span>Build<b>.</b></span></div>
-      <div class="wd4" id="w42"><span>Fit<b>.</b></span></div>
-      <div class="wd4" id="w43"><span>Repair<b>.</b></span></div>
-      <div class="wd4 fin" id="w44"><span>…and <b>everything</b> in between.</span></div>
-    </section>
-
-    <!-- ch5 · release / standing hero -->
-    <section class="ch" id="ch5">
-      <div class="hero-bp" aria-hidden="true"><div class="bp">
-        <svg viewBox="0 0 1000 560" id="bpsvg">
-
-          <g class="bp-grid" id="bpgrid"></g>
-          <g id="bppaths">
-            <path class="bp-path" d="M50 480 H950"/>
-            <path class="bp-path" d="M80 480 V340 H660"/>
-            <path class="bp-path" d="M80 340 H660 V480"/>
-            <path class="bp-path" d="M225 340 V480 M370 340 V480 M515 340 V480"/>
-            <path class="bp-path" d="M100 410 H205 M100 445 H205"/>
-            <path class="bp-path bp-acc" d="M70 328 H672"/>
-            <path class="bp-path" d="M390 328 V318 M420 328 V318 M450 328 V318 M480 328 V318"/>
-            <path class="bp-path" d="M368 130 H502 V172 H368 Z"/>
-            <path class="bp-path" d="M435 130 V96 M410 172 L410 186 M460 172 L460 186"/>
-            <path class="bp-path" d="M80 140 H300 V250 H80 Z"/>
-            <path class="bp-path" d="M190 140 V250 M80 195 H300"/>
-            <path class="bp-path" d="M560 140 H660 V250 H560 Z"/>
-            <path class="bp-path" d="M700 480 V180 H840 V480"/>
-            <path class="bp-path" d="M700 300 H840 M700 305 H840"/>
-            <path class="bp-path" d="M760 240 A34 34 0 0 1 760 172"/>
-          </g>
-          <g class="bp-dim" id="bpdims">
-            <line x1="80" y1="516" x2="660" y2="516"/><line x1="80" y1="510" x2="80" y2="522"/><line x1="660" y1="510" x2="660" y2="522"/>
-            <text x="345" y="542" text-anchor="middle">3600</text>
-            <line x1="890" y1="480" x2="890" y2="140"/><line x1="884" y1="480" x2="896" y2="480"/><line x1="884" y1="140" x2="896" y2="140"/>
-            <text x="912" y="315" transform="rotate(90 912 315)" text-anchor="middle">2100</text>
-            <line x1="36" y1="480" x2="36" y2="328"/><line x1="30" y1="480" x2="42" y2="480"/><line x1="30" y1="328" x2="42" y2="328"/>
-            <text x="24" y="410" transform="rotate(-90 24 410)" text-anchor="middle">900</text>
-          </g>
-        </svg>
-      </div></div>
-      <div class="inner"><div class="wrap">
-        <span class="eyebrow mono"><i></i>Crafted Ideas Ltd — Greater London</span>
-        <h1>Kitchens, built <span class="em">properly</span>.</h1>
-        <p class="lede">Bespoke kitchens designed, built, and fitted across Greater London — one company, one high standard, from the initial measure to the final wipe-down. Whether it&rsquo;s a full installation or a single adjusted hinge, we apply the exact same care.</p>
-        <div class="hero-cta">
-          <a class="btn pri" href="#contact">Get a quote</a>
-          <a class="btn sec" href="#work">See the work</a>
-        </div>
-        <div class="meta">
-          <span class="mono">Est. 2025</span>
-          <span class="mono">Greater London</span>
-          <span class="mono">Kitchens + general building</span>
-        </div>
-      </div></div>
-    </section>
-
-    <div class="chrail" aria-hidden="true">
-      <span class="n" id="chno">00</span>
-      <div class="bar"><i id="chfill"></i></div>
-      <span class="n">03</span>
+<!-- ============================== hero ==============================
+     Five real projects, cross-faded, each pushing in slowly. The caption names whichever is
+     showing and the strip lets a visitor pick one — reference B's photo-as-interface, on our
+     own work. Frames chosen for two reasons: all five are the 1600px originals rather than the
+     1024px ones, and their headline zones measured darkest of the nine. -->
+<header class="hero" id="top" data-dark>
+  <div class="hero-media" aria-hidden="true">
+    <div class="hero-shot is-on" style="--fx:58% 50%">
+      <img src="/media/work/02-stone-island-handleless-fulham.jpg"
+           srcset="/media/work-800/02-stone-island-handleless-fulham.jpg 800w, /media/work/02-stone-island-handleless-fulham.jpg 1600w"
+           sizes="100vw" alt="" fetchpriority="high" decoding="async">
+    </div>
+    <div class="hero-shot" style="--fx:62% 50%">
+      <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg"
+           srcset="/media/work-800/01-soft-matt-schmidt-kitchen-epsom.jpg 800w, /media/work/01-soft-matt-schmidt-kitchen-epsom.jpg 1600w"
+           sizes="100vw" alt="" loading="lazy" decoding="async">
+    </div>
+    <div class="hero-shot" style="--fx:50% 55%">
+      <img src="/media/work/07-interior-solutions-south-croydon.jpg"
+           srcset="/media/work-800/07-interior-solutions-south-croydon.jpg 800w, /media/work/07-interior-solutions-south-croydon.jpg 1600w"
+           sizes="100vw" alt="" loading="lazy" decoding="async">
+    </div>
+    <div class="hero-shot" style="--fx:54% 50%">
+      <img src="/media/work/06-zone-lighting-control-guildford.jpg"
+           srcset="/media/work-800/06-zone-lighting-control-guildford.jpg 800w, /media/work/06-zone-lighting-control-guildford.jpg 1600w"
+           sizes="100vw" alt="" loading="lazy" decoding="async">
+    </div>
+    <div class="hero-shot" style="--fx:46% 50%">
+      <img src="/media/work/03-alno-kitchen-clapham-common.jpg"
+           srcset="/media/work-800/03-alno-kitchen-clapham-common.jpg 800w, /media/work/03-alno-kitchen-clapham-common.jpg 1600w"
+           sizes="100vw" alt="" loading="lazy" decoding="async">
     </div>
   </div>
+  <div class="hero-scrim" aria-hidden="true"></div>
+  <div class="hero-dim" id="hero-dim" aria-hidden="true"></div>
+
+  <div class="hero-inner wrap">
+    <span class="eyebrow mono"><i></i>Est. 2025 · Greater London &amp; Surrey</span>
+    <h1>Kitchens, built <span class="em">properly</span>.</h1>
+    <p class="lede">Designed, built and fitted by the same hands — from the first measure to the final wipe-down. A full installation or a single hinge that will not sit right gets the same care.</p>
+    <div class="hero-cta">
+      <a class="btn pri" href="#quote">Get a quote</a>
+      <a class="btn sec" href="#work">See the work</a>
+    </div>
+
+    <!-- Reference B's caption panel. Real titles and locations, from Vasil's own manifest —
+         com/plans/work-photos.md. Live region so the change is announced, not silent. -->
+    <figure class="hero-cap" id="hero-cap" aria-live="polite">
+      <figcaption>
+        <span class="n mono" id="hcap-n">01 / 05</span>
+        <span class="t" id="hcap-t">Sculptural Simplicity</span>
+        <span class="l mono" id="hcap-l">Handleless kitchen &amp; stone island · Fulham</span>
+      </figcaption>
+    </figure>
+
+    <div class="hero-strip" id="hero-strip" role="group" aria-label="Choose a project to show">
+      <button class="hero-thumb" type="button" data-i="0" aria-current="true" aria-label="Show: Sculptural Simplicity, Fulham"><img src="/media/work-thumb/02-stone-island-handleless-fulham.jpg" alt="" loading="lazy" decoding="async" width="240" height="175"></button>
+      <button class="hero-thumb" type="button" data-i="1" aria-label="Show: Seamless &amp; Sophisticated, Epsom"><img src="/media/work-thumb/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="" loading="lazy" decoding="async" width="240" height="176"></button>
+      <button class="hero-thumb" type="button" data-i="2" aria-label="Show: Beyond the Kitchen, South Croydon"><img src="/media/work-thumb/07-interior-solutions-south-croydon.jpg" alt="" loading="lazy" decoding="async" width="240" height="178"></button>
+      <button class="hero-thumb" type="button" data-i="3" aria-label="Show: Light by Design, Guildford"><img src="/media/work-thumb/06-zone-lighting-control-guildford.jpg" alt="" loading="lazy" decoding="async" width="240" height="186"></button>
+      <button class="hero-thumb" type="button" data-i="4" aria-label="Show: Contemporary Meets Character, Clapham Common"><img src="/media/work-thumb/03-alno-kitchen-clapham-common.jpg" alt="" loading="lazy" decoding="async" width="240" height="168"></button>
+    </div>
+  </div>
+  <span class="hero-cue mono" aria-hidden="true">Scroll</span>
 </header>
 
-<!-- ============================== services ============================== -->
-<section class="pg" id="services" aria-labelledby="svcH" tabindex="-1">
+<!-- ============================== get a price (reference A §2) ============================== -->
+<section class="band cream" id="quote" aria-labelledby="qH" tabindex="-1">
   <div class="wrap">
-    <span class="tag mono rise"><i></i>What we do</span>
-    <h2 class="big rise" id="svcH">Designed, built and fitted by the same hands.</h2>
-    <p class="sub rise">Bespoke kitchens are most of what we do — specified, built and installed end to end. A kitchen never stands alone, so the trades around it are in-house too. The same standard applies whether it is a full installation or a single door that will not sit right. Serving South Croydon, Greater London, and Surrey.</p>
-    <div class="svcs">
-      <div class="svc rise">
-        <span class="cornice"></span>
-        <span class="mono k">Kitchens — the core</span>
-        <h3>Kitchen design, construction, installation &amp; fitting</h3>
-        <ul>
-          <li><b>Construction</b><span>Full builds and structural alterations — walls, floors, services, ready for the fit.</span></li>
-          <li><b>Installation</b><span>Complete kitchen installs — units, worktops, appliances, plumbing and finishing.</span></li>
-          <li><b>Fitting</b><span>Precision fitting of cabinetry and worktops. Flush, level, and made to last.</span></li>
-          <li><b>Precision Repairs</b><span>From misaligned doors and worn hinges to damaged worktops and water leaks — restored to original quality, not temporarily patched.</span></li>
-        </ul>
+    <span class="tag mono rise"><i></i>Get a price</span>
+    <h2 class="big rise" id="qH">Find out what your kitchen <span class="em">costs</span>.</h2>
+    <p class="sub rise">A free site visit, a measured plan and a written quote. No obligation, and nothing held back for later.</p>
+
+    <div class="qsplit">
+      <div class="qcol">
+        <!-- Quote form → Web3Forms. Replace WEB3FORMS_ACCESS_KEY below with the real key.
+             ⚠ Until it is replaced this form REFUSES to submit and points at the phone instead.
+             Nothing has ever been POSTed from this page — see the plan §9.1. -->
+        <form class="qform rise" id="qform" action="https://api.web3forms.com/submit" method="POST"
+              aria-labelledby="qformH" novalidate>
+          <h3 id="qformH" class="serif qtitle">Tell us about the job</h3>
+          <p class="qlede">Leave your details and we&rsquo;ll come back to you within a working day.</p>
+
+          <input type="hidden" name="access_key" value="WEB3FORMS_ACCESS_KEY">
+          <input type="hidden" name="subject" value="New kitchen enquiry — craftedideasltd.co.uk">
+          <input type="hidden" name="from_name" value="craftedideasltd.co.uk">
+          <input type="hidden" name="redirect" value="https://craftedideasltd.co.uk/#quote">
+          <label class="qhp" aria-hidden="true" tabindex="-1">Leave this empty<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"></label>
+
+          <div class="qgrid">
+            <div class="fld">
+              <label for="q-name">Your name <span class="req" aria-hidden="true">*</span></label>
+              <input id="q-name" name="name" type="text" required autocomplete="name"
+                     aria-describedby="q-name-err"><span class="err" id="q-name-err"></span>
+            </div>
+            <div class="fld">
+              <label for="q-phone">Phone <span class="req" aria-hidden="true">*</span></label>
+              <input id="q-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel"
+                     aria-describedby="q-phone-err"><span class="err" id="q-phone-err"></span>
+            </div>
+            <div class="fld">
+              <label for="q-email">Email</label>
+              <input id="q-email" name="email" type="email" autocomplete="email" inputmode="email"
+                     aria-describedby="q-email-hint q-email-err">
+              <span class="fhint" id="q-email-hint">Optional — we&rsquo;ll call unless you&rsquo;d rather we wrote.</span>
+              <span class="err" id="q-email-err"></span>
+            </div>
+            <div class="fld">
+              <label for="q-postcode">Postcode <span class="req" aria-hidden="true">*</span></label>
+              <input id="q-postcode" name="postcode" type="text" required autocomplete="postal-code"
+                     aria-describedby="q-postcode-hint q-postcode-err">
+              <span class="fhint" id="q-postcode-hint">So we know if you&rsquo;re in our patch.</span>
+              <span class="err" id="q-postcode-err"></span>
+            </div>
+            <div class="fld wide">
+              <label for="q-job">What do you need? <span class="req" aria-hidden="true">*</span></label>
+              <select id="q-job" name="job" required aria-describedby="q-job-err">
+                <option value="">Choose one…</option>
+                <option>Supply &amp; Fit — we provide the kitchen</option>
+                <option>Trade Installation — you supply the kitchen</option>
+                <option>Kitchen repair</option>
+                <option>Other building work</option>
+                <option>Not sure yet</option>
+              </select><span class="err" id="q-job-err"></span>
+            </div>
+            <div class="fld wide">
+              <label for="q-msg">Anything else</label>
+              <textarea id="q-msg" name="message" rows="4" aria-describedby="q-msg-hint"></textarea>
+              <span class="fhint" id="q-msg-hint">Rough size, timing, what&rsquo;s there now — whatever you know.</span>
+            </div>
+          </div>
+
+          <div class="qfoot">
+            <button class="btn pri" type="submit" id="qsubmit">Send enquiry</button>
+            <p class="qstatus" id="qstatus" role="status" aria-live="polite"></p>
+          </div>
+          <p class="qsmall">We use what you send here to quote your job and nothing else.</p>
+        </form>
       </div>
-      <div class="svc side rise">
-        <span class="mono k">Beyond the kitchen</span>
-        <h3>General building &amp; contracted works</h3>
-        <ul>
-          <li><b>Building work</b><span>Domestic and commercial construction and refurbishment.</span></li>
-          <li><b>Completion &amp; finishing</b><span>The last 10% that makes the other 90% look right.</span></li>
-          <li><b>Repairs &amp; maintenance</b><span>Contracted jobs, odd structural fixes, ongoing upkeep.</span></li>
-        </ul>
+
+      <div class="scol rise">
+        <ol class="steps">
+          <li>
+            <span class="stepn" aria-hidden="true">01</span>
+            <h3>Free site survey &amp; measure</h3>
+            <p>We come out, measure properly, and listen to what you actually want the room to do.</p>
+            <span class="arw" aria-hidden="true"><svg viewBox="0 0 120 22" preserveAspectRatio="none"><path d="M2 18C28 2 92 2 116 12M116 12l-9-5M116 12l-10 5"/></svg></span>
+          </li>
+          <li>
+            <span class="stepn" aria-hidden="true">02</span>
+            <h3>A plan and a written quote</h3>
+            <p>A clear drawing and a clear price, itemised. No surprises saved up for the invoice.</p>
+            <span class="arw" aria-hidden="true"><svg viewBox="0 0 120 22" preserveAspectRatio="none"><path d="M2 4C28 20 92 20 116 10M116 10l-9 5M116 10l-10-5"/></svg></span>
+          </li>
+          <li>
+            <span class="stepn" aria-hidden="true">03</span>
+            <h3>Built, fitted, tidied</h3>
+            <p>Structural prep, cabinetry, worktops and appliances — flush, level, working. Then a tidy handover, and we come back if anything needs us.</p>
+          </li>
+        </ol>
+        <p class="stepnote">
+          <b>Mon–Fri, 9am–6pm.</b> We reply within a working day. A photo on WhatsApp is the quickest start.
+        </p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============================== process ============================== -->
-<section class="pg alt" id="process" aria-labelledby="prcH">
+<!-- ============================== what backs the work (reference A §3) ==============================
+     Reference A puts a years-count and a projects-count here. Crafted Ideas Ltd was incorporated
+     29 Nov 2025, so neither is available and neither is coming. What goes in that slot instead is
+     the set of things that are documented: the Allianz schedule in com/docs and Companies House.
+     The figures are read off the policy — RENEWAL 05/02/2027, re-read it then. -->
+<section class="band dark" id="why" data-dark aria-labelledby="whyH">
   <div class="wrap">
-    <span class="tag mono rise"><i></i>How it runs</span>
-    <h2 class="big rise" id="prcH">Measured twice. Crafted once.</h2>
-    <div class="proc">
-      <div class="proc-line"><i id="procfill"></i></div>
-      <ol>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">01</span><h3>Free Site Survey &amp; Measure</h3><p>We visit your property, assess the space in detail, and listen carefully to your goals and practical requirements.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">02</span><h3>Design &amp; Quote</h3><p>A clear plan and a clear price. No surprises held back for later.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">03</span><h3>Build &amp; Preparation</h3><p>Premium structural prep and cabinetry construction — built right behind the scenes so your kitchen lasts for years to come.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">04</span><h3>Fit</h3><p>The precise part. Units, worktops, appliances — flush, level, working.</p></li>
-        <li class="rise"><span class="dotp"></span><span class="mono stepno">05</span><h3>Aftercare</h3><p>A tidy handover, and we come back if anything needs us. That's the standard.</p></li>
-      </ol>
+    <span class="tag mono rise"><i></i>What backs the work</span>
+    <h2 class="big rise" id="whyH">One pair of hands — and the paperwork to stand behind it.</h2>
+    <div class="trust">
+      <div class="tr rise">
+        <span class="fig">£5m</span>
+        <h3>Public &amp; products liability</h3>
+        <p>Held with Allianz, in the company&rsquo;s name — not a personal policy.</p>
+      </div>
+      <div class="tr rise">
+        <span class="fig">£10m</span>
+        <h3>Employers&rsquo; liability</h3>
+        <p>Everyone who sets foot on your job is covered while they are there.</p>
+      </div>
+      <div class="tr rise">
+        <span class="fig">16881417</span>
+        <h3>A registered UK company</h3>
+        <p>Crafted Ideas Ltd, registered in England. A real business with its name on the work.</p>
+      </div>
+      <div class="tr rise">
+        <!-- Vasil, 26 Aug: Crafted Ideas Ltd is NOT itself Gas Safe or NICEIC registered. Gas and
+             electrical work goes to registered subcontractors. This says exactly that and must
+             keep saying exactly that — claiming the registration directly would be false. -->
+        <span class="fig">Gas &amp; electric</span>
+        <h3>By registered subcontractors</h3>
+        <p>Gas and electrical work is carried out by subcontractors registered with Gas Safe and NICEIC.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ============================== work ============================== -->
-<section class="pg" id="work" aria-labelledby="wrkH">
+<section class="band paper" id="work" aria-labelledby="wrkH">
   <div class="wrap">
     <span class="tag mono rise"><i></i>The work</span>
-    <h2 class="big rise" id="wrkH">Built to be looked at closely.</h2>
-    <p class="sub rise">Recent installations in Epsom, Fulham, Clapham, Dulwich, Caterham, Guildford and South Croydon — handleless runs, stone islands, bespoke cabinetry, and the lighting and joinery that finish them. Serving South Croydon, Greater London, and Surrey.</p>
-    <!-- BEFORE / AFTER: swap each .plate for an <img> exactly as with the tiles below.
-         The pair must be shot from the same spot — same corner, same lens, same height —
-         or the wipe reads as two different rooms instead of one room transformed. -->
-    <!-- HANDOVER: before/after wipe, hidden 26 Aug on Georgi's instruction — Vasil is having the
-         "after" shot taken next week and an empty slider advertises the gap. Restore by deleting
-         this comment wrapper; the .ba* CSS is still in the stylesheet and the wipe IIFE no-ops
-         when #ba-range is absent, so nothing else needs touching and no CSP rehash is required.
-         The pair MUST be shot from the same spot — same corner, lens and height — or the wipe
-         reads as two different rooms. The "before" has to already exist from that position; it
-         cannot be matched retrospectively.
-    <figure class="bawrap rise">
-      <div class="ba" id="ba">
-        <div class="side before">
-          <div class="plate"><span>Before — photography soon</span></div>
-        </div>
-        <div class="side after" id="ba-after">
-          <div class="plate"><span>After — photography soon</span></div>
-        </div>
-        <span class="tagx l" aria-hidden="true">Before</span>
-        <span class="tagx r" aria-hidden="true">After</span>
-        <span class="handle" id="ba-handle" aria-hidden="true"></span>
-        <input type="range" id="ba-range" min="0" max="100" value="50" step="1"
-               aria-label="Reveal the finished kitchen — drag, or use the arrow keys">
-      </div>
-      <!- - Once the real pair is in, cut the first sentence of this caption. - ->
-      <figcaption class="banote">A before-and-after pair goes here — photography soon. Drag the handle to wipe between the two, or use the arrow keys.</figcaption>
-    </figure>
-    -->
+    <!-- Reference A bolds a numeral inside its heading. Nine is a count of photographs, which is
+         a fact; it is not a count of years or of jobs, which are not ours to claim. -->
+    <h2 class="big rise" id="wrkH"><span class="em">Nine</span> finished kitchens, looked at closely.</h2>
+    <p class="sub rise">Recent installations in Epsom, Fulham, Clapham, Dulwich, Caterham, Guildford and South Croydon — handleless runs, stone islands, bespoke cabinetry, and the lighting and joinery that finish them.</p>
 
     <!-- Vasil's own projects — his order, his titles. Manifest: com/plans/work-photos.md.
          To swap one, replace the src AND rewrite the alt to describe that photo. The alt text
          here describes what is in each frame, not the marketing line printed beside it. -->
-    <!-- Nine projects, each given the stage on its own rather than tiled into a list.
-         Each panel sticks and the next scrolls over it — the same layout on every journey,
-         reduced motion and no-JS included, since it is CSS sticky rather than a pinned track.
-         That is why the caption lives inside the frame rather than beside it. -->
     <div class="gallery" id="gal">
       <div class="gstage">
         <div class="gtrack" id="gtrack">
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 1 of 9">
-          <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
+          <img src="/media/work/01-soft-matt-schmidt-kitchen-epsom.jpg" srcset="/media/work-800/01-soft-matt-schmidt-kitchen-epsom.jpg 800w, /media/work/01-soft-matt-schmidt-kitchen-epsom.jpg 1600w" sizes="100vw" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd1">
               <span class="gnum">01 / 09</span>
@@ -833,10 +902,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>A refined soft-matt kitchen with concealed pocket doors, integrated appliances and a discreet downdraft extractor.</p>
               <span class="gloc">Soft Matt Schmidt Kitchen · Epsom</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Epsom</span><span class="gchip"><i></i>Full installation</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 2 of 9">
-          <img src="/media/work/02-stone-island-handleless-fulham.jpg" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
+          <img src="/media/work/02-stone-island-handleless-fulham.jpg" srcset="/media/work-800/02-stone-island-handleless-fulham.jpg 800w, /media/work/02-stone-island-handleless-fulham.jpg 1600w" sizes="100vw" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd2">
               <span class="gnum">02 / 09</span>
@@ -847,10 +917,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>A striking stone island with push-to-open cabinetry, creating a beautifully clean and uninterrupted aesthetic.</p>
               <span class="gloc">Handleless Kitchen &amp; Stone Island · Fulham</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Fulham</span><span class="gchip"><i></i>Stone island</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 3 of 9">
-          <img src="/media/work/03-alno-kitchen-clapham-common.jpg" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
+          <img src="/media/work/03-alno-kitchen-clapham-common.jpg" srcset="/media/work-800/03-alno-kitchen-clapham-common.jpg 800w, /media/work/03-alno-kitchen-clapham-common.jpg 1600w" sizes="100vw" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd3">
               <span class="gnum">03 / 09</span>
@@ -861,10 +932,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>An elegant Alno kitchen that balances contemporary design with the warmth and character of a period home.</p>
               <span class="gloc">Alno Kitchen · Clapham Common</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Clapham Common</span><span class="gchip"><i></i>Period home</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 4 of 9">
-          <img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
+          <img src="/media/work/04-bespoke-pantry-cabinetry-dulwich.jpg" srcset="/media/work-800/04-bespoke-pantry-cabinetry-dulwich.jpg 800w, /media/work/04-bespoke-pantry-cabinetry-dulwich.jpg 1024w" sizes="100vw" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd4">
               <span class="gnum">04 / 09</span>
@@ -875,10 +947,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>Bespoke navy blue kitchen and pantry units, crafted in Brixton for a new contemporary Dulwich home, combining rich colour, natural timber and considered storage.</p>
               <span class="gloc">Bespoke Pantry &amp; Kitchen Cabinetry · Dulwich</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Dulwich</span><span class="gchip"><i></i>Bespoke cabinetry</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 5 of 9">
-          <img src="/media/work/05-hand-painted-kitchen-caterham.jpg" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
+          <img src="/media/work/05-hand-painted-kitchen-caterham.jpg" srcset="/media/work-800/05-hand-painted-kitchen-caterham.jpg 800w, /media/work/05-hand-painted-kitchen-caterham.jpg 1024w" sizes="100vw" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd5">
               <span class="gnum">05 / 09</span>
@@ -889,10 +962,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>Hand-painted furniture finished in your choice of RAL colour, bringing individuality and personality to every interior.</p>
               <span class="gloc">Hand-Painted Kitchen and Island · Caterham</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Caterham</span><span class="gchip"><i></i>Hand-painted</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 6 of 9">
-          <img src="/media/work/06-zone-lighting-control-guildford.jpg" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
+          <img src="/media/work/06-zone-lighting-control-guildford.jpg" srcset="/media/work-800/06-zone-lighting-control-guildford.jpg 800w, /media/work/06-zone-lighting-control-guildford.jpg 1600w" sizes="100vw" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd6">
               <span class="gnum">06 / 09</span>
@@ -903,10 +977,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>Flexible lighting controls create the perfect balance of task, ambient and architectural illumination.</p>
               <span class="gloc">Tailor-Made Zone Lighting Control · Guildford</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Guildford</span><span class="gchip"><i></i>Zone lighting</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 7 of 9">
-          <img src="/media/work/07-interior-solutions-south-croydon.jpg" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
+          <img src="/media/work/07-interior-solutions-south-croydon.jpg" srcset="/media/work-800/07-interior-solutions-south-croydon.jpg 800w, /media/work/07-interior-solutions-south-croydon.jpg 1600w" sizes="100vw" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd7">
               <span class="gnum">07 / 09</span>
@@ -917,10 +992,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>A fully considered approach to fitted furniture, creating a seamless design language throughout the home.</p>
               <span class="gloc">Complete Made-to-Measure Interior Solutions · South Croydon</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>South Croydon</span><span class="gchip"><i></i>Fitted furniture</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 8 of 9">
-          <img src="/media/work/08-renovation-remodelling.jpg" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
+          <img src="/media/work/08-renovation-remodelling.jpg" srcset="/media/work-800/08-renovation-remodelling.jpg 800w, /media/work/08-renovation-remodelling.jpg 1600w" sizes="100vw" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd8">
               <span class="gnum">08 / 09</span>
@@ -931,10 +1007,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>Idea, design, completion. Thoughtful renovation service and bespoke design transform existing spaces into sophisticated, highly functional interiors.</p>
               <span class="gloc">Complete Renovation &amp; Remodelling Projects</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Renovation</span><span class="gchip"><i></i>Full remodel</span></div>
           </figcaption>
         </figure>
         <figure class="gpanel" aria-roledescription="slide" aria-label="Project 9 of 9">
-          <img src="/media/work/09-showroom-schmidt-epsom.jpg" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
+          <img src="/media/work/09-showroom-schmidt-epsom.jpg" srcset="/media/work-800/09-showroom-schmidt-epsom.jpg 800w, /media/work/09-showroom-schmidt-epsom.jpg 1024w" sizes="100vw" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
           <figcaption class="gcap">
             <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd9">
               <span class="gnum">09 / 09</span>
@@ -945,6 +1022,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <p>A contemporary Schmidt installation showcasing architectural cabinetry, integrated appliances and a statement central island.</p>
               <span class="gloc">Showroom Installations · Schmidt Epsom</span>
             </div>
+            <div class="gchips"><span class="gchip"><i></i>Epsom</span><span class="gchip"><i></i>Showroom fit-out</span></div>
           </figcaption>
         </figure>
         </div>
@@ -953,117 +1031,83 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
   </div>
 </section>
 
-<!-- ============================== why ============================== -->
-<section class="pg alt" id="why" aria-labelledby="whyH">
+<!-- ============================== what we do (live mawadgroup.com) ==============================
+     Three cards, image + heading + a sentence + a link. Each photograph genuinely illustrates the
+     discipline named above it — no finished-kitchen shot standing in for "repairs". -->
+<section class="band cream" id="services" aria-labelledby="svcH">
   <div class="wrap">
-    <span class="tag mono rise"><i></i>Why Crafted Ideas</span>
-    <h2 class="big rise" id="whyH">One pair of hands, accountable for all of it.</h2>
-    <div class="trust">
-      <div class="tr rise"><h3>One company, end to end</h3><p>Design, build and fit under one roof. No chain of subcontractors pointing at each other — the person who quotes is the person responsible.</p></div>
-      <div class="tr rise"><h3>A registered UK company</h3><p>Crafted Ideas Ltd, registered in England — a real business with its name on the work.</p></div>
-      <div class="tr rise"><h3>Tidy sites, tidy handover</h3><p>Dust sheets down, mess out, tools away. You live here — the site behaves like it knows that.</p></div>
-      <div class="tr rise"><h3>No job too small</h3><p>Most firms working at this level only want the full installation. We'll come out for a hinge, and it gets the same care as the island.</p></div>
+    <span class="tag mono rise"><i></i>What we do</span>
+    <h2 class="big rise" id="svcH">Designed, built and fitted by the same hands.</h2>
+    <p class="sub rise">Bespoke kitchens are most of what we do — specified, built and installed end to end. A kitchen never stands alone, so the trades around it are in-house too.</p>
+
+    <div class="cards">
+      <article class="card rise">
+        <figure><img src="/media/work-800/04-bespoke-pantry-cabinetry-dulwich.jpg" alt="Navy blue bespoke kitchen and pantry units with oak shelving." loading="lazy" decoding="async" width="800" height="650"></figure>
+        <div class="cbody">
+          <h3>Kitchens, end to end</h3>
+          <p>Design, construction, installation and fitting — units, worktops, appliances, plumbing and finishing. The person who quotes it is the person responsible for it.</p>
+          <a class="tlink" href="#quote">Get a quote</a>
+        </div>
+      </article>
+      <article class="card rise">
+        <figure><img src="/media/work-800/08-renovation-remodelling.jpg" alt="A newly finished room mid-renovation, with a marble-effect island and integrated ovens." loading="lazy" decoding="async" width="800" height="600"></figure>
+        <div class="cbody">
+          <h3>Renovation &amp; remodelling</h3>
+          <p>Domestic and commercial building work, structural alterations and refurbishment — plus the last ten per cent of finishing that makes the other ninety look right.</p>
+          <a class="tlink" href="#work">See the work</a>
+        </div>
+      </article>
+      <article class="card rise">
+        <figure><img src="/media/work-800/06-zone-lighting-control-guildford.jpg" alt="Under-cabinet and plinth lighting picking out a handleless kitchen run." loading="lazy" decoding="async" width="800" height="620"></figure>
+        <div class="cbody">
+          <h3>Repairs &amp; the details</h3>
+          <p>Misaligned doors, worn hinges, damaged worktops, leaks — restored properly rather than patched. Most firms at this level only want the full installation. We&rsquo;ll come for a hinge.</p>
+          <a class="tlink" href="tel:+447597231778">Call 07597 231778</a>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
-<!-- ============================== contact ============================== -->
-<section class="pg" id="contact" aria-labelledby="conH">
+<!-- ============================== closing invitation (live mawadgroup.com) ==============================
+     "Like Our Work? / Get in Touch" — heading, one reassurance sentence, one route out. Both
+     com/plans/site-plan.md §2 and redesign-v2.md §7 asked for a closing invitation instead of
+     ending on a bare form; this is the shape of it. -->
+<section class="band dark" id="contact" data-dark aria-labelledby="conH">
   <div class="wrap">
     <span class="tag mono rise"><i></i>Contact</span>
-    <h2 class="big rise" id="conH">Tell us about your project.</h2>
-    <p class="sub rise">A quick photo on WhatsApp and a brief description is all we need to get started. We&rsquo;ll arrange a free, no-obligation site visit and measurement.</p>
-    <!-- These three are the highest-converting things on the page for a trade business,
-         so they come before the form. Both were confirmed by Vasil on 25 Aug 2026.
+    <h2 class="big rise" id="conH">Like our work? <span class="em">Get in touch.</span></h2>
+    <p class="sub rise">Send a photo and a rough idea of what you want and we&rsquo;ll arrange a free, no-obligation site visit and measurement. If it turns out we&rsquo;re not the right fit, we&rsquo;ll say so.</p>
+    <!-- These three are the highest-converting things on the page for a trade business.
            · Phone is +447597231778 — a real 07597 mobile, in full E.164 form. The launch
              placeholder was +447000000000; UK 070x is Ofcom's premium-rated personal
              numbering range, not a mobile, and it billed the caller. Never ship a 070.
-           · Email is his live Gmail, deliberately, not hello@craftedideas.co. That alias
-             shipped at launch and was never a real mailbox. If the Namecheap forward is
-             ever set up AND confirmed to land somewhere he reads, swap it in here, in the
-             JSON-LD above and in the form fallback below — not before. -->
+           · info@craftedideasltd.co.uk was confirmed working by Georgi, 26 Aug — a real mail
+             was seen to arrive through the Namecheap forward. It appears in three places that
+             must stay in step: the row below, the JSON-LD "email", and the form-failure copy. -->
     <div class="ctas rise">
       <a class="btn pri" href="tel:+447597231778">Call the team</a>
       <a class="btn sec" href="https://wa.me/447597231778" rel="noopener">WhatsApp a photo</a>
-      <!-- info@craftedideasltd.co.uk confirmed working by Georgi, 26 Aug — a real mail was seen
-           to arrive through the Namecheap forward into craftedideasltd@gmail.com. That is the test
-           this repo requires before an address goes on the page, and it has now been met.
-           It appears in three places that must stay in step: this href, the JSON-LD "email"
-           above, and the form-failure copy below. -->
-      <a class="btn sec" href="mailto:info@craftedideasltd.co.uk?subject=Kitchen%20enquiry">Email</a>
+      <a class="tlink" href="#quote">Or fill in the form</a>
     </div>
-    <p class="cnote rise">Monday to Friday, 9am to 6pm. A photo on WhatsApp is the quickest start.</p>
 
-    <!-- Quote form → Web3Forms. Replace WEB3FORMS_ACCESS_KEY below with the real key from
-         web3forms.com (free, no account dashboard needed — the key is bound to the destination
-         inbox). It is a PUBLIC key by design; it authorises delivery to one address and nothing
-         else. Until it is replaced, the form refuses to submit and offers the mailto instead. -->
-    <form class="qform rise" id="qform" action="https://api.web3forms.com/submit" method="POST"
-          aria-labelledby="qformH" novalidate>
-      <h3 id="qformH" class="serif qtitle">Tell us here</h3>
-      <p class="qlede">Leave your details and we'll come back to you within a working day.</p>
-
-      <input type="hidden" name="access_key" value="WEB3FORMS_ACCESS_KEY">
-      <input type="hidden" name="subject" value="New kitchen enquiry — craftedideasltd.co.uk">
-      <input type="hidden" name="from_name" value="craftedideasltd.co.uk">
-      <input type="hidden" name="redirect" value="https://craftedideasltd.co.uk/#contact">
-      <label class="qhp" aria-hidden="true" tabindex="-1">Leave this empty<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off"></label>
-
-      <div class="qgrid">
-        <div class="fld">
-          <label for="q-name">Your name <span class="req" aria-hidden="true">*</span></label>
-          <input id="q-name" name="name" type="text" required autocomplete="name"
-                 aria-describedby="q-name-err"><span class="err" id="q-name-err"></span>
-        </div>
-        <div class="fld">
-          <label for="q-phone">Phone <span class="req" aria-hidden="true">*</span></label>
-          <input id="q-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel"
-                 aria-describedby="q-phone-err"><span class="err" id="q-phone-err"></span>
-        </div>
-        <div class="fld">
-          <label for="q-email">Email</label>
-          <input id="q-email" name="email" type="email" autocomplete="email" inputmode="email"
-                 aria-describedby="q-email-hint q-email-err">
-          <span class="fhint" id="q-email-hint">Optional — we'll call unless you'd rather we wrote.</span>
-          <span class="err" id="q-email-err"></span>
-        </div>
-        <div class="fld">
-          <label for="q-postcode">Postcode <span class="req" aria-hidden="true">*</span></label>
-          <input id="q-postcode" name="postcode" type="text" required autocomplete="postal-code"
-                 aria-describedby="q-postcode-hint q-postcode-err">
-          <span class="fhint" id="q-postcode-hint">So we know if you're in our patch.</span>
-          <span class="err" id="q-postcode-err"></span>
-        </div>
-        <div class="fld wide">
-          <label for="q-job">What do you need? <span class="req" aria-hidden="true">*</span></label>
-          <select id="q-job" name="job" required aria-describedby="q-job-err">
-            <option value="">Choose one…</option>
-            <option>Supply &amp; Fit — we provide the kitchen</option>
-            <option>Trade Installation — you supply the kitchen</option>
-            <option>Kitchen repair</option>
-            <option>Other building work</option>
-            <option>Not sure yet</option>
-          </select><span class="err" id="q-job-err"></span>
-        </div>
-        <div class="fld wide">
-          <label for="q-msg">Anything else</label>
-          <textarea id="q-msg" name="message" rows="4" aria-describedby="q-msg-hint"></textarea>
-          <span class="fhint" id="q-msg-hint">Rough size, timing, what's there now — whatever you know.</span>
-        </div>
+    <div class="crows rise">
+      <div class="crow">
+        <span class="k mono">Phone</span>
+        <a class="v" href="tel:+447597231778">07597 231778</a>
       </div>
-
-      <div class="qfoot">
-        <button class="btn pri" type="submit" id="qsubmit">Send enquiry</button>
-        <p class="qstatus" id="qstatus" role="status" aria-live="polite"></p>
+      <div class="crow">
+        <span class="k mono">Email</span>
+        <a class="v" href="mailto:info@craftedideasltd.co.uk?subject=Kitchen%20enquiry">info@craftedideasltd.co.uk</a>
       </div>
-      <p class="qsmall">We use what you send here to quote your job and nothing else.</p>
-    </form>
-
-    <div class="caddr rise">
-      <span class="mono">Crafted Ideas Ltd</span>
-      <span class="mono">Based in South Croydon · CR2</span>
-      <span class="mono">Working across Greater London &amp; Surrey</span>
+      <div class="crow">
+        <!-- Deliberately NOT a map pin. This is a registered office, not a showroom, and a pin on
+             it would imply premises you can visit. The CSP forbids third-party map tiles anyway. -->
+        <span class="k mono">Where we work</span>
+        <span class="v">Based in South Croydon · CR2<br>Across Greater London &amp; Surrey</span>
+      </div>
     </div>
+    <p class="cnote rise">Monday to Friday, 9am to 6pm.</p>
   </div>
 </section>
 
@@ -1074,27 +1118,17 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <span class="mono falabel" id="credsH">Cover &amp; registration</span>
     <!-- Figures read off the Allianz schedule held in com/docs (policy number deliberately
          not written here either — HTML comments ship to the browser).
-         Public &amp; Products Liability £5,000,000 · Employers' Liability £10,000,000.
-         RENEWAL 05/02/2027 — re-read the schedule then; do not let a stale figure stand.
-         The policy number is deliberately NOT published: it does a customer no good and
-         is not ours to broadcast. Gas Safe / NICEIC stay off until Vasil confirms he holds
-         them — listing a ticket he does not hold is a real problem, not a cosmetic one. -->
+         Public & Products Liability £5,000,000 · Employers' Liability £10,000,000.
+         RENEWAL 05/02/2027 — re-read the schedule then; do not let a stale figure stand. -->
     <ul class="credlist">
       <li><b>£5m</b> public liability cover, with Allianz</li>
-      <li><b>£10m</b> employers' liability</li>
+      <li><b>£10m</b> employers&rsquo; liability</li>
       <li><b>Company No. 16881417</b> — registered in England</li>
-      <!-- Vasil, 26 Aug: Crafted Ideas Ltd is NOT itself Gas Safe or NICEIC registered. Gas and
-           electrical work goes to registered subcontractors. The sentence below says exactly that
-           and must keep saying exactly that — claiming the registration directly would be false. -->
       <li>Gas &amp; electrical work by <b>registered</b> Gas Safe / NICEIC subcontractors</li>
     </ul>
   </section>
   <section class="wrap fareas" aria-labelledby="coverH">
     <span class="mono falabel" id="coverH">Where we work</span>
-    <!-- The six /kitchens/<area>/ pages were removed on 26 Aug. The areas were a guess nobody had
-         confirmed and the local-expertise copy was written rather than earned — and it narrowed
-         Vasil, who takes work across Greater London. One honest sentence beats six invented pages.
-         The real project locations in #work now carry the local signal. -->
     <p class="coverline">Kitchens across <b>Greater London and the surrounding counties</b> — recent
       work in Epsom, Fulham, Clapham, Dulwich, Caterham, Guildford and South Croydon.</p>
   </section>
@@ -1108,41 +1142,107 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 </footer>
 
 <script>
-/* ---------- classic layer: progress, nav, image fallbacks ---------- */
+/* ---------- classic layer: progress, nav, hero rotator, captions, menu, form ---------- */
 var nav=document.getElementById('nav'),prog=document.querySelector('.progress');
-/* The gallery is the one stretch of the page dark enough to swallow ink-coloured nav text, so
-   the nav changes across exactly that block. Measured from the gallery's own box rather than a
-   scroll number: the panels inside it are sticky and their rects pin to 0, but the wrapper
-   never sticks. A plain overlap test, so it holds with the bar at the bottom on a phone and at
-   the top on a desktop. Lives in the classic layer so it works with the fx module absent. */
-var gal=document.getElementById('gal');
+/* Every dark band, not just the gallery. The page opens on a dark hero and alternates from
+   there, so a single hard-coded element cannot answer "is the bar over something dark". Plain
+   box-overlap against each [data-dark] block plus the gallery, which is dark by photograph
+   rather than by background. Lives in the classic layer so it holds with the fx module absent. */
+var darks=[].slice.call(document.querySelectorAll('[data-dark]'));
+var gal=document.getElementById('gal'); if(gal)darks.push(gal);
 /* Safari paints the strip above the page from theme-color, and it repaints when the meta
-   changes. Cream over a photograph is the band this whole thread started with: measured, the
-   top 24px of the gallery averages #554b40 across 27 samples and its lightest is #b3916d,
-   against a strip at #F6F3EE. So the strip follows the content — --ink rather than an invented
-   colour, and biased dark on purpose, because a strip darker than the photograph reads as a
-   frame while a lighter one reads as a bar, which is the failure this started from.
+   changes. Biased dark on purpose: a strip darker than the photograph reads as a frame, while
+   a lighter one reads as a bar, which is the failure this started from.
+
+   Read the colours off the tokens rather than repeating them here — the two drifted apart
+   before, and the strip then disagreed with the band it was sitting above.
 
    Narrow screens only: on a desktop this tints the browser's own window furniture, and nobody
-   asked for that to move while they scroll. Cream again whenever the menu sheet is up, since
-   the sheet itself is cream. */
+   asked for that to move while they scroll. */
 var meta=document.querySelector('meta[name="theme-color"]'),narrow=matchMedia('(max-width:760px)');
+var TOK={};
+function tok(n){
+  if(!TOK[n])TOK[n]=getComputedStyle(document.documentElement).getPropertyValue(n).trim()||'#F6F3EE';
+  return TOK[n];
+}
 function paintChrome(){
   if(!meta)return;
   var want=(narrow.matches&&nav.classList.contains('on-dark')
-    &&!document.documentElement.classList.contains('menu-open'))?'#1E1B17':'#F6F3EE';
+    &&!document.documentElement.classList.contains('menu-open'))?tok('--dark'):tok('--bg');
   if(meta.content!==want)meta.content=want;
 }
 narrow.addEventListener('change',paintChrome);
 function onScrollBasic(){
   nav.classList.toggle('scrolled',scrollY>20);
-  if(gal){var r=gal.getBoundingClientRect(),n=nav.getBoundingClientRect();
-    nav.classList.toggle('on-dark',r.top<n.bottom&&r.bottom>n.top);}
+  var n=nav.getBoundingClientRect(),over=false;
+  for(var i=0;i<darks.length;i++){
+    var r=darks[i].getBoundingClientRect();
+    if(r.top<n.bottom&&r.bottom>n.top){over=true;break;}
+  }
+  nav.classList.toggle('on-dark',over);
   paintChrome();
   var h=document.documentElement.scrollHeight-innerHeight;
   prog.style.transform='scaleX('+(h>0?(scrollY/h):0)+')';
 }
 addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
+
+/* ---------- hero: five projects, cross-faded ----------
+   Classic layer on purpose, so the rotator works even when the fx module never loads. Auto-
+   advance is skipped under reduced motion — a cross-fade is fine there, but an unrequested one
+   every few seconds is not — while the thumbnails keep working, because that change is
+   user-initiated. */
+(function(){
+  var shots=[].slice.call(document.querySelectorAll('.hero-shot'));
+  var strip=document.getElementById('hero-strip');
+  if(shots.length<2||!strip)return;
+  var thumbs=[].slice.call(strip.querySelectorAll('.hero-thumb'));
+  var cn=document.getElementById('hcap-n'),ct=document.getElementById('hcap-t'),cl=document.getElementById('hcap-l');
+  var CAP=[
+    ['Sculptural Simplicity','Handleless kitchen & stone island · Fulham'],
+    ['Seamless & Sophisticated','Soft matt Schmidt kitchen · Epsom'],
+    ['Beyond the Kitchen','Made-to-measure interior solutions · South Croydon'],
+    ['Light by Design','Tailor-made zone lighting control · Guildford'],
+    ['Contemporary Meets Character','Alno kitchen · Clapham Common']
+  ];
+  var at=0,timer=0,reduced=document.documentElement.classList.contains('rm');
+  var N=Math.min(shots.length,CAP.length);
+  function show(i){
+    i=((i%N)+N)%N;
+    if(i===at&&shots[i].classList.contains('is-on'))return;
+    shots.forEach(function(s,k){
+      s.classList.toggle('is-on',k===i);
+      /* restart the push-in: removing and re-adding the class alone does not retrigger an
+         animation that is already on the element, so drop it for a frame first */
+      var im=s.querySelector('img');
+      if(im&&k===i){im.style.animation='none';void im.offsetWidth;im.style.animation='';}
+    });
+    thumbs.forEach(function(b,k){
+      if(k===i)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
+    });
+    at=i;
+    if(cn)cn.textContent=String(i+1).padStart(2,'0')+' / '+String(N).padStart(2,'0');
+    if(ct)ct.textContent=CAP[i][0];
+    if(cl)cl.textContent=CAP[i][1];
+  }
+  function schedule(){ if(reduced)return; clearTimeout(timer); timer=setTimeout(function(){show(at+1);schedule();},7000); }
+  thumbs.forEach(function(b){
+    b.addEventListener('click',function(){
+      show(parseInt(b.getAttribute('data-i'),10)||0);
+      /* a deliberate choice pauses the carousel rather than being overwritten three seconds
+         later — the visitor asked for that frame */
+      clearTimeout(timer);timer=0;
+    });
+  });
+  /* nothing should animate in a tab nobody is looking at */
+  addEventListener('visibilitychange',function(){
+    if(document.hidden){clearTimeout(timer);timer=0;}else if(timer!==0||at===0)schedule();
+  });
+  /* Only start once the first frame has actually decoded, so the opening beat is the aperture
+     rather than a cross-fade into a half-loaded image. */
+  var first=shots[0].querySelector('img');
+  if(first&&!first.complete)first.addEventListener('load',schedule,{once:true});else schedule();
+})();
+
 /* gallery captions: collapsed to a title, details on demand. Lives in the classic layer so it
    works with the fx module absent, and it is a real disclosure — button, aria-expanded, and the
    body genuinely hidden when collapsed so assistive tech and the eye agree on the state. */
@@ -1178,12 +1278,17 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
     if(main)main.inert=open; if(foot)foot.inert=open;
   };
   btn.addEventListener('click',function(){set(btn.getAttribute('aria-expanded')!=='true');});
-  menu.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});
+  /* Close on the way OUT of the sheet, in the capture phase — so Lenis is running again before
+     the module's own delegated handler tries to scrollTo(). Previously the sheet closed on the
+     bubble, after that handler had already asked a stopped Lenis to move, which it silently
+     drops: tapping a menu link closed the menu and went nowhere. */
+  menu.addEventListener('click',function(e){if(e.target.closest('a'))set(false);},true);
   addEventListener('keydown',function(e){
     if(e.key==='Escape'&&btn.getAttribute('aria-expanded')==='true'){set(false);btn.focus();}
   });
   matchMedia('(min-width:761px)').addEventListener('change',function(e){if(e.matches)set(false);});
 })();
+
 /* ---------- reduced motion: cross-fade reveals, no module needed ----------
    These users never load anime.js or Lenis at all, so this has to stand alone. */
 if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in window){
@@ -1192,17 +1297,6 @@ if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in 
   },{rootMargin:'0px 0px -10% 0px'});
   document.querySelectorAll('.rise').forEach(function(el){rio.observe(el);});
 }
-
-/* ---------- before/after wipe ----------
-   The range input is the whole control: drag, arrow keys, Home/End and screen-reader
-   support all come from the native element. We only mirror its value into a CSS var. */
-(function(){
-  var r=document.getElementById('ba-range'),ba=document.getElementById('ba');
-  if(!r||!ba)return;
-  var apply=function(){ba.style.setProperty('--sp',r.value+'%');};
-  r.addEventListener('input',apply);
-  apply();
-})();
 
 /* ---------- quote form ----------
    Progressive enhancement: without JS the form still POSTs natively to Web3Forms.
@@ -1258,25 +1352,10 @@ if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in 
       .finally(function(){btn.disabled=false;});
   });
 })();
-/* build the wordmark letter spans (also used by the static hero fallback: hidden there) */
-(function(){
-  var mk=function(id,word,dir){var el=document.getElementById(id);if(!el)return;
-    word.split('').forEach(function(ch,i){
-      var s=document.createElement('span');s.className='lt';s.textContent=ch;
-      s.dataset.d=dir;s.dataset.i=i;el.appendChild(s);
-    });};
-  mk('wm1','CRAFTED',-1);mk('wm2','IDEAS',1);
-})();
-/* blueprint grid lines */
-(function(){
-  var g=document.getElementById('bpgrid');if(!g)return;var ns='http://www.w3.org/2000/svg',i,l;
-  for(i=50;i<1000;i+=50){l=document.createElementNS(ns,'line');l.setAttribute('x1',i);l.setAttribute('y1',20);l.setAttribute('x2',i);l.setAttribute('y2',540);g.appendChild(l);}
-  for(i=40;i<560;i+=50){l=document.createElementNS(ns,'line');l.setAttribute('x1',20);l.setAttribute('y1',i);l.setAttribute('x2',980);l.setAttribute('y2',i);g.appendChild(l);}
-})();
 </script>
 
 <script type="module">
-/* ============================== fx layer — the journey ============================== */
+/* ============================== fx layer ============================== */
 const root=document.documentElement;
 
 /* Reduced-motion visitors never reach this block, so they never download anime.js or Lenis
@@ -1288,63 +1367,13 @@ const [{ animate, stagger, onScroll: animeOnScroll },{ default: Lenis }]=await P
   import('/vendor/lenis.mjs'),
 ]);
 /* On a slow connection these imports can outlast the 3s failsafe, which strips the classes
-   and reverts the page to static. If that already happened, respect it: setting up the
-   journey now would pin and fade content on a page whose CSS is no longer expecting it. */
+   and reverts the page to static. If that already happened, respect it. */
 if(!root.classList.contains('fx')) throw '__reverted__';
 clearTimeout(window.__fxTimer);
 
-const css=k=>getComputedStyle(root).getPropertyValue(k).trim();
-const fxDesktop=root.classList.contains('fxd');
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
 const easeOut=t=>1-Math.pow(1-t,3);
-const bell=(t,inW=.25,outW=.25)=>t<inW?easeOut(t/inW):t>1-outW?easeOut((1-t)/outW):1;
-
-/* ---------- the film ----------
-   Desktop scrubs 50 frames at 960px (3.7MB). Mobile scrubs a 17-frame 560px cut of the same
-   sequence (520KB), and only where the connection can afford it — the blueprint journey
-   below is a complete experience without it. */
-const film=document.getElementById('film');
-const fctx=film?film.getContext('2d'):null;
-const FN=fxDesktop?50:17;
-const fsrc=i=>(fxDesktop?'media/seq/':'media/seq-m/')+String(i+1).padStart(2,'0')+'.jpg';
-if(film&&!fxDesktop){film.width=film.height=560;} /* match the backing store to the source */
-const fimgs=new Array(FN), fready=new Array(FN).fill(false);
-let fdrawn=-1;
-const fnearest=i=>{
-  if(fready[i])return i;
-  for(let d=1;d<FN;d++){
-    if(i-d>=0&&fready[i-d])return i-d;
-    if(i+d<FN&&fready[i+d])return i+d;
-  }
-  return -1;
-};
-/* paint fractional frame f: base frame + next frame alpha-blended for a smooth scrub */
-const paintFilm=(f,force)=>{
-  if(!fctx)return;
-  const i0=clamp(Math.floor(f),0,FN-1), frac=f-i0, i1=Math.min(FN-1,i0+1);
-  const j=fnearest(i0); if(j<0)return;
-  const key=j*100+(fready[i1]?Math.round(frac*8):0);
-  if(key===fdrawn&&!force)return;
-  fctx.drawImage(fimgs[j],0,0,film.width,film.height);
-  if(j===i0&&i1!==i0&&fready[i1]&&frac>0){
-    fctx.globalAlpha=frac;fctx.drawImage(fimgs[i1],0,0,film.width,film.height);fctx.globalAlpha=1;
-  }
-  fdrawn=key;
-};
-let fwant=0;
-const fload=i=>{
-  if(fimgs[i])return;
-  const im=new Image();im.decoding='async';
-  im.onload=()=>{fready[i]=true;if(Math.abs(i-Math.floor(fwant))<=1||fdrawn<0)paintFilm(fwant,true);};
-  im.src=fsrc(i);fimgs[i]=im;
-};
-/* Desktop preloads the whole sequence up front. Mobile decides for itself further down,
-   after it knows what the connection looks like. */
-if(fxDesktop&&film){
-  fload(0);fload(FN-1);
-  setTimeout(()=>{for(let i=1;i<FN-1;i++)fload(i);},600);
-}
 
     /* ---------- smooth scroll spine ---------- */
     const lenis=new Lenis({lerp:.1,wheelMultiplier:1,touchMultiplier:1.6});
@@ -1358,29 +1387,14 @@ if(fxDesktop&&film){
       const id=a.getAttribute('href');
       if(!id||id.length<2)return;
       e.preventDefault();
-      lenis.scrollTo(id,{offset:0,duration:1.15});
+      /* force:true because a menu link is clicked while Lenis may still be stopped for the
+         sheet; without it the vendor drops the call and the tap goes nowhere. */
+      lenis.scrollTo(id,{offset:0,duration:1.15,force:true});
       /* preventDefault() also cancels the native focus move — re-home it or the skip link
          scrolls the page but leaves keyboard focus stranded back in the nav */
       const t=document.querySelector(id);
       if(t&&t.hasAttribute('tabindex'))t.focus({preventScroll:true});
     }));
-
-    /* ---------- custom cursor ---------- */
-    if(matchMedia('(hover:hover) and (pointer:fine)').matches){
-      const dot=document.getElementById('cur-dot'),ring=document.getElementById('cur-ring'),b=document.body;
-      let mx=innerWidth/2,my=innerHeight/2,dx=mx,dy=my,rx=mx,ry=my;
-      addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;b.classList.add('cursor-on');},{passive:true});
-      addEventListener('mouseleave',()=>b.classList.remove('cursor-on'));
-      addEventListener('mousedown',()=>b.classList.add('cur-down'));
-      addEventListener('mouseup',()=>b.classList.remove('cur-down'));
-      (function cl(){dx+=(mx-dx)*.35;dy+=(my-dy)*.35;rx+=(mx-rx)*.18;ry+=(my-ry)*.18;
-        dot.style.transform=`translate(${dx}px,${dy}px)`;ring.style.translate=`${rx}px ${ry}px`;
-        requestAnimationFrame(cl);})();
-      document.querySelectorAll('a,button').forEach(z=>{
-        z.addEventListener('mouseenter',()=>b.classList.add('cur-hover'));
-        z.addEventListener('mouseleave',()=>b.classList.remove('cur-hover'));
-      });
-    }
 
     /* ---------- section reveals ---------- */
     const enter={target:'top',container:'bottom'},leaveC={target:'top',container:'center'};
@@ -1388,18 +1402,42 @@ if(fxDesktop&&film){
       opacity:[0,1],translateY:[26,0],duration:620,ease:'out(3)',
       autoplay:animeOnScroll({target:el,enter,leave:leaveC,sync:true})
     }));
+
+    /* ---------- hero: parallax hand-off ----------
+       The photograph travels at a fraction of the page so the hero sinks behind the band that
+       follows, and the dim layer deepens so that band rises out of it rather than butting
+       against a bright edge. .hero-media carries 24vh of extra height for exactly this, so no
+       edge can go bare. */
+    {
+      const hero=document.querySelector('.hero');
+      const media=document.querySelector('.hero-media');
+      const dim=document.getElementById('hero-dim');
+      if(hero&&media){
+        let H=1;
+        const gauge=()=>{H=Math.max(1,hero.offsetHeight);};
+        let raf=false;
+        const run=()=>{
+          raf=false;
+          const y=clamp(scrollY,0,H), p=y/H;
+          media.style.transform=`translate3d(0,${(y*.22).toFixed(1)}px,0)`;
+          if(dim)dim.style.opacity=(easeOut(seg(p,.15,1))*.55).toFixed(3);
+        };
+        const onS=()=>{if(!raf){raf=true;requestAnimationFrame(run);}};
+        addEventListener('scroll',onS,{passive:true});
+        addEventListener('resize',()=>{gauge();onS();},{passive:true});
+        gauge();run();
+      }
+    }
+
     /* ---------- work gallery: the photograph moves, and so does its caption ----------
        The stacking is pure CSS sticky, so there is no pin length to compute and nothing to
        recalculate on resize. What this adds is motion inside each frame: the photograph
        travels across whichever axis is being cropped, and the caption arrives after it and
        leaves before it.
 
-       Progress has to come from the panel's OWN slot, and that slot is not one viewport tall.
-       The first version divided by panels[0].offsetHeight and forgot the 60vh dwell gap that
-       separates the panels, so the real stride is 1.6 viewports and each panel's progress ran
-       a further 60% ahead of the one before it. By the third the travel had already clamped
-       out before the panel was even on screen — which is why only the first two ever moved.
-       Stride now comes from the layout itself: panel height plus that margin. */
+       Progress has to come from the panel's OWN slot, and that slot is not one viewport tall —
+       the 60vh dwell gap between panels is part of the stride. Getting that wrong is why only
+       the first two panels ever moved in an earlier version. */
     {
       const gal=document.getElementById('gal');
       const panels=[...document.querySelectorAll('.gpanel')];
@@ -1412,14 +1450,12 @@ if(fxDesktop&&film){
         const gauge=()=>{gap=parseFloat(getComputedStyle(items[0].pan).marginBottom)||0;};
         /* Keyboard focus has to win over the fade — a tab stop can never be invisible. Pointer
            focus must not, or the caption you just tapped Hide on stays lit while its panel
-           scrolls back off. :focus-visible is exactly that line, and is the same test the
-           browser uses to decide whether to paint a focus ring. */
+           scrolls back off. :focus-visible is exactly that line. */
         let fv=true; try{document.body.matches(':focus-visible');}catch(e){fv=false;}
         const run=()=>{
           raf=false;
           const vh=innerHeight;
-          /* A stuck panel's rect.top is pinned at 0, so it cannot be the progress source — it
-             never changes while the panel is on screen, and its offsetTop is no better. The
+          /* A stuck panel's rect.top is pinned at 0, so it cannot be the progress source. The
              gallery wrapper is the one box in here that never sticks, so measure from that. */
           const galTop=gal.getBoundingClientRect().top+scrollY;
           /* Every panel is the same box — one CSS rule, no per-panel overrides — so measure
@@ -1429,8 +1465,8 @@ if(fxDesktop&&film){
           const panRatio=items[0].pan.offsetWidth/(H||1);
           items.forEach((o,i)=>{
             /* the whole time this panel is on screen: from its first pixel clearing the fold
-               to the moment the next one has covered it. Nothing follows the last panel in the
-               track, so it is never covered — it leaves by scrolling away instead. */
+               to the moment the next one has covered it. Nothing follows the last panel, so it
+               is never covered — it leaves by scrolling away instead. */
             const life=(i<last?stride:H)+vh;
             const p=clamp((scrollY-(galTop+i*stride-vh))/life,0,1);
             /* Smootherstep, because a panel owns the screen outright for only the middle fifth
@@ -1439,9 +1475,7 @@ if(fxDesktop&&film){
             const e=p*p*p*(p*(p*6-15)+10);
             /* Which axis is actually cropped? Compare the photograph's own ratio with the
                panel's — no layout measurement involved, so it cannot disagree with what the
-               browser actually did. Wider than the frame means the sides are being thrown
-               away, and object-position pans across exactly that hidden region: 0%-100% is
-               the full available travel by definition, so it can never slide off. */
+               browser actually did. */
             const nw=o.im.naturalWidth, nh=o.im.naturalHeight;
             const imgRatio=(nw&&nh)?nw/nh:4/3;
             if(imgRatio>panRatio*1.08){
@@ -1449,18 +1483,15 @@ if(fxDesktop&&film){
               set(o.im,'objectPosition',`${(12+e*76).toFixed(1)}% 50%`);  /* 12%->88%, off the edges */
             }else{
               /* A wide panel crops the top and bottom, not the sides, so there is no hidden
-                 margin to pan sideways into — and reaching for one by overhanging the frame is
-                 exactly what slid the image clean off last time. The restrained equivalent:
-                 drift on the axis that IS cropped, plus a push-in small enough to read as the
-                 frame breathing rather than as a zoom. Together they stay inside the 8%
-                 overhang the image already has, so no edge of the panel can go bare. */
+                 margin to pan sideways into. The restrained equivalent: drift on the axis that
+                 IS cropped, plus a push-in small enough to read as the frame breathing. Both
+                 stay inside the 8% overhang the image already has. */
               set(o.im,'objectPosition','');
               set(o.im,'transform',`translate3d(0,${(e*7-3.5).toFixed(2)}%,0) scale(${(1+e*.045).toFixed(4)})`);
             }
             /* The caption is the second act: it rises and fades in once the photograph has
                settled, holds through the dwell, then lifts away as the next panel closes over
-               it — so one caption is always arriving as another leaves. The body trails the
-               title by a beat, rather than the whole block landing as one slab. */
+               it — so one caption is always arriving as another leaves. */
             if(!o.cap)return;
             const a=document.activeElement;
             if(a&&o.cap.contains(a)&&(!fv||a.matches(':focus-visible'))){
@@ -1487,90 +1518,18 @@ if(fxDesktop&&film){
       }
     }
 
-    /* process hairline draws across its section */
-    const pf=document.getElementById('procfill');
-    if(pf)animate(pf,{scaleX:[0,1],duration:900,ease:'out(2)',
-      autoplay:animeOnScroll({target:'.proc',enter,leave:{target:'center',container:'center'},sync:true})});
-
-    /* ---------- ambient hatching canvas ----------
-       Fine pointers only: it's a full-viewport 60fps redraw, and the old `scrollY<innerHeight*8`
-       gate covered ~73% of the mobile page, so phones paid for it almost end to end. */
-    const amb=document.getElementById('amb');
-    if(amb&&matchMedia('(hover:hover) and (pointer:fine)').matches){
-      const ac=amb.getContext('2d');let aw,ah,t0=0,mx2=.5,raf=0;
-      const fit=()=>{aw=amb.width=amb.offsetWidth*devicePixelRatio/2;ah=amb.height=amb.offsetHeight*devicePixelRatio/2;};
-      fit();addEventListener('resize',fit,{passive:true});
-      addEventListener('mousemove',e=>{mx2=e.clientX/innerWidth;},{passive:true});
-      const ink=css('--ink')||'#1E1B17';
-      const stage=document.querySelector('.jwrap');
-      const loop=ts=>{
-        raf=requestAnimationFrame(loop);
-        if(scrollY>stage.offsetHeight)return; /* hero is behind us — nothing to draw */
-        t0=ts*.00001;ac.clearRect(0,0,aw,ah);
-        ac.strokeStyle=ink;ac.globalAlpha=.05;ac.lineWidth=1;
-        const n=26,gap=aw/n;
-        for(let i=-6;i<n+6;i++){
-          const off=Math.sin(t0*3+i*.7)*14+(mx2-.5)*22;
-          ac.beginPath();ac.moveTo(i*gap+off,0);ac.lineTo(i*gap+off+ah*.28,ah);ac.stroke();
-        }
-      };
-      const start=()=>{if(!raf)raf=requestAnimationFrame(loop);};
-      const stop=()=>{cancelAnimationFrame(raf);raf=0;};
-      addEventListener('visibilitychange',()=>document.hidden?stop():start());
-      start();
-    }
-
-    /* ============ the journey — one film pass, desktop and mobile alike ============
-       Mobile used to run an entirely different hero: the blueprint drawing itself over 280vh,
-       with the film as a second act. That was built when there were no photographs and the page
-       needed something to carry it. Desktop moved on; mobile had not. Same hero on both now —
-       the film behind the headline, one short pin — differing only in how many frames get sent. */
+    /* the three numbered steps arrive one after the other rather than as a slab */
     {
-      const jwrap=document.querySelector('.jwrap');
-      const ch1=document.getElementById('ch1'), ch5=document.getElementById('ch5');
-      const st=(el,o)=>{for(const k in o)el.style[k]=o[k];};
-      const heroLayers=[...ch5.querySelectorAll('.inner .wrap > *')];
-
-      let useFilm=!!film;
-      if(!fxDesktop){
-        /* Mobile decides whether it can afford the film. Without one there is nothing to scrub,
-           so there is no pin either — a static hero beats scrolling past a blank stage. */
-        const conn=navigator.connection||navigator.webkitConnection||null;
-        const thrifty=!!conn&&(conn.saveData===true||/(^|\W)(slow-)?2g$/.test(conn.effectiveType||''));
-        useFilm=!!film&&!thrifty;
-        if(useFilm){ setTimeout(()=>{for(let i=0;i<FN;i++)fload(i);},700); }
-        else root.classList.add('nofilm');
-      }
-
-      if(useFilm){
-        let pinTop=0,pinDur=1;
-        const measure=()=>{
-          pinTop=jwrap.getBoundingClientRect().top+scrollY;
-          pinDur=Math.max(1,jwrap.offsetHeight-innerHeight);
-        };
-        const scrub=()=>{
-          const p=clamp((scrollY-pinTop)/pinDur,0,1);
-          fwant=easeOut(p)*(FN-1);
-          paintFilm(fwant);
-          /* Nothing fades: semi-transparent type over photography reads as muddy. The lines
-             stay opaque and drift up at different rates, and .jstage clips them at the top. */
-          const out=easeOut(seg(p,.52,1));
-          heroLayers.forEach((el,i)=>{el.style.transform=`translateY(${-out*9*(1+i*.20)}vh)`;});
-          st(ch1,{opacity:String(.5+.5*easeOut(seg(p,0,.4)))});
-        };
-        measure();scrub();
-        addEventListener('scroll',scrub,{passive:true});
-        addEventListener('resize',()=>{measure();scrub();},{passive:true});
-      }else{
-        animate('#ch5 .wrap > *',{opacity:[0,1],translateY:[20,0],duration:700,ease:'out(3)',delay:stagger(90)});
-      }
+      const steps=document.querySelectorAll('.steps li');
+      if(steps.length)animate(steps,{opacity:[0,1],translateY:[18,0],duration:560,ease:'out(3)',
+        delay:stagger(110),autoplay:animeOnScroll({target:'.steps',enter,leave:leaveC,sync:true})});
     }
   }catch(e){
     /* '__reverted__' is not a failure: the failsafe beat us to it on a slow connection and
        the static page is already the right answer. Anything else is a genuine fault. */
     if(e!=='__reverted__'){
-      console.error('[fx] journey setup failed — revealing all content',e);
-      root.classList.remove('fx','fxd','fxm','film');
+      console.error('[fx] setup failed — revealing all content',e);
+      root.classList.remove('fx','fxd','fxm');
     }
     try{clearTimeout(window.__fxTimer);}catch(_){}
   }

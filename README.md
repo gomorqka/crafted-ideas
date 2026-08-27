@@ -55,34 +55,45 @@ What's left, in order of what unblocks the most:
 
 ## Adding real photography
 
-The `#work` tiles ship a deliberate drawing-paper placeholder. Each one swaps to a real photo independently — no other change needed.
+Nine real projects are in. Manifest — Vasil's order, titles and captions — is `com/plans/work-photos.md`.
 
-1. Drop the file in `media/work/` (e.g. `01.jpg`). The build copies the folder automatically.
-2. In `index.html`, find that tile and replace this line:
-   ```html
-   <div class="plate"><span>Photography soon</span></div>
-   ```
-   with:
-   ```html
-   <img src="/media/work/01.jpg" alt="Describe what the photo shows" loading="lazy" decoding="async">
-   ```
-3. Once all six are real, delete the `.worknote` line below the grid.
+**Every photograph ships in three sizes**, and the build copies all three folders:
 
-**Export settings:** 1200px on the long edge, JPEG quality ~75 (or AVIF), landscape 4:3-ish. Tiles are `object-fit: cover`, so anything close crops cleanly. Write a real `alt` describing the kitchen — "Fitted kitchen" tells a screen-reader user nothing.
+| Folder | Size | Used by |
+|---|---|---|
+| `media/work/` | original (1024–1600px) | the `srcset` 1600w/1024w candidate |
+| `media/work-800/` | 800px long edge, q72 | the 800w candidate, and the "What we do" cards |
+| `media/work-thumb/` | 240px long edge, q65 | the hero filmstrip |
 
-**Don't** put stock or AI-generated images here. This section represents completed work to prospective customers; anything else is misleading and a problem under the CAP Code.
+Regenerate the two derived sets after adding or replacing anything in `media/work/`:
+
+```bash
+mkdir -p media/work-800 media/work-thumb
+for f in media/work/*.jpg; do b=$(basename "$f")
+  cp "$f" "media/work-800/$b";   sips -Z 800 --setProperty formatOptions 72 "media/work-800/$b"  >/dev/null
+  cp "$f" "media/work-thumb/$b"; sips -Z 240 --setProperty formatOptions 65 "media/work-thumb/$b" >/dev/null
+done
+```
+
+`sips` is macOS-only, which is why this is a hand step and not part of `build.mjs` — **Vercel builds on Linux**, so a `sips` call in the build would fail the deploy. Commit the generated files.
+
+Then add the `<figure class="gpanel">` block in `#work`, matching the `srcset` widths to that file's real pixel width (six are 1600, three are 1024 — do not claim 1600 for a 1024 file). Write a real `alt` describing what is in the frame — "Fitted kitchen" tells a screen-reader user nothing, and the `alt` is not the marketing line printed beside it.
+
+**Don't** put stock or AI-generated images here. This section represents completed work to prospective customers; anything else is misleading and a problem under the CAP Code. (The retired `media/seq/` frames *are* AI-generated — see Motion.)
+
+⚠️ **Six of the nine are upscales.** 01/02/03/06/07/08 are 1.25–1.56× enlargements of 1024–1280px originals; 04/05/09 are native 1024×832. True optical detail is ≤1280px anywhere, so the full-bleed hero is soft at 2× DPR. Worth asking Vasil for the camera originals.
 
 ### Before / after
 
-The `#work` section leads with a wipe comparison, also on placeholders. Swap each `.plate` for an `<img>` exactly as above — but **the pair must be shot from the same spot**: same corner, same lens, same height, ideally the same time of day. If the framing shifts, the wipe reads as two different rooms rather than one room transformed, and the effect is worse than no slider at all. Trim the first sentence of its caption once real photos are in.
+The wipe comparison was removed in the v3 redesign along with the film. Vasil's matching "after" shot never arrived, and an empty slider advertises the gap. If it comes back, **the pair must be shot from the same spot** — same corner, same lens, same height, ideally the same time of day. If the framing shifts, the wipe reads as two different rooms rather than one room transformed, which is worse than no slider at all.
 
-## Service-area pages
+## Service-area pages — removed
 
-`areas.mjs` holds one entry per area; the build renders each to `/kitchens/<slug>/` and regenerates `sitemap.xml` from the real page list.
+**There are no area pages, and `areas.mjs` no longer exists.** The six `/kitchens/<slug>/` pages were deleted on 26 Aug 2026: the areas were a guess nobody had confirmed, the local-expertise copy was written rather than earned, and they narrowed Vasil, who works across Greater London. `/kitchens/*` now 301s to `#work` via `vercel.json`, and the sitemap is a single URL.
 
-To add an area, add an entry and a matching footer link in `index.html`. **The build fails if those two drift apart** — an unlinked page ranks poorly, and a footer link to a page that doesn't exist is a 404.
+The real project locations in `#work` carry the local signal instead — Epsom, Fulham, Clapham, Dulwich, Caterham, Guildford, South Croydon.
 
-Every entry needs genuine, area-specific copy about local housing stock. Near-duplicate location pages get demoted as doorway pages and drag the whole domain with them, so if you can't write something real about an area, leave it out. Nothing in these pages may claim a track record: the company was incorporated in Nov 2025, so copy describes what we do and what we find in these homes, never jobs we haven't done.
+If area pages are ever rebuilt: near-duplicate location pages get demoted as doorway pages and drag the whole domain down, so if you cannot write something real about an area, leave it out. And nothing in them may claim a track record — the company was incorporated Nov 2025, so copy describes what we do and what we find in these homes, never jobs we have not done.
 
 ## Content Security Policy
 
@@ -94,20 +105,25 @@ Every entry needs genuine, area-specific copy about local housing stock. Near-du
 
 The gate script in `<head>` decides **once** and writes the answer to `<html>` as a class. Everything else — CSS and JS — keys off that class, so the breakpoint exists in exactly one place.
 
-| Class | Who gets it | What they get | First-load weight |
-|---|---|---|---|
-| `rm` | `prefers-reduced-motion: reduce` | Cross-fade reveals only. No Lenis, no cursor, no canvas, no rAF at all — the module never even loads. | ~166 KB |
-| `fxd` | ≥1025px **and** a fine pointer | The 700vh pinned film, 50 frames @960px. | ~4 MB |
-| `fxm` | everything else | The blueprint draws itself on scroll. Film is a second act, added only if the connection allows. | ~315 KB, or ~810 KB with the film |
-| *(none)* | no IntersectionObserver / no modules | Static page, fully visible. | ~166 KB |
+| Class | Who gets it | What they get |
+|---|---|---|
+| `rm` | `prefers-reduced-motion: reduce` | Cross-fade reveals only, and **the hero does not auto-advance**. No Lenis, no rAF at all — the module never loads. The filmstrip still works, because that change is user-initiated. |
+| `fxd` | ≥1025px **and** a fine pointer | Reveals, Lenis, hero parallax, gallery pan. |
+| `fxm` | everything else | The same, tuned for touch. |
+| *(none)* | no IntersectionObserver / no modules | Static page, fully visible, hero on its first frame. |
 
 Notes that matter if you touch this:
 
-- **Reduced motion is not "no motion".** WCAG 2.3.3 is about vestibular triggers — movement, parallax, scaling. Cross-fades are fine, so those users still get reveals. The `prefers-reduced-motion` block forces `transition-property: opacity` globally to enforce exactly that.
-- **The mobile film is opt-out, not opt-in.** `saveData` or a 2g `effectiveType` skips it and shortens the pin to 170vh, because the second act would otherwise be blank scrolling. No Network Information API at all (all of iOS) counts as fine.
+- **Reduced motion is not "no motion".** WCAG 2.3.3 is about vestibular triggers — movement, parallax, scaling. Cross-fades are fine, so those users still get reveals. The `prefers-reduced-motion` block forces `transition-property: opacity` globally and collapses `animation-duration` to `.001s`, which is also what neutralises the hero's aperture and Ken Burns push-in without special-casing them in JS.
 - **A landscape phone is 844px wide.** Any width-only gate hands it the desktop journey — that's why `fxd` also requires a fine pointer.
-- **The 3s failsafe can beat a slow connection.** If it strips the classes before the module finishes downloading, the module aborts rather than pinning a page whose CSS has already reverted.
-- `media/seq-m/` is generated from `media/seq/` — every 3rd frame, `sips -Z 560 --setProperty formatOptions 40`. Regenerate it if the film changes.
+- **The 3s failsafe can beat a slow connection.** If it strips the classes before the module finishes downloading, the module aborts rather than animating a page whose CSS has already reverted.
+- **The hero rotator lives in the classic layer, not the module**, so it works when the module never loads. Auto-advance is skipped under `rm`; a thumbnail click pauses it permanently, because the visitor asked for that frame.
+
+### The 700vh film is gone
+
+The pinned canvas scrub, the blueprint, the ambient hatching canvas and the custom cursor were all removed in the v3 redesign — see `com/plans/redesign-v3-preview.md`. `media/seq/` and `media/seq-m/` **are no longer copied into `dist/`** (4.2 MB off the deploy) but the files stay in the repo.
+
+⚠️ **Those frames are AI-generated** — 50 frames assembled from two ezgif dumps of `media/Wan_Image_Generate_…png`. That is why they must not drift back onto a page about real finished work without someone deciding to do it deliberately. The old `alt` text said the kitchen was "built for real", which was already further than the asset could honestly go.
 
 Other breakpoint: **`760px`**, where the nav collapses to the menu button and the services list stacks.
 
