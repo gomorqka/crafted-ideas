@@ -126,19 +126,26 @@ Screenshots taken in headless Chrome cannot confirm any of this: `backdrop-filte
 
 ## The mobile nav
 
-The strip above the page on an iPhone is Safari's own chrome, painted from `<meta name="theme-color">`. There is no page content up there, so no amount of `backdrop-filter` will ever blur it. Two attempts went that way — frosting harder, then dissolving the bar into a gradient — and both just made the bar taller. It isn't a blur problem.
+Below `760px` the bar sits at the **bottom** — thumb-reachable, out of the notch entirely, and off the top of the photographs where the gallery captions are. `--navh` is what it occupies (`68px` plus the bottom inset) and everything that has to clear it reads that one number.
 
-Below `760px` the nav therefore follows the content instead. Measured behind the nav down the whole page, everything is bright (204–240) **except the gallery, which runs 35–93**: dark enough that ink-coloured text disappears into it. So:
+Two facts about this page shape everything else here.
 
-- **Over the gallery** — no background at all, and `#nav.on-dark` inverts the logo, the quote button and the menu icon to white. The photograph runs unbroken to the top of the screen and under the status bar. Worst white-on-photograph contrast across all nine photographs is 4.3:1 for the logo (large text, needs 3:1) and 7.9:1 inside the quote pill.
-- **Everywhere else** — flat, fully opaque `--bg`. Not for looks: `--bg` on a `--bg` page is invisible, and the measured step across its bottom edge is 0–10 over plain background. What it is there for is that text sections scroll *under* a fixed nav, and at anything less than opaque the copy ghosts straight through the logo and the button. The gallery has no such problem — its captions start below the nav by design, which is exactly why that is where the backing can go.
+**The strip above the page on an iPhone is Safari's own chrome**, painted from `<meta name="theme-color">`. There is no page content up there, so no amount of `backdrop-filter` will ever blur it. Two attempts went that way — frosting harder, then dissolving the bar into a gradient — and both only made the bar taller. Moving it to the bottom removes the question.
 
-`on-dark` is toggled in the classic layer from the gallery's own box, so it holds with the fx module absent. `<noscript>` restores the backing, since without JS the nav can never learn where it is.
+**The panels carry a dark scrim across their top 56% and nothing at the bottom.** Measured across all nine photographs, the strip the bar occupies runs 66–233 at the bottom against a uniform 33–93 at the top. So the bar cannot simply invert the way a top bar could: white would vanish on panel 9's pale floor, ink would vanish on panel 6.
 
-Three things that have already bitten:
+What it does instead, via `#nav.on-dark`, toggled in the classic layer from a plain overlap test between the gallery's box and the nav's:
 
-- **`env()` inside a nested `calc()` is not safe in `transform`.** Safari resolves it to the `0px` fallback there while honouring it in `top`, so the skip link parked 59px short of hidden and sat on the clock on a real iPhone. Its offset is a flat `-160px` now — no `calc()`, no percentage, nothing that can silently lose a term. Anything else that parks itself off an edge must do the same.
-- **`safe-area-inset-top` is real on this page.** `viewport-fit=cover` does put content under the status bar in iOS Safari — confirmed on device, with the progress hairline landing at 59px. It just was never the cause of the seam.
-- **A border sits outside the background's positioning area**, so `background-repeat` tiles the background into it. Harmless with a flat colour, a visible hairline with a gradient.
+- **Over the photographs** — a vignette that brings its own contrast, guaranteeing the ground under the controls whatever the photograph is doing. Worst white-on-ground contrast behind any control, all nine photographs: 7.9:1. The first third of the fade is carried on `#nav.on-dark::before` *above* the bar and outside the layout, because reaching full density inside the bar's own 12px left a visible band edge across the image.
+- **Everywhere else** — flat, fully opaque `--bg`. Not for looks (it is invisible against a cream page; the measured step across its edge is 0–10) but because text sections scroll *under* a fixed bar, and at anything less the copy ghosts straight through the logo and the quote button.
 
-If `theme-color` ever changes, the opaque nav colour has to change with it, or a seam appears where Safari's strip meets the page.
+Traps, all of which have already bitten:
+
+- **`.menubtn` sets its own `color`**, so it does not inherit the inversion from `#nav`. It shipped black over the photographs once. Anything added to the bar needs checking against `on-dark` directly, not assumed to inherit.
+- **The clearance rules must be the LAST block in the sheet.** `footer`, `.gcap` and friends are declared further down than the mobile nav block, and at equal specificity the later declaration wins — put the overrides up there and they are silently ignored, which is how the footer came to reserve room for a bar 34px shorter than the one in front of it.
+- **`env()` inside a nested `calc()` is not safe in `transform`.** Safari resolves it to the `0px` fallback there while honouring it in `top`, so the skip link parked 59px short of hidden and sat on the clock on a real iPhone. Its offset is a flat `-160px` now. Anything that parks itself off an edge must do the same.
+- **A border sits outside the background's positioning area**, so `background-repeat` tiles the background into it — harmless with a flat colour, a visible hairline with a gradient.
+
+`<noscript>` restores the backing, since without JS the bar can never learn where it is. `.hint` and `.mcopy` also meet the bottom edge but live inside `#ch0`/`#ch1`, which are `display:none` on every journey, so there is deliberately no rule for them.
+
+If `theme-color` ever changes, the opaque bar colour has to change with it.

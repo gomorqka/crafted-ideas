@@ -156,29 +156,49 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   .nlinks a:not(.cta){display:none}
   .brand small{display:none}
   .menubtn{display:inline-flex}
-  /* Nothing behind the links on a phone — the photograph runs straight under them. A cream
-     bar cannot be blurred into Safari's own status strip (that strip is browser chrome, painted
-     from theme-color, with no page under it to blur), and every attempt to soften the join just
-     made the bar taller. So there is no bar. Measured down the whole page, everything behind
-     the nav is bright (204-240) except the gallery, which runs 35-93 — dark enough that ink
-     text disappears into it, which is what .on-dark below exists to fix. */
-  #nav{padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 12px calc(18px + var(--sal));
+  /* The bar lives at the BOTTOM on a phone: thumb-reachable, out of the notch entirely, and
+     off the top of the photographs where the captions are. One number for what it occupies, so
+     everything that has to clear it agrees. */
+  :root{--navh:calc(68px + var(--sab))}
+  #nav{top:auto;bottom:0;
+    padding:12px calc(18px + var(--sar)) calc(12px + var(--sab)) calc(18px + var(--sal));
     background:var(--bg);backdrop-filter:none;border-bottom:0;
     transition:background-color .35s var(--ease),color .35s var(--ease)}
-  /* Over the photographs: nothing at all, and the nav inverts to suit. Elsewhere it keeps a flat
-     cream backing — not for looks (it is invisible against a cream section) but because the text
-     sections scroll UNDER a fixed nav, and with nothing there the copy runs straight through the
-     logo and the quote button. The gallery has no such problem: its captions start below the nav
-     by design, so that is exactly where the backing can go. The shadow is for the bright patches
-     inside an otherwise dark frame — a ceiling light behind the logo. */
-  #nav.on-dark{background:none;color:#fff;text-shadow:0 1px 14px rgba(16,13,11,.75)}
+  /* Over text sections: flat, fully opaque cream. Invisible against a cream page (the measured
+     step across its edge is 0-10), and opaque because those sections scroll UNDER a fixed bar —
+     at anything less the copy ghosts straight through the logo and the quote button.
+
+     Over the photographs: a vignette rather than a bar, so the image still reads through it.
+     It cannot simply invert to white the way the top bar did. The panels carry a dark scrim
+     across their TOP 56% and nothing at the bottom, and measured across all nine the bottom
+     strip runs 66 to 233 — pale floors and worktops. White would vanish on panel 9, ink would
+     vanish on panel 6. So the bar brings its own contrast: the gradient guarantees the ground
+     under the controls whatever the photograph is doing, and fades to nothing at its top edge
+     so it reads as the bottom of the image darkening, not as a band sitting on it. */
+  #nav.on-dark{background:linear-gradient(rgba(16,13,11,.3) 0,rgba(16,13,11,.62) 20px,rgba(16,13,11,.72) 100%);
+    color:#fff;text-shadow:0 1px 10px rgba(16,13,11,.55)}
+  /* The fade needs more room than the bar has: reaching full density inside 12px left a visible
+     band edge across the photograph. This carries the first third of it ABOVE the bar, outside
+     the layout, so the whole vignette runs ~96px and reads as the image darkening. The menu is
+     a later child and taller than this, so it covers it completely when open. */
+  #nav.on-dark::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:76px;
+    pointer-events:none;background:linear-gradient(rgba(16,13,11,0),rgba(16,13,11,.3))}
   #nav.on-dark .brand .dot{color:var(--accent-2)}
   #nav.on-dark .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);text-shadow:none;
-    background:rgba(16,13,11,.28)}
-  #nav.on-dark .menubtn{text-shadow:none;filter:drop-shadow(0 1px 6px rgba(16,13,11,.8))}
-  /* the menu still needs solid ground, and the nav with it while it is open */
+    background:rgba(16,13,11,.3)}
+  /* .menubtn sets its own colour, so it never inherited the inversion and stayed black. */
+  #nav.on-dark .menubtn{color:#fff;text-shadow:none;filter:drop-shadow(0 1px 6px rgba(16,13,11,.85))}
+  /* the menu opens upward out of the bar, and the bar goes solid under it */
+  #menu{top:auto;bottom:100%;border-bottom:0;border-top:1px solid var(--line);
+    padding:20px calc(22px + var(--sar)) 14px calc(22px + var(--sal))}
+  /* opening upward, the panel's own top rule and the first link's double up 20px apart */
+  #menu a:first-child{border-top:0}
   #nav:has(.menubtn[aria-expanded="true"]){background:var(--bg);color:var(--ink);text-shadow:none}
   #nav:has(.menubtn[aria-expanded="true"]) .nlinks .cta{color:var(--ink);border-color:var(--edge);background:none}
+  #nav:has(.menubtn[aria-expanded="true"]) .menubtn{color:var(--ink);filter:none}
+  /* the hairline moves to the bar's top edge; the rest of the clearances are at the very end
+     of the sheet, because they override rules declared further down than this block */
+  .progress{top:auto;bottom:var(--navh)}
   .nlinks{gap:6px}
 }
 @media (min-width:761px){#menu{display:none!important}}
@@ -547,6 +567,18 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     transition-property:opacity!important;
     transition-duration:.4s!important;
   }
+}
+
+/* Bottom-bar clearances. Deliberately the LAST block in the sheet: every one of these overrides
+   a rule declared further down than the mobile nav block, and at equal specificity the later
+   declaration wins — put them up there and they are silently ignored, which is how the footer
+   came to reserve room for a bar 34px shorter than the one now in front of it. */
+@media (max-width:760px){
+  footer{padding-bottom:calc(60px + var(--navh))}
+  /* .hint and .mcopy also meet the bottom edge, but they live inside #ch0 and #ch1, which are
+     display:none on every journey — no rule for them here, because it could never fire. */
+  /* the caption was clearing a nav that is no longer above it — only the status bar is */
+  .gcap{padding-top:calc(clamp(36px,6vh,56px) + var(--sat))}
 }
 </style>
 <script>
@@ -1075,14 +1107,15 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 /* ---------- classic layer: progress, nav, image fallbacks ---------- */
 var nav=document.getElementById('nav'),prog=document.querySelector('.progress');
 /* The gallery is the one stretch of the page dark enough to swallow ink-coloured nav text, so
-   the nav inverts across exactly that block. Measured from the gallery's own box rather than a
+   the nav changes across exactly that block. Measured from the gallery's own box rather than a
    scroll number: the panels inside it are sticky and their rects pin to 0, but the wrapper
-   never sticks. Lives in the classic layer so it holds with the fx module absent. */
+   never sticks. A plain overlap test, so it holds with the bar at the bottom on a phone and at
+   the top on a desktop. Lives in the classic layer so it works with the fx module absent. */
 var gal=document.getElementById('gal');
 function onScrollBasic(){
   nav.classList.toggle('scrolled',scrollY>20);
-  if(gal){var r=gal.getBoundingClientRect(),h=nav.offsetHeight;
-    nav.classList.toggle('on-dark',r.top<=h&&r.bottom>h);}
+  if(gal){var r=gal.getBoundingClientRect(),n=nav.getBoundingClientRect();
+    nav.classList.toggle('on-dark',r.top<n.bottom&&r.bottom>n.top);}
   var h=document.documentElement.scrollHeight-innerHeight;
   prog.style.transform='scaleX('+(h>0?(scrollY/h):0)+')';
 }
