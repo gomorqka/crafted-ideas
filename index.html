@@ -738,9 +738,9 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
          To swap one, replace the src AND rewrite the alt to describe that photo. The alt text
          here describes what is in each frame, not the marketing line printed beside it. -->
     <!-- Nine projects, each given the stage on its own rather than tiled into a list.
-         Under .fxd the section pins and the track moves horizontally with scroll; everywhere
-         else (mobile, reduced motion, no-JS) it is a plain vertical stack of the same panels,
-         which is why the caption lives inside the frame in both cases. -->
+         Each panel sticks and the next scrolls over it — the same layout on every journey,
+         reduced motion and no-JS included, since it is CSS sticky rather than a pinned track.
+         That is why the caption lives inside the frame rather than beside it. -->
     <div class="gallery" id="gal">
       <div class="gstage">
         <div class="gtrack" id="gtrack">
@@ -1269,47 +1269,102 @@ if(fxDesktop&&film){
       opacity:[0,1],translateY:[26,0],duration:620,ease:'out(3)',
       autoplay:animeOnScroll({target:el,enter,leave:leaveC,sync:true})
     }));
-    /* ---------- work gallery: vertical parallax ----------
+    /* ---------- work gallery: the photograph moves, and so does its caption ----------
        The stacking is pure CSS sticky, so there is no pin length to compute and nothing to
-       recalculate on resize. All this adds is depth: each photograph is 116% tall and drifts
-       against its own frame while that panel holds the screen. */
+       recalculate on resize. What this adds is motion inside each frame: the photograph
+       travels across whichever axis is being cropped, and the caption arrives after it and
+       leaves before it.
+
+       Progress has to come from the panel's OWN slot, and that slot is not one viewport tall.
+       The first version divided by panels[0].offsetHeight and forgot the 60vh dwell gap that
+       separates the panels, so the real stride is 1.6 viewports and each panel's progress ran
+       a further 60% ahead of the one before it. By the third the travel had already clamped
+       out before the panel was even on screen — which is why only the first two ever moved.
+       Stride now comes from the layout itself: panel height plus that margin. */
     {
       const gal=document.getElementById('gal');
       const panels=[...document.querySelectorAll('.gpanel')];
       if(gal&&panels.length){
-        const pairs=panels.map(p=>[p,p.querySelector('img')]).filter(([,i])=>i);
-        let raf=false;
+        const items=panels.map(p=>({pan:p,im:p.querySelector('img'),
+          cap:p.querySelector('.gcap'),body:p.querySelector('.gcap-body')})).filter(o=>o.im);
+        /* nine panels x three elements every frame — only write what actually changed */
+        const set=(el,k,v)=>{if(el&&el['_fx'+k]!==v){el['_fx'+k]=v;el.style[k]=v;}};
+        let gap=0,raf=false;
+        const gauge=()=>{gap=parseFloat(getComputedStyle(items[0].pan).marginBottom)||0;};
+        /* Keyboard focus has to win over the fade — a tab stop can never be invisible. Pointer
+           focus must not, or the caption you just tapped Hide on stays lit while its panel
+           scrolls back off. :focus-visible is exactly that line, and is the same test the
+           browser uses to decide whether to paint a focus ring. */
+        let fv=true; try{document.body.matches(':focus-visible');}catch(e){fv=false;}
         const run=()=>{
           raf=false;
           const vh=innerHeight;
-          /* A stuck panel's rect.top is pinned at 0, so it cannot be the progress source —
-             it never changes while the panel is on screen. Derive progress from where the
-             page is relative to that panel's own slot in the stack instead. */
+          /* A stuck panel's rect.top is pinned at 0, so it cannot be the progress source — it
+             never changes while the panel is on screen, and its offsetTop is no better. The
+             gallery wrapper is the one box in here that never sticks, so measure from that. */
           const galTop=gal.getBoundingClientRect().top+scrollY;
-          const per=pairs[0][0].offsetHeight||vh;
-          pairs.forEach(([pan,im],i)=>{
-            const t=clamp((scrollY-(galTop+i*per))/per,0,1);
+          /* Every panel is the same box — one CSS rule, no per-panel overrides — so measure
+             one of them. Doing it per panel would interleave reads with the style writes
+             below and force a fresh layout nine times over on every frame of every scroll. */
+          const H=items[0].pan.offsetHeight||vh, stride=H+gap, last=items.length-1;
+          const panRatio=items[0].pan.offsetWidth/(H||1);
+          items.forEach((o,i)=>{
+            /* the whole time this panel is on screen: from its first pixel clearing the fold
+               to the moment the next one has covered it. Nothing follows the last panel in the
+               track, so it is never covered — it leaves by scrolling away instead. */
+            const life=(i<last?stride:H)+vh;
+            const p=clamp((scrollY-(galTop+i*stride-vh))/life,0,1);
+            /* Smootherstep, because a panel owns the screen outright for only the middle fifth
+               of that life. A linear ramp would spend most of the travel while the frame is
+               half covered; this puts about 40% of it into the part anyone is looking at. */
+            const e=p*p*p*(p*(p*6-15)+10);
             /* Which axis is actually cropped? Compare the photograph's own ratio with the
                panel's — no layout measurement involved, so it cannot disagree with what the
                browser actually did. Wider than the frame means the sides are being thrown
                away, and object-position pans across exactly that hidden region: 0%-100% is
                the full available travel by definition, so it can never slide off. */
-            const nw=im.naturalWidth, nh=im.naturalHeight;
+            const nw=o.im.naturalWidth, nh=o.im.naturalHeight;
             const imgRatio=(nw&&nh)?nw/nh:4/3;
-            const panRatio=pan.offsetWidth/(pan.offsetHeight||1);
             if(imgRatio>panRatio*1.08){
-              if(im.style.transform)im.style.transform='';
-              im.style.objectPosition=`${(12+t*76).toFixed(1)}% 50%`;  /* 12%->88%, off the edges */
+              set(o.im,'transform','');
+              set(o.im,'objectPosition',`${(12+e*76).toFixed(1)}% 50%`);  /* 12%->88%, off the edges */
             }else{
-              if(im.style.objectPosition)im.style.objectPosition='';
-              im.style.transform=`translate3d(0,${(t*7).toFixed(2)}%,0)`;
+              /* A wide panel crops the top and bottom, not the sides, so there is no hidden
+                 margin to pan sideways into — and reaching for one by overhanging the frame is
+                 exactly what slid the image clean off last time. The restrained equivalent:
+                 drift on the axis that IS cropped, plus a push-in small enough to read as the
+                 frame breathing rather than as a zoom. Together they stay inside the 8%
+                 overhang the image already has, so no edge of the panel can go bare. */
+              set(o.im,'objectPosition','');
+              set(o.im,'transform',`translate3d(0,${(e*7-3.5).toFixed(2)}%,0) scale(${(1+e*.045).toFixed(4)})`);
             }
+            /* The caption is the second act: it rises and fades in once the photograph has
+               settled, holds through the dwell, then lifts away as the next panel closes over
+               it — so one caption is always arriving as another leaves. The body trails the
+               title by a beat, rather than the whole block landing as one slab. */
+            if(!o.cap)return;
+            const a=document.activeElement;
+            if(a&&o.cap.contains(a)&&(!fv||a.matches(':focus-visible'))){
+              set(o.cap,'opacity','1');set(o.cap,'transform','');
+              set(o.body,'opacity','1');set(o.body,'transform','');
+              return;
+            }
+            const arrive=easeOut(seg(p,.26,.52)), go=seg(p,.74,.97), stay=1-go*go;
+            set(o.cap,'opacity',(arrive*stay).toFixed(3));
+            set(o.cap,'transform',`translate3d(0,${((1-arrive)*30-(1-stay)*18).toFixed(1)}px,0)`);
+            const late=easeOut(seg(p,.36,.66));
+            set(o.body,'opacity',late.toFixed(3));
+            set(o.body,'transform',`translate3d(0,${((1-late)*22).toFixed(1)}px,0)`);
           });
         };
         const onS=()=>{if(!raf){raf=true;requestAnimationFrame(run);}};
         addEventListener('scroll',onS,{passive:true});
-        addEventListener('resize',onS,{passive:true});
-        run();
+        addEventListener('resize',()=>{gauge();onS();},{passive:true});
+        addEventListener('focusin',onS);   /* focus can land on a caption with no scroll at all */
+        /* the axis is chosen from naturalWidth, which is 0 until a lazy image has decoded —
+           until then it falls back to 4:3 and could pick the wrong one, so re-run on arrival */
+        items.forEach(o=>{if(!o.im.complete)o.im.addEventListener('load',onS,{once:true});});
+        gauge();run();
       }
     }
 
