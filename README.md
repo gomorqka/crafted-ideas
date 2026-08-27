@@ -124,16 +124,21 @@ The nav itself does **not** try to blur through that strip on mobile, because it
 
 Screenshots taken in headless Chrome cannot confirm any of this: `backdrop-filter` over the sticky gallery keeps a stale backdrop snapshot, so the top of the nav samples as opaque page background whether or not the fix is present. It clears on a forced repaint. Verify the **geometry** — nav box reaching y=0, contents starting below the inset, nothing clipped — and confirm the frost itself on a real device.
 
-## Why the mobile nav is a veil, not a bar
+## The mobile nav
 
-The strip above the page on an iPhone is Safari's own chrome, painted from `<meta name="theme-color">`. There is no page content up there, so no amount of `backdrop-filter` will ever blur it — the seam people notice is that opaque `#F6F3EE` meeting the nav's *76%-translucent* cream over a photograph. Two different creams with a hard line between them.
+The strip above the page on an iPhone is Safari's own chrome, painted from `<meta name="theme-color">`. There is no page content up there, so no amount of `backdrop-filter` will ever blur it. Two attempts went that way — frosting harder, then dissolving the bar into a gradient — and both just made the bar taller. It isn't a blur problem.
 
-Below `760px` the nav therefore closes the seam by matching instead of frosting: it starts at exactly `--bg`, fully opaque, so there is no edge where the two meet, then dissolves to nothing over 34px of bottom padding. `backdrop-filter` is off there — a blur that stops dead mid-photograph is its own visible edge, and it was the most expensive thing on the page for a phone to composite.
+Below `760px` the nav therefore follows the content instead. Measured behind the nav down the whole page, everything is bright (204–240) **except the gallery, which runs 35–93**: dark enough that ink-coloured text disappears into it. So:
 
-Three things this depends on, all of which have already bitten:
+- **Over the gallery** — no background at all, and `#nav.on-dark` inverts the logo, the quote button and the menu icon to white. The photograph runs unbroken to the top of the screen and under the status bar. Worst white-on-photograph contrast across all nine photographs is 4.3:1 for the logo (large text, needs 3:1) and 7.9:1 inside the quote pill.
+- **Everywhere else** — flat, fully opaque `--bg`. Not for looks: `--bg` on a `--bg` page is invisible, and the measured step across its bottom edge is 0–10 over plain background. What it is there for is that text sections scroll *under* a fixed nav, and at anything less than opaque the copy ghosts straight through the logo and the button. The gallery has no such problem — its captions start below the nav by design, which is exactly why that is where the backing can go.
 
-- **The links must sit inside the opaque part.** They occupy the top 62% of the nav box and the gradient holds full `--bg` to 64%. Measured across all nine gallery photographs, the worst ink-on-background contrast behind a nav control is 15.3:1. Move the stops and re-measure — a flat transparent nav puts dark text on a dark kitchen and fails outright.
-- **No border, no repeat.** A border sits *outside* the background's positioning area, so `background-repeat` tiles the gradient's opaque top edge into it — a 1px cream hairline at exactly the bottom of the veil, which is the edge being removed.
-- **The menu needs solid ground.** `#nav:has(.menubtn[aria-expanded="true"])` goes solid while the menu is open, or the panel hangs off a gradient.
+`on-dark` is toggled in the classic layer from the gallery's own box, so it holds with the fx module absent. `<noscript>` restores the backing, since without JS the nav can never learn where it is.
 
-If `theme-color` ever changes, the opaque top of this gradient has to change with it, or the seam comes back.
+Three things that have already bitten:
+
+- **`env()` inside a nested `calc()` is not safe in `transform`.** Safari resolves it to the `0px` fallback there while honouring it in `top`, so the skip link parked 59px short of hidden and sat on the clock on a real iPhone. Its offset is a flat `-160px` now — no `calc()`, no percentage, nothing that can silently lose a term. Anything else that parks itself off an edge must do the same.
+- **`safe-area-inset-top` is real on this page.** `viewport-fit=cover` does put content under the status bar in iOS Safari — confirmed on device, with the progress hairline landing at 59px. It just was never the cause of the seam.
+- **A border sits outside the background's positioning area**, so `background-repeat` tiles the background into it. Harmless with a flat colour, a visible hairline with a gradient.
+
+If `theme-color` ever changes, the opaque nav colour has to change with it, or a seam appears where Safari's strip meets the page.

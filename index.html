@@ -93,9 +93,11 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 a{color:inherit;text-decoration:none}
 :focus-visible{outline:2px solid var(--accent-ink);outline-offset:3px;border-radius:2px}
 .skip{position:fixed;top:calc(10px + var(--sat));left:calc(10px + var(--sal));z-index:200;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:99px;
-  /* -100% rather than the old flat -64px: the parked position has to clear its own height AND
-     whatever the notch just pushed it down by, or the skip link sits on screen permanently. */
-  font-size:13px;transform:translateY(calc(-100% - 12px - var(--sat)));transition:transform .25s var(--ease)}
+  /* A flat offset, and deliberately not calc(). The parked position has to clear its own height
+     plus whatever the notch pushed `top` down by, but Safari resolves env() to its 0px fallback
+     inside a nested calc() in `transform` while honouring it in `top` — so the pill landed 59px
+     short of hidden and sat on the clock. 160px clears any inset iOS has ever reported. */
+  font-size:13px;transform:translateY(-160px);transition:transform .25s var(--ease)}
 .skip:focus{transform:none}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
@@ -154,26 +156,29 @@ body.cursor-on.cur-down #cur-ring{scale:.74}
   .nlinks a:not(.cta){display:none}
   .brand small{display:none}
   .menubtn{display:inline-flex}
-  /* The strip above the page on an iPhone is Safari's own chrome, painted from theme-color.
-     No page CSS can blur it — there is no page up there to blur — so the seam was never going
-     to close by frosting harder. It closed by matching: the nav now STARTS at exactly the
-     theme-color, opaque, so there is no edge where the two meet, and dissolves downward into
-     the photograph instead of ending on one. The extra bottom padding is the room the fade
-     needs; the links sit inside the opaque part, which is what keeps them readable.
-     backdrop-filter goes with it — a blur that stops dead mid-photograph is its own visible
-     edge, and it was the most expensive thing on the page for a phone to composite. */
-  #nav{padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 34px calc(18px + var(--sal));
-    background:linear-gradient(var(--bg) 0,var(--bg) 64%,
-      color-mix(in srgb,var(--bg) 66%,transparent) 76%,
-      color-mix(in srgb,var(--bg) 30%,transparent) 87%,
-      color-mix(in srgb,var(--bg) 8%,transparent) 95%,transparent 100%);
-    background-repeat:no-repeat;
-    /* The border is 1px OUTSIDE the background's positioning area, so background-repeat tiled
-       the gradient's opaque top edge into it — a cream hairline at exactly the bottom of the
-       veil, which is the edge being removed. No border at all on mobile, and no repeat. */
-    border-bottom:0;backdrop-filter:none}
-  /* the menu needs solid ground, and so does the nav above it while it is open */
-  #nav:has(.menubtn[aria-expanded="true"]){background:var(--bg)}
+  /* Nothing behind the links on a phone — the photograph runs straight under them. A cream
+     bar cannot be blurred into Safari's own status strip (that strip is browser chrome, painted
+     from theme-color, with no page under it to blur), and every attempt to soften the join just
+     made the bar taller. So there is no bar. Measured down the whole page, everything behind
+     the nav is bright (204-240) except the gallery, which runs 35-93 — dark enough that ink
+     text disappears into it, which is what .on-dark below exists to fix. */
+  #nav{padding:calc(12px + var(--sat)) calc(18px + var(--sar)) 12px calc(18px + var(--sal));
+    background:var(--bg);backdrop-filter:none;border-bottom:0;
+    transition:background-color .35s var(--ease),color .35s var(--ease)}
+  /* Over the photographs: nothing at all, and the nav inverts to suit. Elsewhere it keeps a flat
+     cream backing — not for looks (it is invisible against a cream section) but because the text
+     sections scroll UNDER a fixed nav, and with nothing there the copy runs straight through the
+     logo and the quote button. The gallery has no such problem: its captions start below the nav
+     by design, so that is exactly where the backing can go. The shadow is for the bright patches
+     inside an otherwise dark frame — a ceiling light behind the logo. */
+  #nav.on-dark{background:none;color:#fff;text-shadow:0 1px 14px rgba(16,13,11,.75)}
+  #nav.on-dark .brand .dot{color:var(--accent-2)}
+  #nav.on-dark .nlinks .cta{color:#fff;border-color:rgba(255,255,255,.72);text-shadow:none;
+    background:rgba(16,13,11,.28)}
+  #nav.on-dark .menubtn{text-shadow:none;filter:drop-shadow(0 1px 6px rgba(16,13,11,.8))}
+  /* the menu still needs solid ground, and the nav with it while it is open */
+  #nav:has(.menubtn[aria-expanded="true"]){background:var(--bg);color:var(--ink);text-shadow:none}
+  #nav:has(.menubtn[aria-expanded="true"]) .nlinks .cta{color:var(--ink);border-color:var(--edge);background:none}
   .nlinks{gap:6px}
 }
 @media (min-width:761px){#menu{display:none!important}}
@@ -560,6 +565,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
   window.__fxTimer=setTimeout(function(){r.classList.remove('fx','fxd','fxm');},3000);
 }catch(e){}})();
 </script>
+<noscript><style>
+  /* Without JS the nav can never learn it is over a photograph, and ink on a dark kitchen is
+     unreadable. Give these visitors the bar back — it is the one case where it earns its keep. */
+  @media (max-width:760px){#nav{background:color-mix(in srgb,var(--bg) 88%,transparent)}}
+</style></noscript>
 </head>
 <body>
 <a class="skip" href="#services">Skip intro</a>
@@ -1064,8 +1074,15 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 <script>
 /* ---------- classic layer: progress, nav, image fallbacks ---------- */
 var nav=document.getElementById('nav'),prog=document.querySelector('.progress');
+/* The gallery is the one stretch of the page dark enough to swallow ink-coloured nav text, so
+   the nav inverts across exactly that block. Measured from the gallery's own box rather than a
+   scroll number: the panels inside it are sticky and their rects pin to 0, but the wrapper
+   never sticks. Lives in the classic layer so it holds with the fx module absent. */
+var gal=document.getElementById('gal');
 function onScrollBasic(){
   nav.classList.toggle('scrolled',scrollY>20);
+  if(gal){var r=gal.getBoundingClientRect(),h=nav.offsetHeight;
+    nav.classList.toggle('on-dark',r.top<=h&&r.bottom>h);}
   var h=document.documentElement.scrollHeight-innerHeight;
   prog.style.transform='scaleX('+(h>0?(scrollY/h):0)+')';
 }
