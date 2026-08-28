@@ -461,8 +461,10 @@ html.lenis,html.lenis body{height:auto}
 .steps .arw{position:absolute;left:20px;top:52px;bottom:-26px;width:1px;
   background:linear-gradient(var(--line),var(--line));opacity:.9}
 .steps li:last-child .arw{display:none}
+/* Solid hairline, not dashed. The dashed rule came in with the form card and left with it;
+   this was the only dashed thing on the page afterwards. */
 .stepnote{margin-top:30px;display:inline-flex;align-items:flex-start;gap:12px;
-  padding:14px 16px;border:1px dashed var(--edge);border-radius:12px;
+  padding:14px 16px;border:1px solid var(--line);border-radius:3px;
   color:var(--muted);font-size:14px;max-width:44ch}
 .stepnote b{color:var(--ink);font-weight:600}
 
@@ -498,8 +500,8 @@ html.lenis,html.lenis body{height:auto}
 /* Each tile arrives from whichever side of the grid it sits on, so the grid assembles inwards.
    The side is measured from where the tile actually is, not from its index, so it stays correct
    when the spans change at each breakpoint. */
-.fx .bcell{opacity:0;transform:translateX(var(--from,-48px));
-  transition:opacity .7s var(--ease),transform .8s var(--ease)}
+.fx .bcell{opacity:0;transform:translateX(var(--from,-140px));
+  transition:opacity .75s var(--ease),transform .95s var(--ease)}
 .fx .bcell.seen{opacity:1;transform:none}
 .rm .bcell{opacity:0;transition:opacity .5s linear}
 .rm .bcell.seen{opacity:1}
@@ -622,34 +624,40 @@ html.lenis,html.lenis body{height:auto}
 .crow a.v{display:inline-flex;align-items:center;min-height:44px;border-bottom:1px solid var(--edge)}
 .crow a.v:hover{border-bottom-color:var(--accent-2)}
 /* ---------- quote form ---------- */
-.qform{background:var(--card);border:1px solid var(--line);border-radius:22px;
-  padding:clamp(22px,3vw,34px);position:relative}
-/* reference A's dashed inner rule on the lead card */
-.qform::before{content:"";position:absolute;inset:9px;border:1px dashed var(--line);
-  border-radius:15px;pointer-events:none}
-.qform>*{position:relative}
+.qform{background:var(--card);border:1px solid var(--line);border-radius:3px;
+  padding:clamp(24px,3.2vw,38px);position:relative}
 .qtitle{font-size:23px;font-weight:560;margin-bottom:6px}
 .qlede{color:var(--muted);font-size:14.5px;margin-bottom:22px}
 /* The asterisk is hidden from assistive tech (the inputs carry `required`), so sighted users
    need it spelled out once rather than left to infer it. */
 .qkey{display:block;margin-top:6px;font-size:13px}
-.qgrid{display:grid;grid-template-columns:1fr;gap:18px}
+.qgrid{display:grid;grid-template-columns:1fr;gap:22px 24px}
 .fld{display:flex;flex-direction:column;gap:7px}
 .fld.wide{grid-column:1/-1}
 .fld label{font-size:14px;font-weight:560}
 .fld .req{color:var(--accent-ink)}
 /* NOT .hint — that name belonged to the old hero's scroll cue */
 .fld .fhint{font-size:13px;color:var(--muted)}
-.fld input,.fld select,.fld textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);
-  border:1px solid var(--edge);border-radius:12px;padding:13px 14px;min-height:48px;width:100%;
+/* Underlined rather than boxed, after johnmichael.studio's enquiry form: at seven fields the
+   boxes were the loudest thing in the section, and a rule under each one carries the same
+   information with a fraction of the ink. The border still clears 3:1 against the card, which
+   1.4.11 requires of any control boundary — a hairline is allowed to be quiet, not invisible. */
+.fld input,.fld select,.fld textarea{font:inherit;font-size:16px;color:var(--ink);background:transparent;
+  border:0;border-bottom:1px solid var(--edge);border-radius:0;padding:11px 2px;min-height:46px;width:100%;
   transition:border-color .2s,box-shadow .2s}
-.fld textarea{min-height:110px;resize:vertical;line-height:1.55}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--muted);opacity:.75}
+.fld textarea{min-height:104px;resize:vertical;line-height:1.55;
+  border:1px solid var(--edge);border-radius:2px;padding:12px 13px}
 .fld select{appearance:none;cursor:pointer;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%2370695F' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 16px center;padding-right:42px}
-.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--accent-ink);
-  box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent);outline:none}
-.fld [aria-invalid="true"]{border-color:#9B2C1E}
+  background-repeat:no-repeat;background-position:right 4px center;padding-right:30px}
+/* A box-shadow ring belongs to a boxed field. On an underlined one the focus has to live in
+   the rule itself, so it thickens and takes the brass. */
+.fld input:focus,.fld select:focus{border-bottom-color:var(--accent-ink);
+  box-shadow:0 1px 0 0 var(--accent-ink);outline:none}
+.fld textarea:focus{border-color:var(--accent-ink);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 16%,transparent);outline:none}
+.fld [aria-invalid="true"]{border-color:#9B2C1E;border-bottom-color:#9B2C1E}
 .fld .err{font-size:13px;color:#9B2C1E;min-height:0}
 .qhp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .qfoot{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:24px}
@@ -927,24 +935,24 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
           <div class="qgrid">
             <div class="fld">
               <label for="q-name">Your name <span class="req" aria-hidden="true">*</span></label>
-              <input id="q-name" name="name" type="text" required autocomplete="name"
+              <input id="q-name" placeholder="Enter your name…" name="name" type="text" required autocomplete="name"
                      aria-describedby="q-name-err"><span class="err" id="q-name-err"></span>
             </div>
             <div class="fld">
               <label for="q-phone">Phone <span class="req" aria-hidden="true">*</span></label>
-              <input id="q-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel"
+              <input id="q-phone" placeholder="Enter your phone number…" name="phone" type="tel" required autocomplete="tel" inputmode="tel"
                      aria-describedby="q-phone-err"><span class="err" id="q-phone-err"></span>
             </div>
             <div class="fld">
               <label for="q-email">Email</label>
-              <input id="q-email" name="email" type="email" autocomplete="email" inputmode="email"
+              <input id="q-email" placeholder="Enter your email address…" name="email" type="email" autocomplete="email" inputmode="email"
                      aria-describedby="q-email-hint q-email-err">
               <span class="fhint" id="q-email-hint">Optional — we&rsquo;ll call unless you&rsquo;d rather we wrote.</span>
               <span class="err" id="q-email-err"></span>
             </div>
             <div class="fld">
               <label for="q-postcode">Postcode <span class="req" aria-hidden="true">*</span></label>
-              <input id="q-postcode" name="postcode" type="text" required autocomplete="postal-code"
+              <input id="q-postcode" placeholder="Enter your postcode…" name="postcode" type="text" required autocomplete="postal-code"
                      aria-describedby="q-postcode-hint q-postcode-err">
               <span class="fhint" id="q-postcode-hint">So we know if you&rsquo;re in our patch.</span>
               <span class="err" id="q-postcode-err"></span>
@@ -979,7 +987,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
             </div>
             <div class="fld wide">
               <label for="q-msg">Anything else</label>
-              <textarea id="q-msg" name="message" rows="4" aria-describedby="q-msg-hint"></textarea>
+              <textarea id="q-msg" name="message" rows="4" placeholder="Rough size, timing, what is there now…" aria-describedby="q-msg-hint"></textarea>
               <span class="fhint" id="q-msg-hint">Rough size, timing, what&rsquo;s there now — whatever you know.</span>
             </div>
           </div>
@@ -1737,18 +1745,15 @@ const easeOut=t=>1-Math.pow(1-t,3);
           es.forEach(e=>{
             if(!e.isIntersecting)return;
             io.unobserve(e.target);
-            /* offsetLeft, not getBoundingClientRect: layout coordinates do not move with the
-               scroll position, and measuring against a rect captured mid-scroll skewed the
-               centre — tiles came in at -53px on the left but only +13px on the right, which
-               reads as the grid filling from one side. The magnitude is now fixed and only the
-               SIGN is measured, so both sides travel the same distance. */
-            const cells=[...grid.children];
-            const gw=grid.clientWidth||1;
-            const rel=((e.target.offsetLeft+e.target.offsetWidth/2)-gw/2)/(gw/2);
-            /* A full-width tile straddles the centre and has no side of its own, so those
-               alternate by position instead — otherwise every one of them arrives from the left. */
-            const side=Math.abs(rel)<0.12 ? (cells.indexOf(e.target)%2?1:-1) : (rel<0?-1:1);
-            e.target.style.setProperty('--from',(side*64)+'px');
+            /* Georgi's spec, and deterministic rather than measured. Deriving the side from
+               each tile's position sounded right and read wrong: at 64px the travel was too
+               short to register as direction, and the sides it picked changed with the spans at
+               every breakpoint, so the grid never assembled the same way twice.
+               Projects 1, 3, 6 and 9 come in from the left; 2, 4, 5, 7 and 8 from the right.
+               They converge on the centre, which is the point. */
+            const i=[...grid.children].indexOf(e.target);
+            const fromLeft=(i===0||i===2||i===5||i===8);
+            e.target.style.setProperty('--from',(fromLeft?-140:140)+'px');
             requestAnimationFrame(()=>e.target.classList.add('seen'));
           });
         },{rootMargin:'0px 0px -12% 0px'});
