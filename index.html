@@ -634,9 +634,43 @@ html.lenis,html.lenis body{height:auto}
 /* ============================== what we do (live mawadgroup.com) ============================== */
 .cards{display:grid;grid-template-columns:1fr;gap:26px;margin-top:52px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;
-  display:flex;flex-direction:column}
-.card figure{margin:0;aspect-ratio:16/10;overflow:hidden;background:var(--bg2)}
-.card img{width:100%;height:100%;object-fit:cover;display:block}
+  display:flex;flex-direction:column;position:relative;
+  /* `translate`, not `transform`, for the lift below: these cards carry .rise, and the fx module
+     animates them with anime.js, which writes an inline transform on the element. An inline style
+     beats any rule here, so a hover written as `transform` silently did nothing. The independent
+     translate property composes with that transform instead of fighting it. */
+  transition:border-color .45s var(--ease),box-shadow .45s var(--ease),translate .45s var(--ease)}
+/* A brass rule that draws itself across the top edge — the same gesture as the step symbols and
+   the hairlines everywhere else, rather than a generic lift-and-shadow. Deliberately NOT a tilt:
+   these cards are not clickable, and a card that tips toward the pointer promises an interaction
+   that is not there. A rule and a slight rise read as attention, not as a button. */
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;z-index:3;
+  background:linear-gradient(90deg,var(--accent-2),var(--accent));
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .55s var(--ease)}
+.card figure{margin:0;aspect-ratio:16/10;overflow:hidden;background:var(--bg2);position:relative}
+.card img{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .7s var(--ease)}
+@media (hover:hover) and (pointer:fine){
+  /* The photograph warms rather than just growing: this scrim lifts as the card is entered.
+     Declared INSIDE the hover query on purpose — a touch device never hovers, so leaving it in
+     the base rules would have dimmed the photographs permanently for every phone visitor in
+     order to buy an effect they can never see. The photographs are the selling point. */
+  .card figure::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(to top,rgba(16,13,11,.16),transparent 62%);
+    opacity:1;transition:opacity .45s var(--ease)}
+  .card:hover{border-color:color-mix(in srgb,var(--accent) 42%,var(--line));
+    box-shadow:0 18px 44px var(--glow);translate:0 -4px}
+  .card:hover::before{transform:scaleX(1)}
+  .card:hover figure::after{opacity:0}
+  .card:hover img{transform:scale(1.06)}
+  .card:hover .tlink{border-bottom-color:var(--accent);color:var(--accent-ink)}
+}
+@media (prefers-reduced-motion:reduce){
+  .card:hover{translate:none}
+  .card:hover img{transform:none}
+  .card::before{transition:none}
+}
 .card .cbody{padding:26px 24px 28px;display:flex;flex-direction:column;gap:10px;flex:1}
 .card h3{font-family:var(--fd);font-size:22px;font-weight:560;letter-spacing:-.01em}
 .card p{color:var(--muted);font-size:14.5px;line-height:1.6;flex:1}
