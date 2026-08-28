@@ -463,10 +463,16 @@ html.lenis,html.lenis body{height:auto}
 
    pathLength="1" normalises every path to a length of exactly 1, so one dasharray value draws
    any of them regardless of their real geometry — no per-path measurement, in CSS or JS. */
-.sicon{display:block;width:56px;height:56px;margin:2px 0 18px;overflow:visible}
+/* Beside the number, not beneath it. Absolute, so it shares the header band with the numbered
+   circle and the heading closes up behind them both.
+   MOBILE keeps it on the same line but at the far RIGHT of the row: the circle is already
+   absolute at the left with the text indented past it, and dropping a second element in beside
+   it would have pushed the indent to ~100px and squeezed every heading on a 390px screen. */
+.sicon{position:absolute;top:1px;right:0;width:38px;height:38px;overflow:visible}
 .sicon path{fill:none;stroke:var(--accent);stroke-width:1.6;
   stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:760px){.sicon{width:44px;height:44px;margin:2px 0 12px}}
+/* room for it, so the text never runs underneath */
+.steps li{padding-right:50px}
 /* Visible by default. Only the fx layer hides them to draw them, so with no JS, a failed module
    or reduced motion they are simply there. */
 .fx .sicon path{stroke-dasharray:1;stroke-dashoffset:1}
@@ -756,7 +762,9 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
   /* justify-content:center is right when each step is its own row on a phone. Side by side the
      items stretch to the tallest one and centring floats each heading to a different height —
      three columns that visibly fail to line up. */
-  .steps li{flex:1;padding:64px 0 0 0;min-height:0;justify-content:flex-start}
+  .steps li{flex:1;padding:74px 0 0 0;min-height:0;justify-content:flex-start}
+  /* beside the circle, sharing the header band with it */
+  .sicon{top:0;left:58px;right:auto;width:44px;height:44px}
   .steps li+li{margin-top:0}
   .stepn{top:0;left:0}
   .cards{grid-template-columns:repeat(3,1fr)}
@@ -1836,6 +1844,20 @@ const easeOut=t=>1-Math.pow(1-t,3);
             if(!e.isIntersecting)return;
             io.disconnect();
             [...steps.children].forEach((li,i)=>setTimeout(()=>li.classList.add('drawn'),i*190));
+            /* Redraw on hover. Removing the class, forcing a reflow and re-adding it is what
+               actually restarts a CSS animation — re-applying the same animation-name alone does
+               nothing. Bound to mouseenter, which fires on entering the step and not on movement
+               inside it, so waving the pointer around cannot make it stutter.
+               Pointer devices only: on a touch screen there is no hover to redraw on, and the
+               fx module never loads under reduced motion, so neither needs guarding here. */
+            if(matchMedia('(hover:hover) and (pointer:fine)').matches){
+              [...steps.children].forEach(li=>li.addEventListener('mouseenter',()=>{
+                if(!li.classList.contains('drawn'))return;
+                li.classList.remove('drawn');
+                void li.offsetWidth;
+                li.classList.add('drawn');
+              }));
+            }
           });
         },{rootMargin:'0px 0px -22% 0px'});
         io.observe(steps);
