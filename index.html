@@ -292,8 +292,15 @@ html.lenis,html.lenis body{height:auto}
    in. Direction alternates so five frames in a row do not feel mechanical. */
 /* Longer than the 10s each frame is held, so the push-in never arrives at a standstill before
    the next frame takes over — it is always still moving when it hands off. */
-.hero-shot.is-on img{animation:kb 14s linear forwards}
-.hero-shot:nth-child(even).is-on img{animation-name:kb2}
+/* `.is-out` is in these selectors deliberately. Keyed on `.is-on` alone, the animation stopped
+   the instant the class left, the transform fell back to the base scale(1.10), and the OUTGOING
+   photograph snapped from ~1.34 down to 1.10 in a single frame while still at 99% opacity —
+   a visible backwards jolt, read as the picture suddenly going "shorter", then flickering.
+   Measured: 1.337 before the switch, 1.100 thirty milliseconds after it.
+   Both rules compute the same animation, so the outgoing frame carries on travelling rather
+   than restarting, and `.is-out` is removed only after the 2s fade has finished. */
+.hero-shot.is-on img,.hero-shot.is-out img{animation:kb 14s linear forwards}
+.hero-shot:nth-child(even).is-on img,.hero-shot:nth-child(even).is-out img{animation-name:kb2}
 /* The end value is deliberately past what anyone sees. Each frame is held 10s against a 14s
    animation, so the visible travel stops around 1.42 — the deepest, softest part of the curve
    never actually arrives. Six of the nine photographs are upscales, so that headroom is the
@@ -335,7 +342,12 @@ html.lenis,html.lenis body{height:auto}
 /* ---- caption panel (reference B) ---- */
 .hero-cap{position:relative;z-index:2;
   margin-top:34px;padding:14px 16px;border-left:2px solid var(--accent-2);
-  background:rgba(16,13,11,.62);backdrop-filter:blur(6px);max-width:34ch}
+  /* No backdrop-filter. This panel sits directly over a photograph that is scaling and rotating
+     every frame, so the blur had to re-sample a moving backdrop continuously — a well-known
+     source of flicker on iOS and iPadOS, and not something a headless browser will reproduce.
+     The panel was already 62% opaque, so raising it to 78% loses almost nothing visually and
+     buys contrast. Same reasoning as .gcap-body over the gallery. */
+  background:rgba(16,13,11,.78);max-width:34ch}
 /* The stack has to go on the figcaption, not on .hero-cap. The three spans are its children,
    not the figure's — putting flex-direction:column on the figure stacked one element and let
    the spans run together as inline text. It only looked right on a phone, where the line was
@@ -463,7 +475,11 @@ html.lenis,html.lenis body{height:auto}
 /* Dwell. With sticky stacking a panel is covered the moment the next one's flow position
    reaches the top, so the space between them is how long it holds the screen. */
 .gpanel:not(:last-child){margin-bottom:clamp(45vh,60vh,70vh)}
-.gpanel img{position:absolute;left:0;top:-8%;width:100%;height:116%;object-fit:cover;will-change:transform}
+/* No blanket will-change. Nine full-viewport images each hinted for compositing is nine
+   permanent GPU layer promotions — around 20MB apiece on a 2x tablet — and the compositor
+   starts evicting textures partway down the gallery, which shows up as flickering after the
+   fourth or fifth photograph. The module now sets the hint only on panels actually in play. */
+.gpanel img{position:absolute;left:0;top:-8%;width:100%;height:116%;object-fit:cover}
 /* Orientation mismatch: these are 4:3 photographs in a portrait panel, so object-fit:cover
    throws away roughly a third of the frame off each side and you only ever see the middle.
    The image keeps filling the frame; the module script pans object-position across the part
@@ -502,7 +518,9 @@ html.lenis,html.lenis body{height:auto}
 .gcap-ico::after{left:6px;top:0;width:1.5px;height:13px}
 .gcap-btn[aria-expanded="true"] .gcap-ico::after{transform:scaleY(0)}
 .gcap-body{display:flex;flex-direction:column;gap:10px;
-  background:rgba(16,13,11,.80);backdrop-filter:blur(6px);
+  /* No backdrop-filter — see .hero-cap. There is one of these per panel, each over an image the
+     module pans and scales every frame. */
+  background:rgba(16,13,11,.88);
   padding:16px 18px;border-radius:4px}
 .gcap-body p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.94)}
 .gcap .gloc{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.16em;
@@ -1654,13 +1672,24 @@ const easeOut=t=>1-Math.pow(1-t,3);
               set(o.im,'objectPosition','');
               set(o.im,'transform',`translate3d(0,${(e*7-3.5).toFixed(2)}%,0) scale(${(1+e*.15).toFixed(4)})`);
             }
+            /* Compositing hint, only while this panel is actually in play. As a blanket CSS rule
+               it promoted all nine full-screen images to permanent GPU layers at once. */
+            const live=p>0&&p<1;
+            set(o.im,'willChange',live?'transform':'');
             /* Blend the seam. Each panel rises over the one before it and, left alone, its top
                edge is a hard line travelling up the screen. Fading it up as it rises turns that
-               into a dissolve while keeping the movement. Panel 0 is excluded — there is no
-               photograph beneath it, only the cream band, which it would wash out against. */
+               into a dissolve while keeping the movement.
+
+               Written ONLY while the blend is actually mid-way. The first version wrote a value
+               for every panel on every frame, so panels nowhere near the screen sat at opacity
+               .42 — eight translucent full-viewport layers stacked at once, each forcing its own
+               stacking context. Clearing the property instead of setting it to 1 matters: any
+               opacity below 1 composites, and an inline `1` is dead weight in the style map.
+               Panel 0 is excluded — there is no photograph beneath it, only the cream band it
+               would wash out against. */
             const rise=clamp(1-(galTop+i*stride-scrollY)/vh,0,1);
-            const blend=i===0?1:(.42+.58*(rise*rise*(3-2*rise)));
-            set(o.pan,'opacity',blend.toFixed(3));
+            if(i===0||rise<=0||rise>=1) set(o.pan,'opacity','');
+            else set(o.pan,'opacity',(.42+.58*(rise*rise*(3-2*rise))).toFixed(3));
             /* The caption is the second act: it rises and fades in once the photograph has
                settled, holds through the dwell, then lifts away as the next panel closes over
                it — so one caption is always arriving as another leaves. */
