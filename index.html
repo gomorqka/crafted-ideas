@@ -529,6 +529,12 @@ html.lenis,html.lenis body{height:auto}
   .bento{grid-template-columns:repeat(6,1fr);grid-auto-rows:124px;gap:14px}
   .bcell{grid-column:span 3;grid-row:span 2}
   .bcell:nth-child(1){grid-column:span 6;grid-row:span 3}
+  /* 6 and 9 have to be reset explicitly, not left to `.bcell` above. The phone rule that makes
+     tiles 1, 6 and 9 full width is `.bcell:nth-child(n)`, which outranks a bare `.bcell` — so
+     inside a six-column grid they kept the phone's `span 2` and both of the last two rows came
+     up 130px short of the right edge. Tile 1 never showed it because it is overridden by name
+     on the line above. */
+  .bcell:nth-child(6),.bcell:nth-child(9){grid-column:span 3}
 }
 @media (min-width:1001px){
   /* twelve columns, and every row adds to exactly twelve so the bento can never leave a hole:
