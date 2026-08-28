@@ -1764,7 +1764,16 @@ const easeOut=t=>1-Math.pow(1-t,3);
           row.items.sort((a,b)=>a.offsetLeft-b.offsetLeft);
           /* stagger along the direction of travel, so the row sweeps rather than landing flat */
           (fromLeft?row.items:[...row.items].reverse()).forEach((c,k)=>{
-            c.style.setProperty('--from',(fromLeft?-140:140)+'px');
+            /* Travel is capped at 45% of the tile's own width, not a flat 140px.
+               A flat offset parked the narrow paired tiles on a phone 87% outside the grid's
+               overflow-x:clip, and iOS Safari will not request a lazy image whose element is
+               clipped that far out of view — tiles 3, 4 and 7 simply never loaded. Chrome
+               fetched them anyway, which is why this only showed up on a real iPhone.
+               Proportional travel keeps every tile at least half inside the grid at every
+               width, so lazy loading still fires; and on a 161px tile 45% reads as more
+               movement than 140px does on a 626px one. */
+            const travel=Math.round(Math.min(140,c.offsetWidth*0.45));
+            c.style.setProperty('--from',(fromLeft?-travel:travel)+'px');
             c.style.transitionDelay=(k*90)+'ms';
           });
         });
@@ -1775,7 +1784,16 @@ const easeOut=t=>1-Math.pow(1-t,3);
            showing and only leaves once none of it is. */
         const io=new IntersectionObserver(es=>{
           es.forEach(e=>{
-            if(e.intersectionRatio>=0.15)e.target.classList.add('seen');
+            if(e.intersectionRatio>=0.15){
+              e.target.classList.add('seen');
+              /* Safety net for the bug above: if a tile is being revealed and its photograph has
+                 still not started loading, stop waiting for the lazy heuristic and fetch it.
+                 Switching `loading` to eager on an un-started image begins the load immediately.
+                 A tile that animates in empty looks broken, and no amount of clever parking is
+                 worth that risk on a browser I cannot test directly. */
+              const im=e.target.querySelector('img');
+              if(im&&!im.complete)im.loading='eager';
+            }
             else if(!e.isIntersecting)e.target.classList.remove('seen');
           });
         },{threshold:[0,0.15,0.5]});
