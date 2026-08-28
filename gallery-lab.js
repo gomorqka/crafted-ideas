@@ -55,7 +55,7 @@
       [].forEach.call(bar.querySelectorAll('button'), function (x) {
         x.setAttribute('aria-pressed', String(x === b));
       });
-      ['hs', 'gr', 'st'].forEach(function (k) {
+      ['bn', 'hs', 'gr', 'st'].forEach(function (k) {
         document.getElementById('t-' + k).classList.toggle('on', k === b.dataset.t);
       });
       window.scrollTo(0, 0);
@@ -119,25 +119,24 @@
     });
   })();
 
-  /* ---------------- B · grid, then expand ---------------- */
-  (function () {
-    var grid = document.getElementById('gr-grid'), full = document.getElementById('gr-full');
-    if (!grid || !full) return;
+  /* ---------------- the shared full-screen viewer ----------------
+     Opened by the bento (D) and by the plain grid (B). This is treatment A nested inside them:
+     once you are in, it is a swipeable carousel with its own numbered strip. */
+  var VIEWER = (function () {
+    var full = document.getElementById('gr-full');
+    if (!full) return { open: function () {} };
     var fi = document.getElementById('gr-full-img'), fn = document.getElementById('gr-full-n'),
         ft = document.getElementById('gr-full-t'), fp = document.getElementById('gr-full-p'),
         fl = document.getElementById('gr-full-l');
     var at = 0, opener = null;
+    var strip = document.getElementById('gr-strip');
 
     P.forEach(function (o, i) {
-      var b = el('button', 'gr-cell');
-      b.type = 'button';
-      b.setAttribute('aria-label', 'Open: ' + o.t + ', ' + o.l);
-      /* thumbnails only — the 800 set, about a tenth of the bytes of nine full frames */
-      b.innerHTML = '<img src="' + mid(o.f) + '" alt="" loading="lazy" decoding="async">' +
-        '<span class="gr-meta"><span class="mono n">' + pad(i + 1) + ' / ' + pad(P.length) + '</span>' +
-        '<h3>' + o.t + '</h3><span class="mono loc">' + o.l + '</span></span>';
-      b.addEventListener('click', function () { opener = b; open(i); });
-      grid.appendChild(b);
+      var d = el('button', null, String(i + 1));
+      d.type = 'button';
+      d.setAttribute('aria-label', 'Show project ' + (i + 1) + ': ' + o.t);
+      d.addEventListener('click', function () { open(i); });
+      strip.appendChild(d);
     });
 
     function open(i) {
@@ -146,6 +145,9 @@
       fi.src = big(o.f); fi.alt = o.a;
       fn.textContent = pad(at + 1) + ' / ' + pad(P.length);
       ft.textContent = o.t; fp.textContent = o.p; fl.textContent = o.l;
+      [].forEach.call(strip.children, function (b, k) {
+        if (k === at) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
+      });
       full.classList.add('on');
       document.documentElement.style.overflow = 'hidden';
       document.getElementById('gr-close').focus();
@@ -188,6 +190,64 @@
         else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
       }
     });
+    return { open: function (i, from) { opener = from || null; open(i); } };
+  })();
+
+  /* ---------------- B · plain uniform grid ---------------- */
+  (function () {
+    var grid = document.getElementById('gr-grid');
+    if (!grid) return;
+    P.forEach(function (o, i) {
+      var b = el('button', 'gr-cell');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Open: ' + o.t + ', ' + o.l);
+      /* thumbnails only — the 800 set, about a tenth of the bytes of nine full frames */
+      b.innerHTML = '<img src="' + mid(o.f) + '" alt="" loading="lazy" decoding="async">' +
+        '<span class="gr-meta"><span class="mono n">' + pad(i + 1) + ' / ' + pad(P.length) + '</span>' +
+        '<h3>' + o.t + '</h3><span class="mono loc">' + o.l + '</span></span>';
+      b.addEventListener('click', function () { VIEWER.open(i, b); });
+      grid.appendChild(b);
+    });
+  })();
+
+  /* ---------------- D · bento, assembling from the sides ---------------- */
+  (function () {
+    var grid = document.getElementById('bn-grid');
+    if (!grid) return;
+    P.forEach(function (o, i) {
+      var b = el('button', 'bn-cell');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Open: ' + o.t + ', ' + o.l);
+      b.innerHTML = '<img src="' + mid(o.f) + '" alt="" loading="lazy" decoding="async">' +
+        '<span class="bn-meta"><span class="mono n">' + pad(i + 1) + ' / ' + pad(P.length) + '</span>' +
+        '<h3>' + o.t + '</h3><span class="mono loc">' + o.l + '</span></span>';
+      b.addEventListener('click', function () { VIEWER.open(i, b); });
+      grid.appendChild(b);
+    });
+    /* Which side a tile flies in from is read from where it actually SITS, not from its index —
+       so the grid assembles inwards, and it stays right when the spans change at each breakpoint.
+       Measured once per tile, on reveal, then the observer releases it. */
+    var reveal = function (cell) {
+      var gr = grid.getBoundingClientRect(), r = cell.getBoundingClientRect();
+      var mid = r.left + r.width / 2, centre = gr.left + gr.width / 2;
+      var span = Math.max(1, gr.width / 2);
+      var off = Math.round(Math.max(-1, Math.min(1, (mid - centre) / span)) * 64);
+      if (Math.abs(off) < 10) off = off < 0 ? -22 : 22;
+      cell.style.setProperty('--from', off + 'px');
+      requestAnimationFrame(function () { cell.classList.add('seen'); });
+    };
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          io.unobserve(e.target);
+          reveal(e.target);
+        });
+      }, { rootMargin: '0px 0px -12% 0px' });
+      [].forEach.call(grid.children, function (c) { io.observe(c); });
+    } else {
+      [].forEach.call(grid.children, function (c) { c.classList.add('seen'); });
+    }
   })();
 
   /* ---------------- C · one per screen, sides alternate ---------------- */
