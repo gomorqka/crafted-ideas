@@ -441,10 +441,11 @@ html.lenis,html.lenis body{height:auto}
 .dark .tlink:hover{border-bottom-color:var(--accent-2);color:var(--accent-2)}
 
 /* ============================== get a price (reference A §2) ============================== */
-.qsplit{display:grid;grid-template-columns:1fr;gap:44px;margin-top:52px}
-/* Form first on a phone. A visitor who has already decided should not have to scroll past an
-   explanation of the process to reach the thing that takes their number. */
-.qsplit .qcol{order:-1}
+/* One column at every width now: the three numbered steps sit across the top and the form runs
+   full width beneath them. The form used to sit in a half-width column beside them, which left
+   the fields narrow and the section lopsided. */
+.qsplit{display:grid;grid-template-columns:1fr;gap:40px;margin-top:52px}
+
 .steps{list-style:none;display:flex;flex-direction:column;gap:0}
 .steps li{position:relative;padding:0 0 0 58px;min-height:46px;
   display:flex;flex-direction:column;justify-content:center}
@@ -726,8 +727,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     outline:3px solid var(--accent-2);outline-offset:3px;
     box-shadow:0 0 0 6px rgba(16,13,11,.75);opacity:1}
   .hero-cue{display:inline-flex;left:calc(28px + var(--sal));right:auto}
-  .qsplit{grid-template-columns:1fr 1fr;gap:56px;align-items:start}
-  .qsplit .qcol{order:0;position:sticky;top:112px}
+  .qsplit{gap:48px}
   /* side by side, so reference A's curved connector finally makes sense */
   .steps{flex-direction:row;gap:22px}
   /* justify-content:center is right when each step is its own row on a phone. Side by side the
@@ -742,6 +742,13 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
   .steps .arw path{fill:none;stroke:var(--accent);stroke-width:1.3;stroke-linecap:round}
   .cards{grid-template-columns:repeat(3,1fr)}
   .crows{grid-template-columns:repeat(3,1fr)}
+}
+@media (min-width:1001px){
+  /* Three across, echoing the three steps above it: the six short fields make two clean rows,
+     and the message and submit run the full width beneath. Declared HERE, after the 561px
+     two-column rule — put in the bento's own 1001px block earlier in the sheet it lost to it,
+     because at equal specificity the later declaration wins regardless of the breakpoint. */
+  .qgrid{grid-template-columns:repeat(3,1fr);gap:24px 26px}
 }
 @media (min-width:1025px){
   :root{--cols:12}
@@ -911,6 +918,30 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <p class="sub rise">A free site visit, a measured plan and a written quote. No obligation, and nothing held back for later.</p>
 
     <div class="qsplit">
+      <div class="scol rise">
+        <ol class="steps">
+          <li>
+            <span class="stepn" aria-hidden="true">01</span>
+            <h3>Free site survey &amp; measure</h3>
+            <p>We come out, measure properly, and listen to what you actually want the room to do.</p>
+            <span class="arw" aria-hidden="true"><svg viewBox="0 0 120 22" preserveAspectRatio="none"><path d="M2 18C28 2 92 2 116 12M116 12l-9-5M116 12l-10 5"/></svg></span>
+          </li>
+          <li>
+            <span class="stepn" aria-hidden="true">02</span>
+            <h3>A plan and a written quote</h3>
+            <p>A clear drawing and a clear price, itemised. No surprises saved up for the invoice.</p>
+            <span class="arw" aria-hidden="true"><svg viewBox="0 0 120 22" preserveAspectRatio="none"><path d="M2 4C28 20 92 20 116 10M116 10l-9 5M116 10l-10-5"/></svg></span>
+          </li>
+          <li>
+            <span class="stepn" aria-hidden="true">03</span>
+            <h3>Built, fitted, tidied</h3>
+            <p>Structural prep, cabinetry, worktops and appliances — flush, level, working. Then a tidy handover, and we come back if anything needs us.</p>
+          </li>
+        </ol>
+        <p class="stepnote">
+          <b>Mon–Fri, 9am–6pm.</b> We reply within a working day. A photo on WhatsApp is the quickest start.
+        </p>
+      </div>
       <div class="qcol">
         <!-- Quote form → Web3Forms. Replace WEB3FORMS_ACCESS_KEY below with the real key.
              ⚠ Until it is replaced this form REFUSES to submit and points at the phone instead.
@@ -995,30 +1026,6 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         </form>
       </div>
 
-      <div class="scol rise">
-        <ol class="steps">
-          <li>
-            <span class="stepn" aria-hidden="true">01</span>
-            <h3>Free site survey &amp; measure</h3>
-            <p>We come out, measure properly, and listen to what you actually want the room to do.</p>
-            <span class="arw" aria-hidden="true"><svg viewBox="0 0 120 22" preserveAspectRatio="none"><path d="M2 18C28 2 92 2 116 12M116 12l-9-5M116 12l-10 5"/></svg></span>
-          </li>
-          <li>
-            <span class="stepn" aria-hidden="true">02</span>
-            <h3>A plan and a written quote</h3>
-            <p>A clear drawing and a clear price, itemised. No surprises saved up for the invoice.</p>
-            <span class="arw" aria-hidden="true"><svg viewBox="0 0 120 22" preserveAspectRatio="none"><path d="M2 4C28 20 92 20 116 10M116 10l-9 5M116 10l-10-5"/></svg></span>
-          </li>
-          <li>
-            <span class="stepn" aria-hidden="true">03</span>
-            <h3>Built, fitted, tidied</h3>
-            <p>Structural prep, cabinetry, worktops and appliances — flush, level, working. Then a tidy handover, and we come back if anything needs us.</p>
-          </li>
-        </ol>
-        <p class="stepnote">
-          <b>Mon–Fri, 9am–6pm.</b> We reply within a working day. A photo on WhatsApp is the quickest start.
-        </p>
-      </div>
     </div>
   </div>
 </section>
@@ -1751,13 +1758,17 @@ const easeOut=t=>1-Math.pow(1-t,3);
             c.style.transitionDelay=(k*90)+'ms';
           });
         });
+        /* Reversible: tiles are NOT unobserved once seen, so scrolling back up plays the
+           assembly backwards and coming down again replays it.
+           Two thresholds rather than one, for hysteresis — a tile parked exactly on a single
+           boundary would otherwise toggle on every small scroll. It arrives once 15% of it is
+           showing and only leaves once none of it is. */
         const io=new IntersectionObserver(es=>{
           es.forEach(e=>{
-            if(!e.isIntersecting)return;
-            io.unobserve(e.target);
-            requestAnimationFrame(()=>e.target.classList.add('seen'));
+            if(e.intersectionRatio>=0.15)e.target.classList.add('seen');
+            else if(!e.isIntersecting)e.target.classList.remove('seen');
           });
-        },{rootMargin:'0px 0px -18% 0px'});
+        },{threshold:[0,0.15,0.5]});
         cells.forEach(c=>io.observe(c));
       }else if(grid){
         [...grid.children].forEach(c=>c.classList.add('seen'));
