@@ -6,7 +6,11 @@ import { SITE } from './site.mjs';
 mkdirSync('dist/vendor', { recursive: true });
 
 // sitemap.xml is generated below from the real page list, so it is not copied
-const statics = ['index.html', 'favicon.svg', 'robots.txt'];
+// gallery-lab.* is a preview-branch experiment: three candidate treatments for the work
+// gallery, noindex, linked from nowhere. Its JS is an external file rather than inline because
+// the CSP is `script-src 'self'` plus a hash per inline script, and the guard below only hashes
+// index.html — an inline script there would be silently blocked.
+const statics = ['index.html', 'favicon.svg', 'robots.txt', 'gallery-lab.html', 'gallery-lab.js'];
 for (const f of statics) copyFileSync(f, `dist/${f}`);
 
 const vendor = {
