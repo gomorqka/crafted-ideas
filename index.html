@@ -481,7 +481,10 @@ html.lenis,html.lenis body{height:auto}
 
    Tiles are real markup with a real <a href> to the photograph, so the grid exists without
    JavaScript and for anything that reads the page. The viewer is the enhancement. */
-.bento{display:grid;gap:12px;margin-top:clamp(34px,4.5vw,60px)}
+/* position:relative so the grid IS the offsetParent its tiles measure against. Without it
+   offsetLeft is relative to .wrap and carries its padding, which pushed every full-width tile
+   off centre and sent them all in from the same side. */
+.bento{display:grid;gap:12px;margin-top:clamp(34px,4.5vw,60px);position:relative}
 .bcell{position:relative;overflow:hidden;border-radius:3px;background:var(--bg2);display:block;
   width:100%;height:100%;color:#fff}
 .bcell img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease)}
@@ -533,7 +536,13 @@ html.lenis,html.lenis body{height:auto}
 }
 
 /* ---------- the viewer ---------- */
-.viewer{position:fixed;inset:0;z-index:120;background:var(--dark);display:none}
+/* touch-action is the whole reason swipe failed on a real device while working perfectly in a
+   desktop browser with touch emulation. Left at `auto`, the browser claims a horizontal drag for
+   its own back/forward gesture before the listener ever sees a usable one — and a passive
+   listener cannot take it back. `pan-y pinch-zoom` hands horizontal to us while leaving vertical
+   panning and pinch-zoom to the browser, which is what a photograph viewer should allow. */
+.viewer{position:fixed;inset:0;z-index:120;background:var(--dark);display:none;
+  touch-action:pan-y pinch-zoom}
 .viewer.on{display:block}
 /* cover, not contain: letterboxing put dark bands down both sides and broke the full-bleed spell */
 .vstage{position:absolute;inset:0;overflow:hidden;background:var(--dark)}
@@ -546,6 +555,18 @@ html.lenis,html.lenis body{height:auto}
    portrait viewport. */
 .vimg.on,.vimg.out{animation:vkb 16s linear forwards}
 @keyframes vkb{from{transform:scale(1.04) rotate(-.35deg)}to{transform:scale(1.20) rotate(.3deg)}}
+/* On a portrait screen a 4:3 photograph in a 100svh frame is cropped to roughly its middle
+   third by object-fit:cover — you never see the sides of the room. That was the original
+   limitation the old sticky gallery solved by panning across, and going back to a plain cover
+   quietly reintroduced it. Here the frame travels the full width instead, so the whole
+   photograph is seen. Zoom is kept shallow because the pan is doing the work. */
+@media (max-aspect-ratio:1/1){
+  .vimg.on,.vimg.out{animation:vpan 18s ease-in-out forwards}
+  @keyframes vpan{
+    from{object-position:12% 50%;transform:scale(1.03) rotate(-.2deg)}
+    to{object-position:88% 50%;transform:scale(1.09) rotate(.2deg)}
+  }
+}
 .vbar{position:absolute;left:0;right:0;bottom:0;z-index:2;color:#fff;
   padding:22px calc(24px + var(--sar)) calc(58px + var(--sab)) calc(24px + var(--sal));
   background:linear-gradient(to top,rgba(16,13,11,.92),rgba(16,13,11,.55) 55%,transparent)}
@@ -569,7 +590,7 @@ html.lenis,html.lenis body{height:auto}
   display:inline-flex;align-items:center;justify-content:center}
 .vstrip button[aria-current="true"]{background:var(--accent-2);border-color:var(--accent-2);color:var(--ink);font-weight:700}
 @media (prefers-reduced-motion:reduce){
-  .vimg.on,.vimg.out{animation:none!important;transform:scale(1.02)!important}
+  .vimg.on,.vimg.out{animation:none!important;transform:scale(1.02)!important;object-position:50% 50%!important}
 }
 
 /* ============================== what we do (live mawadgroup.com) ============================== */
@@ -609,6 +630,9 @@ html.lenis,html.lenis body{height:auto}
 .qform>*{position:relative}
 .qtitle{font-size:23px;font-weight:560;margin-bottom:6px}
 .qlede{color:var(--muted);font-size:14.5px;margin-bottom:22px}
+/* The asterisk is hidden from assistive tech (the inputs carry `required`), so sighted users
+   need it spelled out once rather than left to infer it. */
+.qkey{display:block;margin-top:6px;font-size:13px}
 .qgrid{display:grid;grid-template-columns:1fr;gap:18px}
 .fld{display:flex;flex-direction:column;gap:7px}
 .fld.wide{grid-column:1/-1}
@@ -891,7 +915,8 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
         <form class="qform rise" id="qform" action="https://api.web3forms.com/submit" method="POST"
               aria-labelledby="qformH" novalidate>
           <h3 id="qformH" class="serif qtitle">Tell us about the job</h3>
-          <p class="qlede">Leave your details and we&rsquo;ll come back to you within a working day.</p>
+          <p class="qlede">Leave your details and we&rsquo;ll come back to you within a working day.
+            <span class="qkey">Fields marked <span class="req" aria-hidden="true">*</span> are required.</span></p>
 
           <input type="hidden" name="access_key" value="WEB3FORMS_ACCESS_KEY">
           <input type="hidden" name="subject" value="New kitchen enquiry — craftedideasltd.co.uk">
@@ -924,7 +949,7 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
               <span class="fhint" id="q-postcode-hint">So we know if you&rsquo;re in our patch.</span>
               <span class="err" id="q-postcode-err"></span>
             </div>
-            <div class="fld wide">
+            <div class="fld">
               <label for="q-job">What do you need? <span class="req" aria-hidden="true">*</span></label>
               <select id="q-job" name="job" required aria-describedby="q-job-err">
                 <option value="">Choose one…</option>
@@ -934,6 +959,23 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
                 <option>Other building work</option>
                 <option>Not sure yet</option>
               </select><span class="err" id="q-job-err"></span>
+            </div>
+            <div class="fld">
+              <!-- Borrowed from johnmichael.studio's enquiry form, which asks the same thing.
+                   For a trade business with no ad spend this is the only way to learn which
+                   channel actually produces work. Deliberately NOT required: an enquiry form
+                   should ask for the minimum that lets us call someone back, and this is for
+                   our benefit rather than the customer's. -->
+              <label for="q-heard">How did you hear about us?</label>
+              <select id="q-heard" name="heard">
+                <option value="">Prefer not to say</option>
+                <option>Search engine</option>
+                <option>Recommended by a friend or neighbour</option>
+                <option>Saw our work locally</option>
+                <option>Social media</option>
+                <option>Returning customer</option>
+                <option>Other</option>
+              </select>
             </div>
             <div class="fld wide">
               <label for="q-msg">Anything else</label>
@@ -1479,13 +1521,24 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
   document.getElementById('vprev').addEventListener('click',function(){show(at-1);});
   document.getElementById('vnext').addEventListener('click',function(){show(at+1);});
   /* Swipe: on a phone the whole frame is under the thumb and nobody reaches for a 48px arrow. */
-  var x0=null,y0=null;
-  box.addEventListener('touchstart',function(e){x0=e.changedTouches[0].clientX;y0=e.changedTouches[0].clientY;},{passive:true});
+  var x0=null,y0=null,horiz=false;
+  box.addEventListener('touchstart',function(e){
+    x0=e.changedTouches[0].clientX;y0=e.changedTouches[0].clientY;horiz=false;
+  },{passive:true});
+  /* NOT passive: once the drag is clearly sideways we take the gesture, so the browser cannot
+     turn it into a back-navigation halfway through. */
+  box.addEventListener('touchmove',function(e){
+    if(x0===null)return;
+    var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+    if(!horiz&&Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy))horiz=true;
+    if(horiz&&e.cancelable)e.preventDefault();
+  },{passive:false});
   box.addEventListener('touchend',function(e){
     if(x0===null)return;
     var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
-    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))show(at+(dx<0?1:-1));
+    if(Math.abs(dx)>40&&Math.abs(dx)>Math.abs(dy))show(at+(dx<0?1:-1));
     else if(dy>90&&Math.abs(dy)>Math.abs(dx))close();
+    horiz=false;
   },{passive:true});
   addEventListener('keydown',function(e){
     if(!box.classList.contains('on'))return;
@@ -1684,11 +1737,18 @@ const easeOut=t=>1-Math.pow(1-t,3);
           es.forEach(e=>{
             if(!e.isIntersecting)return;
             io.unobserve(e.target);
-            const g=grid.getBoundingClientRect(), r=e.target.getBoundingClientRect();
-            const centre=g.left+g.width/2, span=Math.max(1,g.width/2);
-            let off=Math.round(clamp((r.left+r.width/2-centre)/span,-1,1)*58);
-            if(Math.abs(off)<10)off=off<0?-20:20;
-            e.target.style.setProperty('--from',off+'px');
+            /* offsetLeft, not getBoundingClientRect: layout coordinates do not move with the
+               scroll position, and measuring against a rect captured mid-scroll skewed the
+               centre — tiles came in at -53px on the left but only +13px on the right, which
+               reads as the grid filling from one side. The magnitude is now fixed and only the
+               SIGN is measured, so both sides travel the same distance. */
+            const cells=[...grid.children];
+            const gw=grid.clientWidth||1;
+            const rel=((e.target.offsetLeft+e.target.offsetWidth/2)-gw/2)/(gw/2);
+            /* A full-width tile straddles the centre and has no side of its own, so those
+               alternate by position instead — otherwise every one of them arrives from the left. */
+            const side=Math.abs(rel)<0.12 ? (cells.indexOf(e.target)%2?1:-1) : (rel<0?-1:1);
+            e.target.style.setProperty('--from',(side*64)+'px');
             requestAnimationFrame(()=>e.target.classList.add('seen'));
           });
         },{rootMargin:'0px 0px -12% 0px'});
