@@ -6,6 +6,9 @@ import { SITE } from './site.mjs';
 mkdirSync('dist/vendor', { recursive: true });
 
 // sitemap.xml is generated below from the real page list, so it is not copied
+// The gallery lab (four candidate treatments) is retired now that D has shipped. It is in git
+// history at 7bd1dae if another comparison is ever wanted; it does not belong on a client's
+// production site.
 const statics = ['index.html', 'favicon.svg', 'robots.txt'];
 for (const f of statics) copyFileSync(f, `dist/${f}`);
 

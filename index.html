@@ -125,7 +125,7 @@ a{color:inherit;text-decoration:none}
   font-size:13px;transform:translateY(-160px);transition:transform .25s var(--ease)}
 .skip:focus{transform:none}
 /* the sheet takes the gesture (overscroll-behavior stops it chaining); this stops the wheel */
-html.menu-open{overflow:hidden}
+html.menu-open,html.viewer-open{overflow:hidden}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .lenis.lenis-stopped{overflow:hidden}
@@ -346,7 +346,7 @@ html.lenis,html.lenis body{height:auto}
      every frame, so the blur had to re-sample a moving backdrop continuously — a well-known
      source of flicker on iOS and iPadOS, and not something a headless browser will reproduce.
      The panel was already 62% opaque, so raising it to 78% loses almost nothing visually and
-     buys contrast. Same reasoning as .gcap-body over the gallery. */
+     buys contrast. */
   background:rgba(16,13,11,.78);max-width:34ch}
 /* The stack has to go on the figcaption, not on .hero-cap. The three spans are its children,
    not the figure's — putting flex-direction:column on the figure stacked one element and let
@@ -474,90 +474,102 @@ html.lenis,html.lenis body{height:auto}
 .tr h3{font-family:var(--fd);font-size:18px;font-weight:560;margin-bottom:6px}
 .tr p{color:var(--muted);font-size:14.5px;line-height:1.55}
 
-/* ============================== the work ==============================
-   Sticky-stacked: every panel pins at the top and the next one scrolls over it, so exactly one
-   project holds the screen at a time. No horizontal track, no pin arithmetic — the layout does
-   it, which means it survives with JS off and needs nothing recalculated on resize.
+/* ============================== the work: bento + viewer ==============================
+   Replaces the sticky-stacked gallery. That treatment pinned nine full-viewport panels at once,
+   which is what evicted decoded images on a tablet, and its last panel could never behave like
+   the other eight because it had nothing to be covered by. Nothing here stacks or pins.
 
-   Deliberately NOT reference A's mosaic. That is its answer to five hundred anonymous projects;
-   we have nine named ones, and on a 390px screen a mosaic shrinks the best asset on the page.
-   See com/plans/redesign-v3-preview.md §5. */
-.gallery{margin-top:clamp(40px,5vw,72px);width:100vw;margin-left:calc(50% - 50vw);position:relative}
-.gpanel{position:sticky;top:0;height:100svh;overflow:hidden;background:var(--bg2)}
-/* Dwell. With sticky stacking a panel is covered the moment the next one's flow position
-   reaches the top, so the space between them is how long it holds the screen. */
-/* :not(:last-child) is load-bearing. A bottom margin on the LAST panel has nothing to push
-   against inside .gallery — which has no padding, border or overflow — so it collapses straight
-   out of the wrapper and reappears as a gap between this section and the next. Measured: nine
-   panels at 900+540 should make the gallery 12960 tall; it measured 12420, exactly 540 short,
-   and that 540 showed up as a cream strip under the last photograph.
-   Giving the ninth panel a dwell needs padding on .gallery, not margin on the panel. */
-.gpanel:not(:last-child){margin-bottom:clamp(45vh,60vh,70vh)}
-/* No blanket will-change. Nine full-viewport images each hinted for compositing is nine
-   permanent GPU layer promotions — around 20MB apiece on a 2x tablet — and the compositor
-   starts evicting textures partway down the gallery, which shows up as flickering after the
-   fourth or fifth photograph. The module now sets the hint only on panels actually in play. */
-.gpanel img{position:absolute;left:0;top:-8%;width:100%;height:116%;object-fit:cover}
-/* Orientation mismatch: these are 4:3 photographs in a portrait panel, so object-fit:cover
-   throws away roughly a third of the frame off each side and you only ever see the middle.
-   The image keeps filling the frame; the module script pans object-position across the part
-   that is cropped. */
-@media (max-width:820px){
-  .gpanel img{width:100%;height:100%;top:0;left:0;object-position:50% 50%}
+   Tiles are real markup with a real <a href> to the photograph, so the grid exists without
+   JavaScript and for anything that reads the page. The viewer is the enhancement. */
+.bento{display:grid;gap:12px;margin-top:clamp(34px,4.5vw,60px)}
+.bcell{position:relative;overflow:hidden;border-radius:3px;background:var(--bg2);display:block;
+  width:100%;height:100%;color:#fff}
+.bcell img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease)}
+.bcell::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(16,13,11,.82),rgba(16,13,11,.04) 62%)}
+.bmeta{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:13px 14px 12px}
+.bmeta .n{color:var(--accent-2)}
+.bmeta h3{font-family:var(--fd);font-weight:400;font-size:clamp(14px,1.5vw,21px);line-height:1.15;margin-top:4px}
+.bmeta .loc{display:block;margin-top:4px;color:rgba(255,255,255,.82);font-size:9.5px}
+@media (hover:hover){.bcell:hover img{transform:scale(1.055)}}
+/* Each tile arrives from whichever side of the grid it sits on, so the grid assembles inwards.
+   The side is measured from where the tile actually is, not from its index, so it stays correct
+   when the spans change at each breakpoint. */
+.fx .bcell{opacity:0;transform:translateX(var(--from,-48px));
+  transition:opacity .7s var(--ease),transform .8s var(--ease)}
+.fx .bcell.seen{opacity:1;transform:none}
+.rm .bcell{opacity:0;transition:opacity .5s linear}
+.rm .bcell.seen{opacity:1}
+/* MOBILE: two columns held throughout, and the variety comes from HEIGHT rather than width —
+   odd widths have nowhere to go at 390px. Tiles 1, 6 and 9 span both columns, which is the one
+   sequence that leaves no orphan when nine items sit on a two-column grid. */
+.bento{grid-template-columns:repeat(2,1fr);grid-auto-rows:104px}
+.bcell{grid-column:span 1;grid-row:span 2}
+.bcell:nth-child(1),.bcell:nth-child(6),.bcell:nth-child(9){grid-column:span 2}
+/* a paired tile is ~171px wide; a location line wraps to four lines there and buries the title */
+@media (max-width:700px){
+  .bcell{--show-loc:none}
+  .bcell:nth-child(1),.bcell:nth-child(6),.bcell:nth-child(9){--show-loc:block}
+  .bmeta .loc{display:var(--show-loc)}
+  .bmeta{padding:11px 12px 11px}
 }
-/* a floor so the caption never sits on bare photograph at the very top */
-.gpanel::before{content:"";position:absolute;inset:0 0 auto 0;height:56%;z-index:1;pointer-events:none;
-  background:linear-gradient(rgba(16,13,11,.62),rgba(16,13,11,.22) 55%,transparent)}
-/* Caption top-right, out of the way of worktops and islands, which is where the eye goes.
-   Panels pin at top:0 but the nav is fixed over that first ~80px, so the caption has to start
-   below it or the title reads through the nav's blur. */
-.gcap{position:absolute;top:0;right:0;z-index:3;color:#fff;
-  display:flex;flex-direction:column;align-items:flex-end;gap:12px;text-align:right;
-  padding:calc(clamp(96px,11vh,124px) + var(--sat)) calc(clamp(20px,3.5vw,44px) + var(--sar))
-           clamp(20px,3.5vw,44px) calc(clamp(20px,3.5vw,44px) + var(--sal));
-  max-width:min(92vw,460px)}
-/* The title IS the control — one obvious target rather than a small separate toggle to find. */
-.gcap-btn{display:flex;flex-direction:column;align-items:flex-end;gap:7px;
-  background:none;border:0;padding:10px 4px;margin:-10px -4px;cursor:pointer;color:inherit;
-  font:inherit;text-align:right;touch-action:manipulation;position:relative;z-index:1}
-.gcap .gnum{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.2em;color:var(--accent-2)}
-.gtitle{font-family:var(--fd);font-weight:400;line-height:1.1;letter-spacing:-.012em;
-  font-size:clamp(24px,3vw,44px);text-shadow:0 1px 22px rgba(16,13,11,.5);
-  border-bottom:1px solid transparent;transition:border-color .3s var(--ease)}
-.gcap-btn:hover .gtitle{border-bottom-color:rgba(255,255,255,.5)}
-.gcap-lbl{display:inline-flex;align-items:center;gap:8px;
-  font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.16em;
-  text-transform:uppercase;color:rgba(255,255,255,.86)}
-.gcap-btn:hover .gcap-lbl{color:#fff}
-.gcap-ico{width:13px;height:13px;position:relative;opacity:.8}
-.gcap-ico::before,.gcap-ico::after{content:"";position:absolute;background:currentColor;
-  transition:transform .3s var(--ease)}
-.gcap-ico::before{top:6px;left:0;width:13px;height:1.5px}
-.gcap-ico::after{left:6px;top:0;width:1.5px;height:13px}
-.gcap-btn[aria-expanded="true"] .gcap-ico::after{transform:scaleY(0)}
-.gcap-body{display:flex;flex-direction:column;gap:10px;
-  /* No backdrop-filter — see .hero-cap. There is one of these per panel, each over an image the
-     module pans and scales every frame. */
-  background:rgba(16,13,11,.88);
-  padding:16px 18px;border-radius:4px}
-.gcap-body p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.94)}
-.gcap .gloc{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.16em;
-  text-transform:uppercase;color:rgba(255,255,255,.75)}
-/* Reference A's meta chips, carrying the two things we actually hold data for. Its clock and
-   price chips have nothing behind them here — no durations, no prices exist — and inventing
-   either would be the same class of error as the 070 phone number. */
-.gchips{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.gchip{display:inline-flex;align-items:center;gap:7px;padding:6px 13px;border-radius:99px;
-  /* .42 left 10px type at 3.5:1 over the two brightest photographs. The chip has to carry the
-     contrast, because what is behind it changes with every project. */
-  border:1px solid rgba(255,255,255,.5);background:rgba(16,13,11,.72);
-  font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.14em;
-  text-transform:uppercase;color:rgba(255,255,255,.92)}
-.gchip i{width:5px;height:5px;border-radius:50%;background:var(--accent-2);flex:none}
-@media (max-width:560px){
-  .gcap{max-width:none;left:0;align-items:flex-start;text-align:left}
-  .gcap-btn{align-items:flex-start;text-align:left}
-  .gchips{justify-content:flex-start}
+@media (min-width:701px){
+  .bento{grid-template-columns:repeat(6,1fr);grid-auto-rows:124px;gap:14px}
+  .bcell{grid-column:span 3;grid-row:span 2}
+  .bcell:nth-child(1){grid-column:span 6;grid-row:span 3}
+}
+@media (min-width:1001px){
+  /* twelve columns, and every row adds to exactly twelve so the bento can never leave a hole:
+     7+5 / 4+4+4 / 5+7 / 6+6 */
+  .bento{grid-template-columns:repeat(12,1fr);grid-auto-rows:132px;gap:16px}
+  .bcell{grid-column:span 4;grid-row:span 2}
+  .bcell:nth-child(1){grid-column:span 7;grid-row:span 3}
+  .bcell:nth-child(2){grid-column:span 5;grid-row:span 3}
+  .bcell:nth-child(6){grid-column:span 5;grid-row:span 3}
+  .bcell:nth-child(7){grid-column:span 7;grid-row:span 3}
+  .bcell:nth-child(8),.bcell:nth-child(9){grid-column:span 6;grid-row:span 2}
+  .bmeta{padding:18px 20px 17px}
+  .bmeta .loc{font-size:10.5px}
+}
+
+/* ---------- the viewer ---------- */
+.viewer{position:fixed;inset:0;z-index:120;background:var(--dark);display:none}
+.viewer.on{display:block}
+/* cover, not contain: letterboxing put dark bands down both sides and broke the full-bleed spell */
+.vstage{position:absolute;inset:0;overflow:hidden;background:var(--dark)}
+.vimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;
+  transition:opacity .85s linear}
+.vimg.on{opacity:1}
+/* Same language as the hero. `.out` is in the selector for the same reason it is there: keyed on
+   `.on` alone the outgoing frame drops to its base transform in one frame while still visible.
+   Floor scale 1.04 clears the ~1.5% a 0.35deg rotation needs to keep its corners inside a
+   portrait viewport. */
+.vimg.on,.vimg.out{animation:vkb 16s linear forwards}
+@keyframes vkb{from{transform:scale(1.04) rotate(-.35deg)}to{transform:scale(1.20) rotate(.3deg)}}
+.vbar{position:absolute;left:0;right:0;bottom:0;z-index:2;color:#fff;
+  padding:22px calc(24px + var(--sar)) calc(58px + var(--sab)) calc(24px + var(--sal));
+  background:linear-gradient(to top,rgba(16,13,11,.92),rgba(16,13,11,.55) 55%,transparent)}
+.vbar .n{color:var(--accent-2)}
+.vbar h3{font-family:var(--fd);font-weight:400;font-size:clamp(22px,3.6vw,34px);line-height:1.1;margin:6px 0}
+.vbar p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.94);max-width:56ch}
+.vbar .loc{display:block;margin-top:9px;color:rgba(255,255,255,.8)}
+.vbtn{position:absolute;z-index:4;width:48px;height:48px;border-radius:50%;cursor:pointer;
+  background:rgba(16,13,11,.62);border:1px solid rgba(255,255,255,.5);color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-size:21px;line-height:1;
+  transition:background .3s var(--ease),border-color .3s var(--ease)}
+.vbtn:hover{background:rgba(16,13,11,.9);border-color:#fff}
+.vclose{top:calc(14px + var(--sat));right:calc(14px + var(--sar))}
+.vprev{top:50%;left:calc(12px + var(--sal));transform:translateY(-50%)}
+.vnext{top:50%;right:calc(12px + var(--sar));transform:translateY(-50%)}
+.vstrip{position:absolute;left:0;right:0;bottom:calc(8px + var(--sab));z-index:4;
+  display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:0 14px}
+.vstrip button{width:30px;height:30px;padding:0;cursor:pointer;border-radius:50%;
+  background:rgba(16,13,11,.6);border:1px solid rgba(255,255,255,.36);color:rgba(255,255,255,.88);
+  font-family:ui-monospace,Menlo,monospace;font-size:10.5px;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center}
+.vstrip button[aria-current="true"]{background:var(--accent-2);border-color:var(--accent-2);color:var(--ink);font-weight:700}
+@media (prefers-reduced-motion:reduce){
+  .vimg.on,.vimg.out{animation:none!important;transform:scale(1.02)!important}
 }
 
 /* ============================== what we do (live mawadgroup.com) ============================== */
@@ -1020,144 +1032,81 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
     <p class="sub rise">Recent installations in Epsom, Fulham, Clapham, Dulwich, Caterham, Guildford and South Croydon — handleless runs, stone islands, bespoke cabinetry, and the lighting and joinery that finish them.</p>
 
     <!-- Vasil's own projects — his order, his titles. Manifest: com/plans/work-photos.md.
-         To swap one, replace the src AND rewrite the alt to describe that photo. The alt text
-         here describes what is in each frame, not the marketing line printed beside it. -->
-    <div class="gallery" id="gal">
-        <figure class="gpanel" aria-label="Project 1 of 9">
-          <img src="/media/work-1200/01-soft-matt-schmidt-kitchen-epsom.jpg" srcset="/media/work-800/01-soft-matt-schmidt-kitchen-epsom.jpg 800w, /media/work-1200/01-soft-matt-schmidt-kitchen-epsom.jpg 1200w" sizes="100vw" alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd1">
-              <span class="gnum">01 / 09</span>
-              <span class="gtitle">Seamless &amp; Sophisticated</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd1">
-              <p>A refined soft-matt kitchen with concealed pocket doors, integrated appliances and a discreet downdraft extractor.</p>
-              <span class="gloc">Soft Matt Schmidt Kitchen · Epsom</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Epsom</span><span class="gchip"><i></i>Full installation</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 2 of 9">
-          <img src="/media/work-1200/02-stone-island-handleless-fulham.jpg" srcset="/media/work-800/02-stone-island-handleless-fulham.jpg 800w, /media/work-1200/02-stone-island-handleless-fulham.jpg 1200w" sizes="100vw" alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd2">
-              <span class="gnum">02 / 09</span>
-              <span class="gtitle">Sculptural Simplicity</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd2">
-              <p>A striking stone island with push-to-open cabinetry, creating a beautifully clean and uninterrupted aesthetic.</p>
-              <span class="gloc">Handleless Kitchen &amp; Stone Island · Fulham</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Fulham</span><span class="gchip"><i></i>Stone island</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 3 of 9">
-          <img src="/media/work-1200/03-alno-kitchen-clapham-common.jpg" srcset="/media/work-800/03-alno-kitchen-clapham-common.jpg 800w, /media/work-1200/03-alno-kitchen-clapham-common.jpg 1200w" sizes="100vw" alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd3">
-              <span class="gnum">03 / 09</span>
-              <span class="gtitle">Contemporary Meets Character</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd3">
-              <p>An elegant Alno kitchen that balances contemporary design with the warmth and character of a period home.</p>
-              <span class="gloc">Alno Kitchen · Clapham Common</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Clapham Common</span><span class="gchip"><i></i>Period home</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 4 of 9">
-          <img src="/media/work-1200/04-bespoke-pantry-cabinetry-dulwich.jpg" srcset="/media/work-800/04-bespoke-pantry-cabinetry-dulwich.jpg 800w, /media/work-1200/04-bespoke-pantry-cabinetry-dulwich.jpg 1024w" sizes="100vw" alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd4">
-              <span class="gnum">04 / 09</span>
-              <span class="gtitle">Made for the Space</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd4">
-              <p>Bespoke navy blue kitchen and pantry units, crafted in Brixton for a new contemporary Dulwich home, combining rich colour, natural timber and considered storage.</p>
-              <span class="gloc">Bespoke Pantry &amp; Kitchen Cabinetry · Dulwich</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Dulwich</span><span class="gchip"><i></i>Bespoke cabinetry</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 5 of 9">
-          <img src="/media/work-1200/05-hand-painted-kitchen-caterham.jpg" srcset="/media/work-800/05-hand-painted-kitchen-caterham.jpg 800w, /media/work-1200/05-hand-painted-kitchen-caterham.jpg 1024w" sizes="100vw" alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd5">
-              <span class="gnum">05 / 09</span>
-              <span class="gtitle">Colour, Your Way</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd5">
-              <p>Hand-painted furniture finished in your choice of RAL colour, bringing individuality and personality to every interior.</p>
-              <span class="gloc">Hand-Painted Kitchen and Island · Caterham</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Caterham</span><span class="gchip"><i></i>Hand-painted</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 6 of 9">
-          <img src="/media/work-1200/06-zone-lighting-control-guildford.jpg" srcset="/media/work-800/06-zone-lighting-control-guildford.jpg 800w, /media/work-1200/06-zone-lighting-control-guildford.jpg 1200w" sizes="100vw" alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd6">
-              <span class="gnum">06 / 09</span>
-              <span class="gtitle">Light by Design</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd6">
-              <p>Flexible lighting controls create the perfect balance of task, ambient and architectural illumination.</p>
-              <span class="gloc">Tailor-Made Zone Lighting Control · Guildford</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Guildford</span><span class="gchip"><i></i>Zone lighting</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 7 of 9">
-          <img src="/media/work-1200/07-interior-solutions-south-croydon.jpg" srcset="/media/work-800/07-interior-solutions-south-croydon.jpg 800w, /media/work-1200/07-interior-solutions-south-croydon.jpg 1200w" sizes="100vw" alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd7">
-              <span class="gnum">07 / 09</span>
-              <span class="gtitle">Beyond the Kitchen</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd7">
-              <p>A fully considered approach to fitted furniture, creating a seamless design language throughout the home.</p>
-              <span class="gloc">Complete Made-to-Measure Interior Solutions · South Croydon</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>South Croydon</span><span class="gchip"><i></i>Fitted furniture</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 8 of 9">
-          <img src="/media/work-1200/08-renovation-remodelling.jpg" srcset="/media/work-800/08-renovation-remodelling.jpg 800w, /media/work-1200/08-renovation-remodelling.jpg 1200w" sizes="100vw" alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd8">
-              <span class="gnum">08 / 09</span>
-              <span class="gtitle">Reimagining the Home</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd8">
-              <p>Idea, design, completion. Thoughtful renovation service and bespoke design transform existing spaces into sophisticated, highly functional interiors.</p>
-              <span class="gloc">Complete Renovation &amp; Remodelling Projects</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Renovation</span><span class="gchip"><i></i>Full remodel</span></div>
-          </figcaption>
-        </figure>
-        <figure class="gpanel" aria-label="Project 9 of 9">
-          <img src="/media/work-1200/09-showroom-schmidt-epsom.jpg" srcset="/media/work-800/09-showroom-schmidt-epsom.jpg 800w, /media/work-1200/09-showroom-schmidt-epsom.jpg 1024w" sizes="100vw" alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
-          <figcaption class="gcap">
-            <button class="gcap-btn" type="button" aria-expanded="true" aria-controls="gd9">
-              <span class="gnum">09 / 09</span>
-              <span class="gtitle">Design in Detail</span>
-              <span class="gcap-lbl"><span class="gcap-txt">Hide</span><span class="gcap-ico" aria-hidden="true"></span></span>
-            </button>
-            <div class="gcap-body" id="gd9">
-              <p>A contemporary Schmidt installation showcasing architectural cabinetry, integrated appliances and a statement central island.</p>
-              <span class="gloc">Showroom Installations · Schmidt Epsom</span>
-            </div>
-            <div class="gchips"><span class="gchip"><i></i>Epsom</span><span class="gchip"><i></i>Showroom fit-out</span></div>
-          </figcaption>
-        </figure>
+         Each tile is an anchor to the photograph itself, so with JavaScript off the grid still
+         works and every project is still reachable. The viewer below intercepts the click. -->
+    <div class="bento" id="bento">
+      <a class="bcell" href="/media/work-1200/01-soft-matt-schmidt-kitchen-epsom.jpg" data-i="0"
+         data-cap="A refined soft-matt kitchen with concealed pocket doors, integrated appliances and a discreet downdraft extractor." data-alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead.">
+        <img src="/media/work-800/01-soft-matt-schmidt-kitchen-epsom.jpg" srcset="/media/work-800/01-soft-matt-schmidt-kitchen-epsom.jpg 800w, /media/work-1200/01-soft-matt-schmidt-kitchen-epsom.jpg 1200w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="Open-plan kitchen with matt black handleless cabinetry, a white marble-topped island with three stools, an integrated downdraft extractor and two skylights overhead." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">01 / 09</span>
+          <h3>Seamless &amp; Sophisticated</h3><span class="mono loc">Soft Matt Schmidt Kitchen · Epsom</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/02-stone-island-handleless-fulham.jpg" data-i="1"
+         data-cap="A striking stone island with push-to-open cabinetry, creating a beautifully clean and uninterrupted aesthetic." data-alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens.">
+        <img src="/media/work-800/02-stone-island-handleless-fulham.jpg" srcset="/media/work-800/02-stone-island-handleless-fulham.jpg 800w, /media/work-1200/02-stone-island-handleless-fulham.jpg 1200w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="Handleless taupe kitchen with a heavily veined white and purple marble island and matching splashback, beside a run of integrated ovens." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">02 / 09</span>
+          <h3>Sculptural Simplicity</h3><span class="mono loc">Handleless Kitchen &amp; Stone Island · Fulham</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/03-alno-kitchen-clapham-common.jpg" data-i="2"
+         data-cap="An elegant Alno kitchen that balances contemporary design with the warmth and character of a period home." data-alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table.">
+        <img src="/media/work-800/03-alno-kitchen-clapham-common.jpg" srcset="/media/work-800/03-alno-kitchen-clapham-common.jpg 800w, /media/work-1200/03-alno-kitchen-clapham-common.jpg 1200w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="White handleless kitchen in a rear extension, seen through open bifold doors from the garden, with exposed brick, pendant lights and a dining table." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">03 / 09</span>
+          <h3>Contemporary Meets Character</h3><span class="mono loc">Alno Kitchen · Clapham Common</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/04-bespoke-pantry-cabinetry-dulwich.jpg" data-i="3"
+         data-cap="Bespoke navy blue kitchen and pantry units, crafted in Brixton for a new contemporary Dulwich home, combining rich colour, natural timber and considered storage." data-alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond.">
+        <img src="/media/work-800/04-bespoke-pantry-cabinetry-dulwich.jpg" srcset="/media/work-800/04-bespoke-pantry-cabinetry-dulwich.jpg 800w, /media/work-1200/04-bespoke-pantry-cabinetry-dulwich.jpg 1024w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="Navy blue kitchen with oak open shelving, a grey chevron-tiled splashback, white worktops and an integrated oven, with a boot room visible beyond." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">04 / 09</span>
+          <h3>Made for the Space</h3><span class="mono loc">Bespoke Pantry &amp; Kitchen Cabinetry · Dulwich</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/05-hand-painted-kitchen-caterham.jpg" data-i="4"
+         data-cap="Hand-painted furniture finished in your choice of RAL colour, bringing individuality and personality to every interior." data-alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools.">
+        <img src="/media/work-800/05-hand-painted-kitchen-caterham.jpg" srcset="/media/work-800/05-hand-painted-kitchen-caterham.jpg 800w, /media/work-1200/05-hand-painted-kitchen-caterham.jpg 1024w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="Hand-painted grey shaker kitchen with a marble splashback, a stainless range cooker and a dark grey island with three chrome stools." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">05 / 09</span>
+          <h3>Colour, Your Way</h3><span class="mono loc">Hand-Painted Kitchen and Island · Caterham</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/06-zone-lighting-control-guildford.jpg" data-i="5"
+         data-cap="Flexible lighting controls create the perfect balance of task, ambient and architectural illumination." data-alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden.">
+        <img src="/media/work-800/06-zone-lighting-control-guildford.jpg" srcset="/media/work-800/06-zone-lighting-control-guildford.jpg 800w, /media/work-1200/06-zone-lighting-control-guildford.jpg 1200w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="White and grey handleless kitchen with under-cabinet and plinth lighting, a large island with induction hob, and full-height windows onto a garden." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">06 / 09</span>
+          <h3>Light by Design</h3><span class="mono loc">Tailor-Made Zone Lighting Control · Guildford</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/07-interior-solutions-south-croydon.jpg" data-i="6"
+         data-cap="A fully considered approach to fitted furniture, creating a seamless design language throughout the home." data-alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer.">
+        <img src="/media/work-800/07-interior-solutions-south-croydon.jpg" srcset="/media/work-800/07-interior-solutions-south-croydon.jpg 800w, /media/work-1200/07-interior-solutions-south-croydon.jpg 1200w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="Dark green handleless kitchen with oak open shelving, a concrete-topped island with three wooden stools, and an American fridge freezer." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">07 / 09</span>
+          <h3>Beyond the Kitchen</h3><span class="mono loc">Complete Made-to-Measure Interior Solutions · South Croydon</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/08-renovation-remodelling.jpg" data-i="7"
+         data-cap="Idea, design, completion. Thoughtful renovation service and bespoke design transform existing spaces into sophisticated, highly functional interiors." data-alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens.">
+        <img src="/media/work-800/08-renovation-remodelling.jpg" srcset="/media/work-800/08-renovation-remodelling.jpg 800w, /media/work-1200/08-renovation-remodelling.jpg 1200w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="Compact white handleless kitchen, newly finished and unfurnished, with a marble-effect island, brass tap and integrated ovens." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">08 / 09</span>
+          <h3>Reimagining the Home</h3><span class="mono loc">Complete Renovation &amp; Remodelling Projects</span></span>
+      </a>
+      <a class="bcell" href="/media/work-1200/09-showroom-schmidt-epsom.jpg" data-i="8"
+         data-cap="A contemporary Schmidt installation showcasing architectural cabinetry, integrated appliances and a statement central island." data-alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside.">
+        <img src="/media/work-800/09-showroom-schmidt-epsom.jpg" srcset="/media/work-800/09-showroom-schmidt-epsom.jpg 800w, /media/work-1200/09-showroom-schmidt-epsom.jpg 1024w"
+             sizes="(max-width:700px) 50vw, (max-width:1000px) 50vw, 33vw"
+             alt="Schmidt showroom display: gloss white kitchen with an oak-clad island, marble splashback and a laid dining setting alongside." loading="lazy" decoding="async">
+        <span class="bmeta"><span class="mono n">09 / 09</span>
+          <h3>Design in Detail</h3><span class="mono loc">Showroom Installations · Schmidt Epsom</span></span>
+      </a>
     </div>
   </div>
 </section>
@@ -1251,6 +1200,25 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 
 </main>
 
+<!-- Full-screen project viewer. Two stacked layers so frames cross-fade with a push-in rather
+     than the src being swapped under you, which flashes on anything not yet decoded. -->
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Project photograph" hidden>
+  <div class="vstage" aria-hidden="true">
+    <img class="vimg" id="vimg-a" alt="">
+    <img class="vimg" id="vimg-b" alt="">
+  </div>
+  <button class="vbtn vclose" id="vclose" type="button" aria-label="Close">&#10005;</button>
+  <button class="vbtn vprev" id="vprev" type="button" aria-label="Previous project">&#8249;</button>
+  <button class="vbtn vnext" id="vnext" type="button" aria-label="Next project">&#8250;</button>
+  <div class="vstrip" id="vstrip" role="group" aria-label="Go to project"></div>
+  <div class="vbar">
+    <span class="mono n" id="vnum"></span>
+    <h3 id="vtitle"></h3>
+    <p id="vcap"></p>
+    <span class="mono loc" id="vloc"></span>
+  </div>
+</div>
+
 <footer>
   <section class="wrap creds" aria-labelledby="credsH">
     <span class="mono falabel" id="credsH">Cover &amp; registration</span>
@@ -1287,7 +1255,8 @@ var nav=document.getElementById('nav'),prog=document.querySelector('.progress');
    box-overlap against each [data-dark] block plus the gallery, which is dark by photograph
    rather than by background. Lives in the classic layer so it holds with the fx module absent. */
 var darks=[].slice.call(document.querySelectorAll('[data-dark]'));
-var gal=document.getElementById('gal'); if(gal)darks.push(gal);
+/* The old sticky gallery was a dark block the nav had to invert across. The bento sits on a
+   light band, so there is no longer anything here but the [data-dark] sections themselves. */
 /* Safari paints the strip above the page from theme-color, and it repaints when the meta
    changes. Biased dark on purpose: a strip darker than the photograph reads as a frame, while
    a lighter one reads as a bar, which is the failure this started from.
@@ -1305,8 +1274,12 @@ function tok(n){
 }
 function paintChrome(){
   if(!meta)return;
-  var want=(narrow.matches&&nav.classList.contains('on-dark')
-    &&!document.documentElement.classList.contains('menu-open'))?tok('--dark'):tok('--bg');
+  var root=document.documentElement;
+  /* The viewer is a full-screen dark surface, so the strip above it follows it there — but the
+     menu sheet is cream, so that one goes the other way. Two locks, two answers. */
+  var want=root.classList.contains('viewer-open') ? tok('--dark')
+    : (narrow.matches&&nav.classList.contains('on-dark')&&!root.classList.contains('menu-open'))
+      ? tok('--dark') : tok('--bg');
   if(meta.content!==want)meta.content=want;
 }
 narrow.addEventListener('change',paintChrome);
@@ -1433,22 +1406,100 @@ addEventListener('scroll',onScrollBasic,{passive:true});onScrollBasic();
   else schedule();
 })();
 
-/* gallery captions: collapsed to a title, details on demand. Lives in the classic layer so it
-   works with the fx module absent, and it is a real disclosure — button, aria-expanded, and the
-   body genuinely hidden when collapsed so assistive tech and the eye agree on the state. */
+/* ---------- work: the full-screen viewer ----------
+   Classic layer, so it works when the fx module never loads. Every tile is an <a href> to the
+   photograph; this intercepts the click and opens the viewer instead. With JS off, or if this
+   throws, the links still resolve to the image. */
 (function(){
-  var btns=document.querySelectorAll('.gcap-btn');
-  if(!btns.length)return;
-  [].forEach.call(btns,function(btn){
-    var body=document.getElementById(btn.getAttribute('aria-controls'));
-    if(!body)return;
-    var txt=btn.querySelector('.gcap-txt');
-    btn.addEventListener('click',function(){
-      var open=btn.getAttribute('aria-expanded')==='true';
-      btn.setAttribute('aria-expanded',open?'false':'true');
-      body.hidden=open;
-      if(txt)txt.textContent=open?'Details':'Hide';
+  var box=document.getElementById('viewer'), grid=document.getElementById('bento');
+  if(!box||!grid)return;
+  var cells=[].slice.call(grid.querySelectorAll('.bcell'));
+  if(!cells.length)return;
+  var layers=[document.getElementById('vimg-a'),document.getElementById('vimg-b')], live=0;
+  var num=document.getElementById('vnum'),ttl=document.getElementById('vtitle'),
+      cap=document.getElementById('vcap'),loc=document.getElementById('vloc'),
+      strip=document.getElementById('vstrip');
+  var at=0, opener=null;
+  var data=cells.map(function(c){
+    return {href:c.getAttribute('href'), cap:c.getAttribute('data-cap'), alt:c.getAttribute('data-alt'),
+      title:c.querySelector('h3').textContent, loc:c.querySelector('.loc').textContent};
+  });
+  var pad=function(n){return (n<10?'0':'')+n;};
+
+  data.forEach(function(o,i){
+    var b=document.createElement('button');
+    b.type='button';b.textContent=String(i+1);
+    b.setAttribute('aria-label','Show project '+(i+1)+': '+o.title);
+    b.addEventListener('click',function(){show(i);});
+    strip.appendChild(b);
+  });
+
+  function show(i){
+    at=((i%data.length)+data.length)%data.length;
+    var o=data[at];
+    /* Swap layers rather than the src: the outgoing frame stays on screen and fades while the
+       incoming one arrives, instead of blanking on anything not yet decoded. */
+    var nx=layers[1-live], cur=layers[live];
+    nx.src=o.href; nx.alt=o.alt;
+    var run=function(){
+      cur.classList.remove('on');cur.classList.add('out');
+      nx.classList.remove('out');
+      nx.style.animation='none';void nx.offsetWidth;nx.style.animation='';
+      nx.classList.add('on');
+      live=1-live;
+      setTimeout(function(){if(!cur.classList.contains('on'))cur.classList.remove('out');},1200);
+    };
+    if(nx.complete&&nx.naturalWidth)run();else nx.addEventListener('load',run,{once:true});
+    num.textContent=pad(at+1)+' / '+pad(data.length);
+    ttl.textContent=o.title;cap.textContent=o.cap;loc.textContent=o.loc;
+    [].forEach.call(strip.children,function(b,k){
+      if(k===at)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
     });
+  }
+  function open(i,from){
+    opener=from||null;
+    box.hidden=false;box.classList.add('on');
+    document.documentElement.classList.add('viewer-open');
+    if(window.__lenis)window.__lenis.stop();
+    show(i);
+    if(typeof paintChrome==='function')paintChrome();
+    document.getElementById('vclose').focus();
+  }
+  function close(){
+    box.classList.remove('on');box.hidden=true;
+    document.documentElement.classList.remove('viewer-open');
+    if(window.__lenis)window.__lenis.start();
+    if(typeof paintChrome==='function')paintChrome();
+    if(opener)opener.focus();
+  }
+  cells.forEach(function(c,i){
+    c.addEventListener('click',function(e){e.preventDefault();open(i,c);});
+  });
+  document.getElementById('vclose').addEventListener('click',close);
+  document.getElementById('vprev').addEventListener('click',function(){show(at-1);});
+  document.getElementById('vnext').addEventListener('click',function(){show(at+1);});
+  /* Swipe: on a phone the whole frame is under the thumb and nobody reaches for a 48px arrow. */
+  var x0=null,y0=null;
+  box.addEventListener('touchstart',function(e){x0=e.changedTouches[0].clientX;y0=e.changedTouches[0].clientY;},{passive:true});
+  box.addEventListener('touchend',function(e){
+    if(x0===null)return;
+    var dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0; x0=null;
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy))show(at+(dx<0?1:-1));
+    else if(dy>90&&Math.abs(dy)>Math.abs(dx))close();
+  },{passive:true});
+  addEventListener('keydown',function(e){
+    if(!box.classList.contains('on'))return;
+    if(e.key==='Escape'){close();return;}
+    if(e.key==='ArrowRight'){show(at+1);return;}
+    if(e.key==='ArrowLeft'){show(at-1);return;}
+    /* a modal that lets Tab wander into the page behind it is worse than no modal */
+    if(e.key==='Tab'){
+      var f=box.querySelectorAll('button');
+      if(!f.length)return;
+      var first=f[0],lastEl=f[f.length-1];
+      if(e.shiftKey&&document.activeElement===first){e.preventDefault();lastEl.focus();}
+      else if(!e.shiftKey&&document.activeElement===lastEl){e.preventDefault();first.focus();}
+    }
   });
 })();
 
@@ -1486,6 +1537,8 @@ if(document.documentElement.classList.contains('rm')&&'IntersectionObserver' in 
     es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('seen');rio.unobserve(e.target);}});
   },{rootMargin:'0px 0px -10% 0px'});
   document.querySelectorAll('.rise').forEach(function(el){rio.observe(el);});
+  /* .bcell is hidden by `.rm .bcell{opacity:0}` and would stay hidden without this */
+  document.querySelectorAll('.bcell').forEach(function(el){rio.observe(el);});
 }
 
 /* ---------- quote form ----------
@@ -1619,124 +1672,29 @@ const easeOut=t=>1-Math.pow(1-t,3);
       }
     }
 
-    /* ---------- work gallery: the photograph moves, and so does its caption ----------
-       The stacking is pure CSS sticky, so there is no pin length to compute and nothing to
-       recalculate on resize. What this adds is motion inside each frame: the photograph
-       travels across whichever axis is being cropped, and the caption arrives after it and
-       leaves before it.
-
-       Progress has to come from the panel's OWN slot, and that slot is not one viewport tall —
-       the 60vh dwell gap between panels is part of the stride. Getting that wrong is why only
-       the first two panels ever moved in an earlier version. */
+    /* ---------- work: the bento assembles from the sides ----------
+       Which side a tile flies in from is read from where it actually SITS, measured once on
+       reveal, not from its index — so the grid still builds inwards when the spans change at
+       each breakpoint. Observed once, then released: no scroll handler, nothing recomputed per
+       frame, and no element left permanently promoted to its own compositing layer. */
     {
-      const gal=document.getElementById('gal');
-      const panels=[...document.querySelectorAll('.gpanel')];
-      if(gal&&panels.length){
-        const items=panels.map(p=>({pan:p,im:p.querySelector('img'),
-          cap:p.querySelector('.gcap'),body:p.querySelector('.gcap-body')})).filter(o=>o.im);
-        /* nine panels x three elements every frame — only write what actually changed */
-        const set=(el,k,v)=>{if(el&&el['_fx'+k]!==v){el['_fx'+k]=v;el.style[k]=v;}};
-        let gap=0,raf=false;
-        const gauge=()=>{gap=parseFloat(getComputedStyle(items[0].pan).marginBottom)||0;};
-        /* Keyboard focus has to win over the fade — a tab stop can never be invisible. Pointer
-           focus must not, or the caption you just tapped Hide on stays lit while its panel
-           scrolls back off. :focus-visible is exactly that line. */
-        let fv=true; try{document.body.matches(':focus-visible');}catch(e){fv=false;}
-        const run=()=>{
-          raf=false;
-          const vh=innerHeight;
-          /* A stuck panel's rect.top is pinned at 0, so it cannot be the progress source. The
-             gallery wrapper is the one box in here that never sticks, so measure from that. */
-          const galTop=gal.getBoundingClientRect().top+scrollY;
-          /* Every panel is the same box — one CSS rule, no per-panel overrides — so measure
-             one of them. Doing it per panel would interleave reads with the style writes
-             below and force a fresh layout nine times over on every frame of every scroll. */
-          const H=items[0].pan.offsetHeight||vh, stride=H+gap, last=items.length-1;
-          const panRatio=items[0].pan.offsetWidth/(H||1);
-          items.forEach((o,i)=>{
-            /* the whole time this panel is on screen: from its first pixel clearing the fold
-               to the moment the next one has covered it. Nothing follows the last panel, so it
-               is never covered — it leaves by scrolling away instead. */
-            /* The last panel has no dwell margin, so its life is its own height plus a
-               viewport — not the full stride. Getting this wrong makes its caption arrive
-               roughly half a screen late. */
-            const life=(i<last?stride:H)+vh;
-            const p=clamp((scrollY-(galTop+i*stride-vh))/life,0,1);
-            /* Smootherstep, because a panel owns the screen outright for only the middle fifth
-               of that life. A linear ramp would spend most of the travel while the frame is
-               half covered; this puts about 40% of it into the part anyone is looking at. */
-            const e=p*p*p*(p*(p*6-15)+10);
-            /* Which axis is actually cropped? Compare the photograph's own ratio with the
-               panel's — no layout measurement involved, so it cannot disagree with what the
-               browser actually did. */
-            const nw=o.im.naturalWidth, nh=o.im.naturalHeight;
-            const imgRatio=(nw&&nh)?nw/nh:4/3;
-            if(imgRatio>panRatio*1.08){
-              /* Portrait frame — in practice this is the phone. Direction alternates: project 01
-                 sweeps left to right, 02 right to left, and so on. Nine panels all travelling the
-                 same way turned the section into a conveyor belt; alternating reads as the camera
-                 looking around each room rather than one long tracking shot. */
-              const ltr=(i%2===0);
-              const from=ltr?12:88, to=ltr?88:12;
-              set(o.im,'transform','');
-              set(o.im,'objectPosition',`${(from+(to-from)*e).toFixed(1)}% 50%`);
-            }else{
-              /* A wide panel crops the top and bottom, not the sides, so there is no hidden
-                 margin to pan sideways into. Drift on the axis that IS cropped, plus a real
-                 push-in — 1.00 to 1.15 rather than the 1.045 this started at.
-
-                 The maths that keeps it inside the frame: the image is 116% of the panel's
-                 height and hangs 8% off each end, so at scale s it clears (116s-100)/2 percent
-                 top and bottom — 16.7% at s=1.15. The drift is 3.5% of the image's own box,
-                 which is 4.1% of the panel. 4.1 well inside 16.7. Sideways it clears
-                 (100s-100)/2 = 7.5% and travels nowhere. */
-              set(o.im,'objectPosition','');
-              set(o.im,'transform',`translate3d(0,${(e*7-3.5).toFixed(2)}%,0) scale(${(1+e*.15).toFixed(4)})`);
-            }
-            /* Compositing hint, only while this panel is actually in play. As a blanket CSS rule
-               it promoted all nine full-screen images to permanent GPU layers at once. */
-            const live=p>0&&p<1;
-            set(o.im,'willChange',live?'transform':'');
-            /* Blend the seam. Each panel rises over the one before it and, left alone, its top
-               edge is a hard line travelling up the screen. Fading it up as it rises turns that
-               into a dissolve while keeping the movement.
-
-               Written ONLY while the blend is actually mid-way. The first version wrote a value
-               for every panel on every frame, so panels nowhere near the screen sat at opacity
-               .42 — eight translucent full-viewport layers stacked at once, each forcing its own
-               stacking context. Clearing the property instead of setting it to 1 matters: any
-               opacity below 1 composites, and an inline `1` is dead weight in the style map.
-               Panel 0 is excluded — there is no photograph beneath it, only the cream band it
-               would wash out against. */
-            const rise=clamp(1-(galTop+i*stride-scrollY)/vh,0,1);
-            if(i===0||rise<=0||rise>=1) set(o.pan,'opacity','');
-            else set(o.pan,'opacity',(.42+.58*(rise*rise*(3-2*rise))).toFixed(3));
-            /* The caption is the second act: it rises and fades in once the photograph has
-               settled, holds through the dwell, then lifts away as the next panel closes over
-               it — so one caption is always arriving as another leaves. */
-            if(!o.cap)return;
-            const a=document.activeElement;
-            if(a&&o.cap.contains(a)&&(!fv||a.matches(':focus-visible'))){
-              set(o.cap,'opacity','1');set(o.cap,'transform','');
-              set(o.body,'opacity','1');set(o.body,'transform','');
-              return;
-            }
-            const arrive=easeOut(seg(p,.26,.52)), go=seg(p,.74,.97), stay=1-go*go;
-            set(o.cap,'opacity',(arrive*stay).toFixed(3));
-            set(o.cap,'transform',`translate3d(0,${((1-arrive)*30-(1-stay)*18).toFixed(1)}px,0)`);
-            const late=easeOut(seg(p,.36,.66));
-            set(o.body,'opacity',late.toFixed(3));
-            set(o.body,'transform',`translate3d(0,${((1-late)*22).toFixed(1)}px,0)`);
+      const grid=document.getElementById('bento');
+      if(grid&&'IntersectionObserver' in window){
+        const io=new IntersectionObserver(es=>{
+          es.forEach(e=>{
+            if(!e.isIntersecting)return;
+            io.unobserve(e.target);
+            const g=grid.getBoundingClientRect(), r=e.target.getBoundingClientRect();
+            const centre=g.left+g.width/2, span=Math.max(1,g.width/2);
+            let off=Math.round(clamp((r.left+r.width/2-centre)/span,-1,1)*58);
+            if(Math.abs(off)<10)off=off<0?-20:20;
+            e.target.style.setProperty('--from',off+'px');
+            requestAnimationFrame(()=>e.target.classList.add('seen'));
           });
-        };
-        const onS=()=>{if(!raf){raf=true;requestAnimationFrame(run);}};
-        addEventListener('scroll',onS,{passive:true});
-        addEventListener('resize',()=>{gauge();onS();},{passive:true});
-        addEventListener('focusin',onS);   /* focus can land on a caption with no scroll at all */
-        /* the axis is chosen from naturalWidth, which is 0 until a lazy image has decoded —
-           until then it falls back to 4:3 and could pick the wrong one, so re-run on arrival */
-        items.forEach(o=>{if(!o.im.complete)o.im.addEventListener('load',onS,{once:true});});
-        gauge();run();
+        },{rootMargin:'0px 0px -12% 0px'});
+        [...grid.children].forEach(c=>io.observe(c));
+      }else if(grid){
+        [...grid.children].forEach(c=>c.classList.add('seen'));
       }
     }
 
