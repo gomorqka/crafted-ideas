@@ -64,25 +64,36 @@ Nine real projects are in. Manifest — Vasil's order, titles and captions — i
 
 **Every photograph ships in three sizes**, and the build copies all three folders:
 
-| Folder | Size | Used by |
-|---|---|---|
-| `media/work/` | original (1024–1600px) | the `srcset` 1600w/1024w candidate |
-| `media/work-800/` | 800px long edge, q72 | the 800w candidate, and the "What we do" cards |
-| `media/work-thumb/` | 240px long edge, q65 | the hero filmstrip |
+| Folder | Size | Shipped? | Used by |
+|---|---|---|---|
+| `media/work/` | original, 1024–1600px | **no** | source only — the other three are generated from it |
+| `media/work-1200/` | 1200px long edge, q76 | yes | the large `srcset` candidate, and every `src` fallback |
+| `media/work-800/` | 800px long edge, q72 | yes | the 800w candidate, and the "What we do" cards |
+| `media/work-thumb/` | 240px long edge, q65 | yes | the hero filmstrip |
+
+⚠️ **Do not put the 1600px originals back in the page.** Six of the nine are upscales of
+1024–1280px sources, so those pixels carry no detail — but they cost 53MB of decoded bitmap
+against 34MB for the 1200 set. On an iPad, where each composited surface is roughly twice a
+phone's, that was enough for Safari to start evicting and re-decoding: the gallery flickered from
+the fifth photograph on and the eighth never painted at all. Desktop and phone were both fine,
+which is exactly why it took a real device to find.
 
 Regenerate the two derived sets after adding or replacing anything in `media/work/`:
 
 ```bash
-mkdir -p media/work-800 media/work-thumb
+mkdir -p media/work-1200 media/work-800 media/work-thumb
 for f in media/work/*.jpg; do b=$(basename "$f")
-  cp "$f" "media/work-800/$b";   sips -Z 800 --setProperty formatOptions 72 "media/work-800/$b"  >/dev/null
-  cp "$f" "media/work-thumb/$b"; sips -Z 240 --setProperty formatOptions 65 "media/work-thumb/$b" >/dev/null
+  w=$(sips -g pixelWidth "$f" | awk '/pixelWidth/{print $2}')
+  # -Z enlarges as well as shrinks, and three of these are native 1024 — only ever shrink
+  cp "$f" "media/work-1200/$b"; [ "$w" -gt 1200 ] && sips -Z 1200 --setProperty formatOptions 76 "media/work-1200/$b" >/dev/null
+  cp "$f" "media/work-800/$b";   sips -Z 800  --setProperty formatOptions 72 "media/work-800/$b"  >/dev/null
+  cp "$f" "media/work-thumb/$b"; sips -Z 240  --setProperty formatOptions 65 "media/work-thumb/$b" >/dev/null
 done
 ```
 
 `sips` is macOS-only, which is why this is a hand step and not part of `build.mjs` — **Vercel builds on Linux**, so a `sips` call in the build would fail the deploy. Commit the generated files.
 
-Then add the `<figure class="gpanel">` block in `#work`, matching the `srcset` widths to that file's real pixel width (six are 1600, three are 1024 — do not claim 1600 for a 1024 file). Write a real `alt` describing what is in the frame — "Fitted kitchen" tells a screen-reader user nothing, and the `alt` is not the marketing line printed beside it.
+Then add the `<figure class="gpanel">` block in `#work`, matching the `srcset` widths to the **work-1200** file's real pixel width (1200 for the six that were larger, 1024 for the three that were already smaller — do not claim 1200 for a 1024 file). Write a real `alt` describing what is in the frame — "Fitted kitchen" tells a screen-reader user nothing, and the `alt` is not the marketing line printed beside it.
 
 **Don't** put stock or AI-generated images here. This section represents completed work to prospective customers; anything else is misleading and a problem under the CAP Code. (The retired `media/seq/` frames *are* AI-generated — see Motion.)
 
