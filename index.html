@@ -486,7 +486,13 @@ html.lenis,html.lenis body{height:auto}
 /* position:relative so the grid IS the offsetParent its tiles measure against. Without it
    offsetLeft is relative to .wrap and carries its padding, which pushed every full-width tile
    off centre and sent them all in from the same side. */
-.bento{display:grid;gap:12px;margin-top:clamp(34px,4.5vw,60px);position:relative}
+/* overflow-x:clip, not hidden: `clip` does not create a scroll container, so it cannot become
+   a stray scrollable box. Without it the 140px fly-in pushed tiles past the right edge and the
+   document measured 502px wide inside a 390px viewport — body{overflow-x:hidden} stops the user
+   panning to it, but the page is still wrong. Tiles now emerge from the grid's own edge, which
+   also reads better than sliding in from somewhere off-screen. */
+.bento{display:grid;gap:12px;margin-top:clamp(34px,4.5vw,60px);position:relative;
+  overflow-x:hidden;overflow-x:clip}
 .bcell{position:relative;overflow:hidden;border-radius:3px;background:var(--bg2);display:block;
   width:100%;height:100%;color:#fff}
 .bcell img{width:100%;height:100%;object-fit:cover;transition:transform .7s var(--ease)}
@@ -679,20 +685,9 @@ footer .freg{margin-top:10px}
 .coverline b{color:var(--ink);font-weight:600}
 /* credentials — every figure here comes off the Allianz schedule in com/docs.
    Never claim cover we haven't read off the document; see the standing rule in the plan. */
-.creds{padding-bottom:34px;margin-bottom:30px;border-bottom:1px solid var(--line)}
-.creds .falabel{display:block;margin-bottom:14px}
-.credlist{list-style:none;display:flex;flex-wrap:wrap;gap:11px 30px}
-/* NOT display:flex on the li. That made the <b> and the text either side of it separate flex
-   items, so each one wrapped in its own column instead of the line reading as one sentence. */
-.credlist li{position:relative;padding-left:17px;font-size:14px;line-height:1.6;
-  color:var(--muted);max-width:36ch}
-.credlist li::before{content:"";position:absolute;left:0;top:.62em;width:5px;height:5px;
-  border-radius:50%;background:var(--accent)}
-.credlist b{font-weight:600;color:var(--ink)}
-@media (max-width:700px){
-  .credlist{flex-direction:column;gap:13px}
-  .credlist li{max-width:none}
-}
+
+
+
 footer .fb{font-family:var(--fd);font-weight:600;font-size:18px;color:var(--ink)}
 footer .fb .dot{color:var(--accent)}
 footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
@@ -1270,19 +1265,11 @@ footer .credit a{color:var(--ink);border-bottom:1px solid var(--line)}
 </div>
 
 <footer>
-  <section class="wrap creds" aria-labelledby="credsH">
-    <span class="mono falabel" id="credsH">Cover &amp; registration</span>
-    <!-- Figures read off the Allianz schedule held in com/docs (policy number deliberately
-         not written here either — HTML comments ship to the browser).
-         Public & Products Liability £5,000,000 · Employers' Liability £10,000,000.
-         RENEWAL 05/02/2027 — re-read the schedule then; do not let a stale figure stand. -->
-    <ul class="credlist">
-      <li><b>£5m</b> public liability cover, with Allianz</li>
-      <li><b>£10m</b> employers&rsquo; liability</li>
-      <li><b>Company No. 16881417</b> — registered in England</li>
-      <li>Gas &amp; electrical work by <b>registered</b> Gas Safe / NICEIC subcontractors</li>
-    </ul>
-  </section>
+  <!-- The "Cover & registration" strip that used to sit here has gone. It listed the Allianz
+       figures, the company number and the Gas Safe / NICEIC subcontractor wording — all four of
+       which the #why band now states higher up the page and more prominently. Saying them twice
+       made the footer look like a disclaimer rather than a signature. The registered-office line
+       below stays: that is a legal disclosure, not a credential. -->
   <section class="wrap fareas" aria-labelledby="coverH">
     <span class="mono falabel" id="coverH">Where we work</span>
     <p class="coverline">Kitchens across <b>Greater London and the surrounding counties</b> — recent
@@ -1733,31 +1720,45 @@ const easeOut=t=>1-Math.pow(1-t,3);
       }
     }
 
-    /* ---------- work: the bento assembles from the sides ----------
-       Which side a tile flies in from is read from where it actually SITS, measured once on
-       reveal, not from its index — so the grid still builds inwards when the spans change at
-       each breakpoint. Observed once, then released: no scroll handler, nothing recomputed per
-       frame, and no element left permanently promoted to its own compositing layer. */
+    /* ---------- work: the bento assembles row by row ----------
+       Row 1 sweeps in from the left, row 2 from the right, and so on. Rows are read from the
+       LAYOUT rather than hard-coded, because the spans change at every breakpoint — a phone has
+       six rows (1 / 2-3 / 4-5 / 6 / 7-8 / 9) where a desktop has four (1-2 / 3-4-5 / 6-7 / 8-9),
+       so any fixed list of indices is right at one width and wrong at the others. Grouping on
+       offsetTop gets it right everywhere without knowing the spans at all.
+
+       Two earlier attempts read as one-sided. Deriving each tile's side from its own position
+       meant neighbours in the same row arrived from opposite sides, which looks like noise
+       rather than direction; and 64px of travel was too short to register at all. A whole row
+       moving together, 140px, staggered along the direction of travel, is legible. */
     {
       const grid=document.getElementById('bento');
       if(grid&&'IntersectionObserver' in window){
+        const cells=[...grid.children];
+        const rows=[];
+        cells.forEach(c=>{
+          let r=rows.find(x=>Math.abs(x.top-c.offsetTop)<8);
+          if(!r){r={top:c.offsetTop,items:[]};rows.push(r);}
+          r.items.push(c);
+        });
+        rows.sort((a,b)=>a.top-b.top);
+        rows.forEach((row,ri)=>{
+          const fromLeft=(ri%2===0);
+          row.items.sort((a,b)=>a.offsetLeft-b.offsetLeft);
+          /* stagger along the direction of travel, so the row sweeps rather than landing flat */
+          (fromLeft?row.items:[...row.items].reverse()).forEach((c,k)=>{
+            c.style.setProperty('--from',(fromLeft?-140:140)+'px');
+            c.style.transitionDelay=(k*90)+'ms';
+          });
+        });
         const io=new IntersectionObserver(es=>{
           es.forEach(e=>{
             if(!e.isIntersecting)return;
             io.unobserve(e.target);
-            /* Georgi's spec, and deterministic rather than measured. Deriving the side from
-               each tile's position sounded right and read wrong: at 64px the travel was too
-               short to register as direction, and the sides it picked changed with the spans at
-               every breakpoint, so the grid never assembled the same way twice.
-               Projects 1, 3, 6 and 9 come in from the left; 2, 4, 5, 7 and 8 from the right.
-               They converge on the centre, which is the point. */
-            const i=[...grid.children].indexOf(e.target);
-            const fromLeft=(i===0||i===2||i===5||i===8);
-            e.target.style.setProperty('--from',(fromLeft?-140:140)+'px');
             requestAnimationFrame(()=>e.target.classList.add('seen'));
           });
-        },{rootMargin:'0px 0px -12% 0px'});
-        [...grid.children].forEach(c=>io.observe(c));
+        },{rootMargin:'0px 0px -18% 0px'});
+        cells.forEach(c=>io.observe(c));
       }else if(grid){
         [...grid.children].forEach(c=>c.classList.add('seen'));
       }

@@ -47,8 +47,8 @@ What's left, in order of what unblocks the most:
 **Closed — do not re-open these as "needed":**
 
 - ~~Project photos~~ — nine arrived 26 Aug and are live in `#work`. Manifest: `com/plans/work-photos.md`.
-- ~~Public liability insurance~~ — £5m public & products, £10m employers', read off the Allianz schedule in `com/docs`. Both figures now ship in the `#why` band **and** the footer strip. ⚠️ **Renewal 05/02/2027** — re-read the schedule then; a stale cover figure is a misrepresentation, not a typo.
-- ~~Trade certifications~~ — settled 26 Aug: Crafted Ideas Ltd is **not** itself Gas Safe or NICEIC registered. Gas and electrical work goes to subcontractors who are. The page says exactly that, in `#why` and in the footer, and must keep saying exactly that.
+- ~~Public liability insurance~~ — £5m public & products, £10m employers', read off the Allianz schedule in `com/docs`. Both figures ship in the `#why` band. The footer used to repeat them; that duplicate strip was removed once `#why` existed, since saying them twice made the footer read as a disclaimer. ⚠️ **Renewal 05/02/2027** — re-read the schedule then; a stale cover figure is a misrepresentation, not a typo.
+- ~~Trade certifications~~ — settled 26 Aug: Crafted Ideas Ltd is **not** itself Gas Safe or NICEIC registered. Gas and electrical work goes to subcontractors who are. The page says exactly that in `#why`, and must keep saying exactly that.
 
 ### Settled 25 Aug 2026
 
