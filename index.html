@@ -486,10 +486,13 @@ html.lenis,html.lenis body{height:auto}
 .gpanel{position:sticky;top:0;height:100svh;overflow:hidden;background:var(--bg2)}
 /* Dwell. With sticky stacking a panel is covered the moment the next one's flow position
    reaches the top, so the space between them is how long it holds the screen. */
-/* Every panel, INCLUDING the last. It used to be excluded, so the ninth project was the only
-   one that never held the screen — the page just carried on scrolling out of it while the other
-   eight each got their dwell. The gallery is a little taller for it; that is the point. */
-.gpanel{margin-bottom:clamp(45vh,60vh,70vh)}
+/* :not(:last-child) is load-bearing. A bottom margin on the LAST panel has nothing to push
+   against inside .gallery — which has no padding, border or overflow — so it collapses straight
+   out of the wrapper and reappears as a gap between this section and the next. Measured: nine
+   panels at 900+540 should make the gallery 12960 tall; it measured 12420, exactly 540 short,
+   and that 540 showed up as a cream strip under the last photograph.
+   Giving the ninth panel a dwell needs padding on .gallery, not margin on the panel. */
+.gpanel:not(:last-child){margin-bottom:clamp(45vh,60vh,70vh)}
 /* No blanket will-change. Nine full-viewport images each hinted for compositing is nine
    permanent GPU layer promotions — around 20MB apiece on a 2x tablet — and the compositor
    starts evicting textures partway down the gallery, which shows up as flickering after the
@@ -1648,15 +1651,16 @@ const easeOut=t=>1-Math.pow(1-t,3);
           /* Every panel is the same box — one CSS rule, no per-panel overrides — so measure
              one of them. Doing it per panel would interleave reads with the style writes
              below and force a fresh layout nine times over on every frame of every scroll. */
-          const H=items[0].pan.offsetHeight||vh, stride=H+gap;
+          const H=items[0].pan.offsetHeight||vh, stride=H+gap, last=items.length-1;
           const panRatio=items[0].pan.offsetWidth/(H||1);
           items.forEach((o,i)=>{
             /* the whole time this panel is on screen: from its first pixel clearing the fold
                to the moment the next one has covered it. Nothing follows the last panel, so it
                is never covered — it leaves by scrolling away instead. */
-            /* Every panel now carries the same dwell margin, so every panel has the same
-               stride. The last one used to be special-cased because it had no margin. */
-            const life=stride+vh;
+            /* The last panel has no dwell margin, so its life is its own height plus a
+               viewport — not the full stride. Getting this wrong makes its caption arrive
+               roughly half a screen late. */
+            const life=(i<last?stride:H)+vh;
             const p=clamp((scrollY-(galTop+i*stride-vh))/life,0,1);
             /* Smootherstep, because a panel owns the screen outright for only the middle fifth
                of that life. A linear ramp would spend most of the travel while the frame is

@@ -69,7 +69,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-40Kz6I+EIeTtPPm6SyiCa72Bp1hPaIDkaDRDbHgbjZo=' 'sha256-Ku+wfNSyChiRcxKai1sU7Ql5BCdXrSqwk5kGMk0vx3Y=' 'sha256-rhsXteFeSPz0K9695ppz6DFeIzQn252xHrTvmWjLQ9w='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com; base-uri 'none'; form-action 'self' https://api.web3forms.com; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'sha256-40Kz6I+EIeTtPPm6SyiCa72Bp1hPaIDkaDRDbHgbjZo=' 'sha256-Ku+wfNSyChiRcxKai1sU7Ql5BCdXrSqwk5kGMk0vx3Y=' 'sha256-gFvXPwjss7jzMQsd4Wlphq0TXj77FHQvBsJxhQ+hsmU='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.web3forms.com; base-uri 'none'; form-action 'self' https://api.web3forms.com; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
         },
         {
           "key": "Strict-Transport-Security",
